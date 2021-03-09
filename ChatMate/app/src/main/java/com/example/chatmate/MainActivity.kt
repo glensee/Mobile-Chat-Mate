@@ -137,4 +137,11 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+    fun NavigateToGame(view: View) {
+        val it = Intent(this, GameActivity::class.java)
+        startActivity(it)
+    }
+
+
 }
