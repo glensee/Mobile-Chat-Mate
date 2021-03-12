@@ -6,11 +6,13 @@ import android.util.Log
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.chatmate.databinding.ActivityGameBinding
 import com.github.bhlangonijr.chesslib.Board
 import com.github.bhlangonijr.chesslib.Piece
 import com.github.bhlangonijr.chesslib.Square
+import com.github.bhlangonijr.chesslib.Square.squareAt
 import com.github.bhlangonijr.chesslib.move.Move
 
 
@@ -137,6 +139,26 @@ class GameActivity : AppCompatActivity() {
                 chessTiles[tileIndex].setBackgroundColor(Color.parseColor("#F6F669"))
                 // Save the Index of the Selected Tile
                 tileSelectedIndex = tileIndex
+                // Check for eligible moves
+                val allLegalMovesCurrent = board.legalMoves()
+                // this is for testing ma code - just want to display stuff
+                val temp = findViewById<TextView>(R.id.textView2)
+                //temp.text = allLegalMovesCurrent.toString()
+                // an empty list to store the selected piece's legal moves later
+                var pieceLegalMovesCurrent = listOf<String>()
+                // iterating through all the legal moves on the board
+                for (eachMove in allLegalMovesCurrent) {
+                    // if legal move is relevant to selected piece
+                    if (Square.squareAt(tileSelectedIndex).toString().toLowerCase() == eachMove.toString().substring(0,2)) {
+                        // add to list of piece's legal moves
+                        pieceLegalMovesCurrent += eachMove.toString().substring(2,4)
+                        // change colour of legal moves
+                        chessTiles[Square.values().indexOf(Square.fromValue(eachMove.toString().substring(2,4).toUpperCase()))].setBackgroundColor(Color.parseColor("#48D1CC"))
+                    }
+                }
+
+                // just for me to test and display stuff
+                temp.text = pieceLegalMovesCurrent.toString()
             }
 
         } else {
@@ -144,7 +166,10 @@ class GameActivity : AppCompatActivity() {
             if(board.doMove(Move(Square.squareAt(tileSelectedIndex), Square.squareAt(tileIndex)))) {
                 renderBoardState()
                 tileSelectedIndex = -1
-            }
+            }// [ 'a2a4', ....] there is a function for piece
+            // Square.squareAt(tileSelectedIndex) tells me a2
+            // filter out legal moves starting with a2
+            // change the legal tiles to something with a dot.
         }
     }
 }

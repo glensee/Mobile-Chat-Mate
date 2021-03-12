@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity() {
 
         // android speech recognition
         binding.btnStt.setOnClickListener {
-            // Get the Intent action
+            // Get the Intent actionc
             val sttIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
             // Language model defines the purpose, there are special models for other use cases, like search.
             sttIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
