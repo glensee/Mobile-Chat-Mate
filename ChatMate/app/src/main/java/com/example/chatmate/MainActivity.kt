@@ -56,36 +56,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // setting request code for android speech recognition intent
-    companion object {
-        private const val REQUEST_CODE_STT = 1
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // set data binding
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        // android speech recognition
-        binding.btnStt.setOnClickListener {
-            // Get the Intent action
-            val sttIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-            // Language model defines the purpose, there are special models for other use cases, like search.
-            sttIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            // Adding an extra language, you can use any language from the Locale class.
-            sttIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
-            // Text that shows up on the Speech input prompt.
-            sttIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak now!")
-            try {
-                // Start the intent for a result, and pass in our request code.
-                startActivityForResult(sttIntent, REQUEST_CODE_STT)
-            } catch (e: ActivityNotFoundException) {
-                // Handling error when the service is not available.
-                e.printStackTrace()
-                Toast.makeText(this, "Your device does not support STT.", Toast.LENGTH_LONG).show()
-            }
-        }
 
         // speechly
         this.button = binding.speechly
@@ -111,31 +87,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         button?.setOnTouchListener(buttonTouchListener)
-
-
-    }
-
-    // overriding method to handle intent from android speech recognition
-    // displays recognized text in text view "inputText"
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            // Handle the result for our request code.
-            REQUEST_CODE_STT -> {
-                // Safety checks to ensure data is available.
-                if (resultCode == Activity.RESULT_OK && data != null) {
-                    // Retrieve the result array.
-                    val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-                    // Ensure result array is not null or empty to avoid errors.
-                    if (!result.isNullOrEmpty()) {
-                        // Recognized text is in the first position.
-                        val recognizedText = result[0]
-                        // Do what you want with the recognized text.
-                        binding.inputText.text = recognizedText.toString()
-                    }
-                }
-            }
-        }
     }
 
     fun NavigateToGame(view: View) {
