@@ -21,15 +21,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
     }
 
-    fun NavigateToHome(view: View) {
-        Log.e("cliffen", "hello")
-        if (binding.name.text.toString().length <= 0) {
-            Toast.makeText(this, "Please enter a name!", Toast.LENGTH_SHORT).show()
-        } else {
-            val it = Intent(this, HomeActivity::class.java)
-            startActivity(it)
-        }
-
+    fun NavigateToGame(view: View) {
+        Log.e("cliffen", "dev mode")
+        val it = Intent(this, GameActivity::class.java)
+        startActivity(it)
     }
 
 

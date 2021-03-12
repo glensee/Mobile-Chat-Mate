@@ -4,34 +4,34 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".HomeActivity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@drawable/main_background">
 
     <TextView
         android:id="@+id/text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Welcome to ChatMate!"
         android:layout_gravity="center"
-        android:gravity="center"
-        android:layout_marginTop="150sp"
-        android:textSize="@android:dimen/app_icon_size"/>
-
-    <EditText
-        android:id="@+id/name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:layout_marginTop="50sp"
-        android:hint="Enter your name"
-        android:gravity="center"/>
+        android:gravity="center"
+        android:text="Welcome to ChatMate!"
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        android:fontFamily="sans-serif-light"/>
+
+
+    <fragment
+        android:id="@+id/LoginFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:name="com.example.chatmate.LoginFragment"
+        android:layout_weight="1"/>
 
     <Button
-        android:id="@+id/enter"
-        android:layout_width="wrap_content"
+        android:id="@+id/goToGame"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Enter"
-        android:layout_marginTop="150sp"
-        android:onClick="NavigateToHome"/>
-
+        android:text="Go to Game (Dev)"
+        android:onClick="NavigateToGame"/>
 
 </LinearLayout>
