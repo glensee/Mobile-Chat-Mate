@@ -7,10 +7,17 @@
     tools:context=".MainActivity"
     android:orientation="vertical">
     <Button
-        android:id="@+id/btnStt"
-        android:layout_width="wrap_content"
+        android:id="@+id/createRoom"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Tap to talk"
+        android:text="Create room"
+        android:layout_gravity="center"
+        android:layout_marginTop="50sp" />
+    <Button
+        android:id="@+id/joinRoom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Join a room"
         android:layout_gravity="center"
         android:layout_marginTop="50sp" />
     <TextView
