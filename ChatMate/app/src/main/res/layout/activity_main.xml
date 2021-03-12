@@ -1,51 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
+    tools:context=".HomeActivity"
     android:orientation="vertical">
-    <Button
-        android:id="@+id/createRoom"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Create room"
-        android:layout_gravity="center"
-        android:layout_marginTop="50sp" />
-    <Button
-        android:id="@+id/joinRoom"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Join a room"
-        android:layout_gravity="center"
-        android:layout_marginTop="50sp" />
+
     <TextView
-        android:id="@+id/inputText"
+        android:id="@+id/text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Welcome to ChatMate!"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_marginTop="150sp"
+        android:textSize="@android:dimen/app_icon_size"/>
+
+    <EditText
+        android:id="@+id/name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50sp"
+        android:hint="Enter your name"
+        android:gravity="center"/>
+
+    <Button
+        android:id="@+id/enter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         android:layout_gravity="center"
-        android:layout_marginTop="200sp"
-        android:text="Speak, little one."/>
-
-    <com.speechly.ui.SpeechlyButton
-        android:id="@+id/speechly"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_gravity="bottom|center"
-        android:padding="26dp"
-        android:layout_marginTop="100sp"/>
-
-    <Button
-        android:id="@+id/button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Play"
-        android:onClick="NavigateToGame"/>
+        android:text="Enter"
+        android:layout_marginTop="150sp"
+        android:onClick="NavigateToHome"/>
 
 
 </LinearLayout>
