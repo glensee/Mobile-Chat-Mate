@@ -3,23 +3,32 @@ package com.example.chatmate
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.MotionEvent
+import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.chatmate.databinding.ActivityGameBinding
 import com.github.bhlangonijr.chesslib.Board
 import com.github.bhlangonijr.chesslib.Piece
 import com.github.bhlangonijr.chesslib.Square
-import com.github.bhlangonijr.chesslib.Square.fromValue
-import com.github.bhlangonijr.chesslib.Square.squareAt
 import com.github.bhlangonijr.chesslib.move.Move
+import com.speechly.client.slu.Segment
+import com.speechly.client.speech.Client
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.util.UUID
+import kotlin.collections.ArrayList
 
 
 class GameActivity : AppCompatActivity() {
     private lateinit var gameBinding: ActivityGameBinding
     private lateinit var board: Board
+    val speechlyClient: Client = Client.fromActivity(activity = this, appId = UUID.fromString("8a313e01-b0f3-4e6f-94a9-67cd65433135"))
+    private lateinit var prevSegment: Segment
     // Keeps track of all generated Image Button Tiles
     private val chessTiles = ArrayList<ImageButton>()
     private var tileSelectedIndex = -1
@@ -31,12 +40,50 @@ class GameActivity : AppCompatActivity() {
         gameBinding = ActivityGameBinding.inflate(layoutInflater)
         setContentView(gameBinding.root)
 
+        // Assign Voice Command Listener to Button
+        gameBinding.voiceCommandBtn.setOnTouchListener(voiceCommandButtonTouchListener)
+        GlobalScope.launch(Dispatchers.Default) {
+            speechlyClient.onSegmentChange { segment: Segment ->
+                val transcript: String = segment.words.values.map{it.value}.joinToString(" ")
+                GlobalScope.launch(Dispatchers.Main) {
+                    gameBinding.voiceResultTextField.setText("${transcript}")
+                    try {
+                        if (segment.words.values.size >= 5) {
+                            movePieceWithVoiceCommand(transcript)
+                        }
+                    } catch(error: Error) {
+                        Log.d("ERROR", error.toString())
+                    }
+                }
+            }
+        }
+
         // Generate a new board
         board = Board()
         // Create Image button tiles in the layout
         generateChessBoardTileButtons()
         // Set the Image in the Image button based on pieces in board class
         renderBoardState()
+        // Set All Current Legal Moves
+        currentLegalMoves.addAll(board.legalMoves())
+    }
+
+    private var voiceCommandButtonTouchListener = object : View.OnTouchListener {
+        override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+            when (event?.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    gameBinding.voiceResultTextField.text = ""
+                    speechlyClient.startContext()
+                }
+                MotionEvent.ACTION_UP -> {
+                    speechlyClient.stopContext()
+                    GlobalScope.launch(Dispatchers.Default) {
+                        delay(500)
+                    }
+                }
+            }
+            return true
+        }
     }
 
     private fun generateChessBoardTileButtons () {
@@ -125,7 +172,7 @@ class GameActivity : AppCompatActivity() {
             }
         }
 
-        gameBinding.textView.text = board.toString()
+        gameBinding.turnChip.text = " ${board.sideToMove.toString().toLowerCase().capitalize()}'s Turn"
     }
 
     private fun selectTileAtIndex (tileIndex: Int) {
@@ -144,6 +191,7 @@ class GameActivity : AppCompatActivity() {
                 // Check for eligible moves
                 val allLegalMovesCurrent = board.legalMoves()
                 // iterating through all the legal moves on the board
+                currentLegalMoves.clear()
                 for (eachMove in allLegalMovesCurrent) {
                     // if legal move is relevant to selected piece
                     if (Square.squareAt(tileSelectedIndex).toString().toLowerCase() == eachMove.toString().substring(0,2)) {
@@ -162,15 +210,30 @@ class GameActivity : AppCompatActivity() {
                 renderBoardState()
                 return
             }
-
-            // Check if New Move is Legal
+            // Check New Move Object
             val newMove = Move(Square.squareAt(tileSelectedIndex),Square.squareAt(tileIndex))
+            // Check if New Move is Legal
             if(newMove in currentLegalMoves) {
                 board.doMove(newMove)
                 renderBoardState()
                 tileSelectedIndex = -1
                 afterMoveHandler()
             }
+        }
+    }
+
+    private fun movePieceWithVoiceCommand(command: String){
+        Log.d("MOVE EXECUTE", "MOVE EXECUTED")
+        
+        // Check is Move
+        val newMove = Move(Square.fromValue("D2"), Square.fromValue("D4"))
+        // Check if New Move is Legal
+        if(newMove in currentLegalMoves) {
+            board.doMove(newMove)
+            renderBoardState()
+            currentLegalMoves.clear()
+            currentLegalMoves.addAll(board.legalMoves())
+            afterMoveHandler()
         }
     }
 
