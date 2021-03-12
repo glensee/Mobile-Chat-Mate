@@ -40,7 +40,7 @@ class LoginFragment : Fragment(), View.OnClickListener {
                 ).text.toString().length <= 0
             ) {
                 Log.e("cliffen", "No name entered")
-                Toast.makeText(act, "Please enter username or password!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(act, "Please enter username and password!", Toast.LENGTH_SHORT).show()
             } else {
                 Log.i("cliffen", "we made it!!")
                 val it = Intent(act, HomeActivity::class.java)
