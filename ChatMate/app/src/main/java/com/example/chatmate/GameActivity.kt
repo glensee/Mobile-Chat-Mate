@@ -12,17 +12,19 @@ import com.example.chatmate.databinding.ActivityGameBinding
 import com.github.bhlangonijr.chesslib.Board
 import com.github.bhlangonijr.chesslib.Piece
 import com.github.bhlangonijr.chesslib.Square
+import com.github.bhlangonijr.chesslib.Square.fromValue
 import com.github.bhlangonijr.chesslib.Square.squareAt
 import com.github.bhlangonijr.chesslib.move.Move
 
 
 class GameActivity : AppCompatActivity() {
-    private val checkPattern = arrayListOf<Int>(0,2,4,6,9,11,13,15,16,18,20,22,25,27,29,31,32,34,36,38,41,43,45,47,48,50,52,54,57,59,61,63)
     private lateinit var gameBinding: ActivityGameBinding
     private lateinit var board: Board
     // Keeps track of all generated Image Button Tiles
     private val chessTiles = ArrayList<ImageButton>()
     private var tileSelectedIndex = -1
+    // List of Legal Moves for Current Turn
+    private val currentLegalMoves = ArrayList<Move>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -116,10 +118,10 @@ class GameActivity : AppCompatActivity() {
             }
 
             // Set the Background for Image Button
-            if (i in checkPattern) {
-                chessTile.setBackgroundColor(Color.parseColor("#769656"))
-            } else {
+            if (Square.squareAt(i).isLightSquare) {
                 chessTile.setBackgroundColor(Color.parseColor("#EEEED2"))
+            } else {
+                chessTile.setBackgroundColor(Color.parseColor("#769656"))
             }
         }
 
@@ -141,35 +143,51 @@ class GameActivity : AppCompatActivity() {
                 tileSelectedIndex = tileIndex
                 // Check for eligible moves
                 val allLegalMovesCurrent = board.legalMoves()
-                // this is for testing ma code - just want to display stuff
-                val temp = findViewById<TextView>(R.id.textView2)
-                //temp.text = allLegalMovesCurrent.toString()
-                // an empty list to store the selected piece's legal moves later
-                var pieceLegalMovesCurrent = listOf<String>()
                 // iterating through all the legal moves on the board
                 for (eachMove in allLegalMovesCurrent) {
                     // if legal move is relevant to selected piece
                     if (Square.squareAt(tileSelectedIndex).toString().toLowerCase() == eachMove.toString().substring(0,2)) {
                         // add to list of piece's legal moves
-                        pieceLegalMovesCurrent += eachMove.toString().substring(2,4)
+                        currentLegalMoves.add(eachMove)
                         // change colour of legal moves
-                        chessTiles[Square.values().indexOf(Square.fromValue(eachMove.toString().substring(2,4).toUpperCase()))].setBackgroundColor(Color.parseColor("#48D1CC"))
+                        chessTiles[Square.values().indexOf(eachMove.to)].setBackgroundColor(Color.parseColor("#48D1CC"))
                     }
                 }
-
-                // just for me to test and display stuff
-                temp.text = pieceLegalMovesCurrent.toString()
             }
 
         } else {
-            // Chess Piece Previously Selected
-            if(board.doMove(Move(Square.squareAt(tileSelectedIndex), Square.squareAt(tileIndex)))) {
+            // Check if Selected tile is same as previous
+            if (tileIndex == tileSelectedIndex) {
+                tileSelectedIndex = -1
+                renderBoardState()
+                return
+            }
+
+            // Check if New Move is Legal
+            val newMove = Move(Square.squareAt(tileSelectedIndex),Square.squareAt(tileIndex))
+            if(newMove in currentLegalMoves) {
+                board.doMove(newMove)
                 renderBoardState()
                 tileSelectedIndex = -1
-            }// [ 'a2a4', ....] there is a function for piece
-            // Square.squareAt(tileSelectedIndex) tells me a2
-            // filter out legal moves starting with a2
-            // change the legal tiles to something with a dot.
+                afterMoveHandler()
+            }
+        }
+    }
+
+    private fun afterMoveHandler() {
+        if (board.isMated) {
+
+        } else if (board.isDraw) {
+            if (board.isRepetition) {
+
+            } else if (board.isInsufficientMaterial) {
+
+            } else if (board.halfMoveCounter >= 100) {
+
+            }
+            else if (board.isStaleMate){
+
+            }
         }
     }
 }
