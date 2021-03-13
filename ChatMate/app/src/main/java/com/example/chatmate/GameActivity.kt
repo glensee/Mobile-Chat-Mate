@@ -8,6 +8,7 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.chatmate.databinding.ActivityGameBinding
 import com.github.bhlangonijr.chesslib.Board
@@ -20,7 +21,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.UUID
+import java.lang.Exception
+import java.util.*
 import kotlin.collections.ArrayList
 
 
@@ -44,9 +46,10 @@ class GameActivity : AppCompatActivity() {
         gameBinding.voiceCommandBtn.setOnTouchListener(voiceCommandButtonTouchListener)
         GlobalScope.launch(Dispatchers.Default) {
             speechlyClient.onSegmentChange { segment: Segment ->
-                val transcript: String = segment.words.values.map{it.value}.joinToString(" ")
+                val transcript = segment.words.values.map{it.value}.joinToString(" ")
                 GlobalScope.launch(Dispatchers.Main) {
-                    gameBinding.voiceResultTextField.setText("${transcript}")
+                    gameBinding.voiceResultTextField.text = transcript
+                    Log.d("DEBUG", transcript)
                     try {
                         if (segment.words.values.size >= 5) {
                             movePieceWithVoiceCommand(transcript)
@@ -172,7 +175,7 @@ class GameActivity : AppCompatActivity() {
             }
         }
 
-        gameBinding.turnChip.text = " ${board.sideToMove.toString().toLowerCase().capitalize()}'s Turn"
+        gameBinding.turnChip.text = " ${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}'s Turn"
     }
 
     private fun selectTileAtIndex (tileIndex: Int) {
@@ -194,7 +197,7 @@ class GameActivity : AppCompatActivity() {
                 currentLegalMoves.clear()
                 for (eachMove in allLegalMovesCurrent) {
                     // if legal move is relevant to selected piece
-                    if (Square.squareAt(tileSelectedIndex).toString().toLowerCase() == eachMove.toString().substring(0,2)) {
+                    if (Square.squareAt(tileSelectedIndex).toString().toLowerCase(Locale.ENGLISH) == eachMove.toString().substring(0,2)) {
                         // add to list of piece's legal moves
                         currentLegalMoves.add(eachMove)
                         // change colour of legal moves
@@ -223,18 +226,48 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun movePieceWithVoiceCommand(command: String){
-        Log.d("MOVE EXECUTE", "MOVE EXECUTED")
-        
-        // Check is Move
-        val newMove = Move(Square.fromValue("D2"), Square.fromValue("D4"))
-        // Check if New Move is Legal
-        if(newMove in currentLegalMoves) {
-            board.doMove(newMove)
-            renderBoardState()
-            currentLegalMoves.clear()
-            currentLegalMoves.addAll(board.legalMoves())
-            afterMoveHandler()
+        try {
+            // Convert Command to a Move
+            val commandSegments  = command.split(" TO ")
+            if (commandSegments.size != 2) throw Error("Invalid Command")
+            val from = Square.fromValue(commandSegments[0].split(" ")[0] + wordToNumber(commandSegments[0].split(" ")[1]))
+            val to = Square.fromValue(commandSegments[1].split(" ")[0] + wordToNumber(commandSegments[1].split(" ")[1]))
+            if (from !in Square.values()) throw Error("Invalid Command")
+            if (to !in Square.values()) throw Error("Invalid Command")
+
+            val newMove = Move(from, to)
+            // Check if New Move is Legal
+            if(newMove in currentLegalMoves) {
+                Log.d("newMove", newMove.toString())
+                Log.d("legalMoves", currentLegalMoves.toString())
+                board.doMove(newMove)
+                renderBoardState()
+                currentLegalMoves.clear()
+                currentLegalMoves.addAll(board.legalMoves())
+                afterMoveHandler()
+            } else {
+                throw Error("Invalid Command")
+            }
+        } catch (error: Error) {
+            Toast.makeText(this, "Invalid Command. Please Try Again", Toast.LENGTH_SHORT)
+        } catch (error: Exception) {
+            Toast.makeText(this, "Invalid Command. Please Try Again", Toast.LENGTH_SHORT)
         }
+    }
+
+    private fun wordToNumber(word: String): Int {
+        return when(word){
+            "ONE" -> 1
+            "TWO" -> 2
+            "THREE" -> 3
+            "FOUR" -> 4
+            "FIVE" -> 5
+            "SIX" -> 6
+            "SEVEN" -> 7
+            "EIGHT" -> 8
+            else -> 0
+        }
+
     }
 
     private fun afterMoveHandler() {
