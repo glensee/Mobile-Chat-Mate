@@ -19,7 +19,16 @@
         android:layout_height="wrap_content"
         android:text="Join a room"
         android:layout_gravity="center"
-        android:layout_marginTop="50sp" />
+        android:layout_marginTop="30sp" />
+
+    <TextView
+        android:id="@+id/username"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Hello"
+        android:gravity= "center"
+        android:layout_marginTop="50sp"/>
+
     <TextView
         android:id="@+id/inputText"
         android:layout_width="wrap_content"
@@ -46,6 +55,8 @@
         android:layout_height="wrap_content"
         android:text="Play"
         android:onClick="NavigateToGame"/>
+
+
 
 
 </LinearLayout>

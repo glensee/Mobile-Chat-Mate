@@ -5,8 +5,10 @@ import android.os.Bundle
 import com.example.chatmate.databinding.ActivityHomeBinding
 import android.app.Activity
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.preference.PreferenceManager
 import android.speech.RecognizerIntent
 import android.util.Log
 import android.view.MotionEvent
@@ -62,6 +64,12 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // display username
+        val sharedPref = getPreferences(Context.MODE_PRIVATE) ?: return
+        val username = sharedPref.getString("username", "unnamed user")
+
+        binding.username.text = username
 
         // speechly
         this.button = binding.speechly
