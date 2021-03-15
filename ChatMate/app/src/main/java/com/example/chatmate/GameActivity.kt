@@ -3,31 +3,63 @@ package com.example.chatmate
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.MotionEvent
+import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.chatmate.databinding.ActivityGameBinding
 import com.github.bhlangonijr.chesslib.Board
 import com.github.bhlangonijr.chesslib.Piece
 import com.github.bhlangonijr.chesslib.Square
-import com.github.bhlangonijr.chesslib.Square.squareAt
 import com.github.bhlangonijr.chesslib.move.Move
+import com.speechly.client.slu.Segment
+import com.speechly.client.speech.Client
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.lang.Exception
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class GameActivity : AppCompatActivity() {
-    private val checkPattern = arrayListOf<Int>(0,2,4,6,9,11,13,15,16,18,20,22,25,27,29,31,32,34,36,38,41,43,45,47,48,50,52,54,57,59,61,63)
     private lateinit var gameBinding: ActivityGameBinding
     private lateinit var board: Board
+    val speechlyClient: Client = Client.fromActivity(activity = this, appId = UUID.fromString("8a313e01-b0f3-4e6f-94a9-67cd65433135"))
+    private lateinit var prevSegment: Segment
     // Keeps track of all generated Image Button Tiles
     private val chessTiles = ArrayList<ImageButton>()
     private var tileSelectedIndex = -1
+    // List of Legal Moves for Current Turn
+    private val currentLegalMoves = ArrayList<Move>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         gameBinding = ActivityGameBinding.inflate(layoutInflater)
         setContentView(gameBinding.root)
+
+        // Assign Voice Command Listener to Button
+        gameBinding.voiceCommandBtn.setOnTouchListener(voiceCommandButtonTouchListener)
+        GlobalScope.launch(Dispatchers.Default) {
+            speechlyClient.onSegmentChange { segment: Segment ->
+                val transcript = segment.words.values.map{it.value}.joinToString(" ")
+                GlobalScope.launch(Dispatchers.Main) {
+                    gameBinding.voiceResultTextField.text = transcript
+                    Log.d("DEBUG", transcript)
+                    try {
+                        if (segment.words.values.size >= 5) {
+                            movePieceWithVoiceCommand(transcript)
+                        }
+                    } catch(error: Error) {
+                        Log.d("ERROR", error.toString())
+                    }
+                }
+            }
+        }
 
         // Generate a new board
         board = Board()
@@ -35,6 +67,26 @@ class GameActivity : AppCompatActivity() {
         generateChessBoardTileButtons()
         // Set the Image in the Image button based on pieces in board class
         renderBoardState()
+        // Set All Current Legal Moves
+        currentLegalMoves.addAll(board.legalMoves())
+    }
+
+    private var voiceCommandButtonTouchListener = object : View.OnTouchListener {
+        override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+            when (event?.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    gameBinding.voiceResultTextField.text = ""
+                    speechlyClient.startContext()
+                }
+                MotionEvent.ACTION_UP -> {
+                    speechlyClient.stopContext()
+                    GlobalScope.launch(Dispatchers.Default) {
+                        delay(500)
+                    }
+                }
+            }
+            return true
+        }
     }
 
     private fun generateChessBoardTileButtons () {
@@ -116,14 +168,14 @@ class GameActivity : AppCompatActivity() {
             }
 
             // Set the Background for Image Button
-            if (i in checkPattern) {
-                chessTile.setBackgroundColor(Color.parseColor("#769656"))
-            } else {
+            if (Square.squareAt(i).isLightSquare) {
                 chessTile.setBackgroundColor(Color.parseColor("#EEEED2"))
+            } else {
+                chessTile.setBackgroundColor(Color.parseColor("#769656"))
             }
         }
 
-        gameBinding.textView.text = board.toString()
+        gameBinding.turnChip.text = " ${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}'s Turn"
     }
 
     private fun selectTileAtIndex (tileIndex: Int) {
@@ -141,35 +193,97 @@ class GameActivity : AppCompatActivity() {
                 tileSelectedIndex = tileIndex
                 // Check for eligible moves
                 val allLegalMovesCurrent = board.legalMoves()
-                // this is for testing ma code - just want to display stuff
-                val temp = findViewById<TextView>(R.id.textView2)
-                //temp.text = allLegalMovesCurrent.toString()
-                // an empty list to store the selected piece's legal moves later
-                var pieceLegalMovesCurrent = listOf<String>()
                 // iterating through all the legal moves on the board
+                currentLegalMoves.clear()
                 for (eachMove in allLegalMovesCurrent) {
                     // if legal move is relevant to selected piece
-                    if (Square.squareAt(tileSelectedIndex).toString().toLowerCase() == eachMove.toString().substring(0,2)) {
+                    if (Square.squareAt(tileSelectedIndex).toString().toLowerCase(Locale.ENGLISH) == eachMove.toString().substring(0,2)) {
                         // add to list of piece's legal moves
-                        pieceLegalMovesCurrent += eachMove.toString().substring(2,4)
+                        currentLegalMoves.add(eachMove)
                         // change colour of legal moves
-                        chessTiles[Square.values().indexOf(Square.fromValue(eachMove.toString().substring(2,4).toUpperCase()))].setBackgroundColor(Color.parseColor("#48D1CC"))
+                        chessTiles[Square.values().indexOf(eachMove.to)].setBackgroundColor(Color.parseColor("#48D1CC"))
                     }
                 }
-
-                // just for me to test and display stuff
-                temp.text = pieceLegalMovesCurrent.toString()
             }
 
         } else {
-            // Chess Piece Previously Selected
-            if(board.doMove(Move(Square.squareAt(tileSelectedIndex), Square.squareAt(tileIndex)))) {
+            // Check if Selected tile is same as previous
+            if (tileIndex == tileSelectedIndex) {
+                tileSelectedIndex = -1
+                renderBoardState()
+                return
+            }
+            // Check New Move Object
+            val newMove = Move(Square.squareAt(tileSelectedIndex),Square.squareAt(tileIndex))
+            // Check if New Move is Legal
+            if(newMove in currentLegalMoves) {
+                board.doMove(newMove)
                 renderBoardState()
                 tileSelectedIndex = -1
-            }// [ 'a2a4', ....] there is a function for piece
-            // Square.squareAt(tileSelectedIndex) tells me a2
-            // filter out legal moves starting with a2
-            // change the legal tiles to something with a dot.
+                afterMoveHandler()
+            }
+        }
+    }
+
+    private fun movePieceWithVoiceCommand(command: String){
+        try {
+            // Convert Command to a Move
+            val commandSegments  = command.split(" TO ")
+            if (commandSegments.size != 2) throw Error("Invalid Command")
+            val from = Square.fromValue(commandSegments[0].split(" ")[0] + wordToNumber(commandSegments[0].split(" ")[1]))
+            val to = Square.fromValue(commandSegments[1].split(" ")[0] + wordToNumber(commandSegments[1].split(" ")[1]))
+            if (from !in Square.values()) throw Error("Invalid Command")
+            if (to !in Square.values()) throw Error("Invalid Command")
+
+            val newMove = Move(from, to)
+            // Check if New Move is Legal
+            if(newMove in currentLegalMoves) {
+                Log.d("newMove", newMove.toString())
+                Log.d("legalMoves", currentLegalMoves.toString())
+                board.doMove(newMove)
+                renderBoardState()
+                currentLegalMoves.clear()
+                currentLegalMoves.addAll(board.legalMoves())
+                afterMoveHandler()
+            } else {
+                throw Error("Invalid Command")
+            }
+        } catch (error: Error) {
+            Toast.makeText(this, "Invalid Command. Please Try Again", Toast.LENGTH_SHORT)
+        } catch (error: Exception) {
+            Toast.makeText(this, "Invalid Command. Please Try Again", Toast.LENGTH_SHORT)
+        }
+    }
+
+    private fun wordToNumber(word: String): Int {
+        return when(word){
+            "ONE" -> 1
+            "TWO" -> 2
+            "THREE" -> 3
+            "FOUR" -> 4
+            "FIVE" -> 5
+            "SIX" -> 6
+            "SEVEN" -> 7
+            "EIGHT" -> 8
+            else -> 0
+        }
+
+    }
+
+    private fun afterMoveHandler() {
+        if (board.isMated) {
+
+        } else if (board.isDraw) {
+            if (board.isRepetition) {
+
+            } else if (board.isInsufficientMaterial) {
+
+            } else if (board.halfMoveCounter >= 100) {
+
+            }
+            else if (board.isStaleMate){
+
+            }
         }
     }
 }
