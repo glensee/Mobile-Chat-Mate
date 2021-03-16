@@ -11,7 +11,12 @@ android {
         viewBinding = true
     }
 
-    
+    configurations {
+        implementation.exclude module:'proto-google-common-protos'
+        implementation.exclude module:'protolite-well-known-types'
+        implementation.exclude module:'protobuf-javalite'
+    }
+
     defaultConfig {
         applicationId "com.example.chatmate"
         minSdkVersion 26
