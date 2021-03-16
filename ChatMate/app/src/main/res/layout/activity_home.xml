@@ -41,13 +41,13 @@
         android:layout_marginTop="200sp"
         android:text="Speak, little one."/>
 
-<!--    <com.speechly.ui.SpeechlyButton-->
-<!--        android:id="@+id/speechly"-->
-<!--        android:layout_width="100dp"-->
-<!--        android:layout_height="100dp"-->
-<!--        android:layout_gravity="bottom|center"-->
-<!--        android:padding="26dp"-->
-<!--        android:layout_marginTop="100sp"/>-->
+    <com.speechly.ui.SpeechlyButton
+        android:id="@+id/speechly"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="bottom|center"
+        android:padding="26dp"
+        android:layout_marginTop="100sp"/>
 
     <Button
         android:id="@+id/button"
