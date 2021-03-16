@@ -17,6 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import java.io.FileOutputStream
+import java.util.*
 
 class LoginFragment : Fragment(), View.OnClickListener {
 
@@ -47,21 +48,30 @@ class LoginFragment : Fragment(), View.OnClickListener {
         if (act != null) {
             // get username and password
             val username = act.findViewById<EditText>(R.id.name).text.toString().trim()
-            val password = act.findViewById<EditText>(R.id.password).text.toString().trim()
 
             // if username or password empty
-            if (username.length <= 0 || password.length <= 0) {
+            if (username.length <= 0) {
                 Toast.makeText(act, "Please enter username and password!", Toast.LENGTH_SHORT)
                     .show()
             } else {
                 //TODO: check for validity of username and password
+                val uuid = UUID.randomUUID()
 
-                // set button text to be "logging in"
-                val loginButton = act.findViewById<Button>(R.id.enter)
-                loginButton.text = "LOGGING IN"
-                loginButton.isEnabled = false
+                // Create a new user with a first and last name
+                val player = hashMapOf(
+                    "name" to username,
+                    "id" to uuid
+                )
 
-
+                // Add a new document with a generated ID
+                db.collection("users")
+                    .add(player)
+                    .addOnSuccessListener { documentReference ->
+                        Log.d("cliffen", "DocumentSnapshot added with ID: ${documentReference.id}")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("cliffen", "Error adding document", e)
+                    }
             }
         }
     }

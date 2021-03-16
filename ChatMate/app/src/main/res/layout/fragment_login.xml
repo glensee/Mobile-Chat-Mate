@@ -19,21 +19,7 @@
         android:layout_marginTop="50sp"
         android:gravity="start"
         android:hint="Username"
-        android:textColorHint="#D3D3D3"
-        android:textColor="#D3D3D3"/>
-
-    <EditText
-        android:id="@+id/password"
-        android:layout_width="250sp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="30sp"
-        android:gravity="start"
-        android:hint="Password"
-        android:inputType="textPassword"
-        android:textColor="#D3D3D3"
-        android:textColorHint="#D3D3D3"/>
-
+        android:textColor="@color/black"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/enter"
@@ -47,16 +33,5 @@
         app:cornerRadius="20sp"
         app:strokeColor="#FF69B4"
         app:backgroundTint="#FF69B4"/>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/SignUp"
-        style="@style/Widget.AppCompat.Button.Borderless"
-        android:layout_width="250sp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Register"
-        android:textAllCaps="false"
-        android:layout_marginTop="10sp"/>
-
 
 </LinearLayout>
