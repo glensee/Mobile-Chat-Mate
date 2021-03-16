@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "504528433125",
-    "project_id": "chatmate-940b9",
-    "storage_bucket": "chatmate-940b9.appspot.com"
+    "project_number": "564021831311",
+    "project_id": "chatmate-9166d",
+    "storage_bucket": "chatmate-9166d.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:504528433125:android:440bd58f8e10b579db090c",
+        "mobilesdk_app_id": "1:564021831311:android:22de223830a31f29d8b2fa",
         "android_client_info": {
           "package_name": "com.example.chatmate"
         }
       },
       "oauth_client": [
         {
-          "client_id": "504528433125-j6d6s1kjiv5tb7unajkat2lm9kk6aq0h.apps.googleusercontent.com",
+          "client_id": "564021831311-mp1paqrophn91ikcujiltan9h0h73v23.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBjcncsScKfuQPVBF3U95UU68dMypTeWq0"
+          "current_key": "AIzaSyACLa0J65-ecHBtcs1RJu1M4FK6OxHixeU"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "504528433125-j6d6s1kjiv5tb7unajkat2lm9kk6aq0h.apps.googleusercontent.com",
+              "client_id": "564021831311-mp1paqrophn91ikcujiltan9h0h73v23.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

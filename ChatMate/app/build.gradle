@@ -11,6 +11,7 @@ android {
         viewBinding = true
     }
 
+    
     defaultConfig {
         applicationId "com.example.chatmate"
         minSdkVersion 26
@@ -55,5 +56,6 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     implementation platform('com.google.firebase:firebase-bom:26.7.0')
-    implementation 'com.google.firebase:firebase-database-ktx'
+    implementation 'com.google.firebase:firebase-firestore-ktx'
+    implementation 'com.google.firebase:firebase-analytics-ktx'
 }
