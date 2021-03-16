@@ -9,8 +9,6 @@
     tools:context=".LoginFragment"
     android:background="@android:color/transparent">
 
-    <!-- TODO: Update blank fragment layout -->
-
     <EditText
         android:id="@+id/name"
         android:layout_width="250sp"

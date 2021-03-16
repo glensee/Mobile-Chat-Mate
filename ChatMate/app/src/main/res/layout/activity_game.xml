@@ -34,13 +34,13 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:text="White's Turn"/>
-        <com.speechly.ui.SpeechlyButton
-            android:id="@+id/voiceCommandBtn"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_gravity="center"
-            android:padding="20dp"
-            android:layout_margin="20dp" />
+<!--        <com.speechly.ui.SpeechlyButton-->
+<!--            android:id="@+id/voiceCommandBtn"-->
+<!--            android:layout_width="100dp"-->
+<!--            android:layout_height="100dp"-->
+<!--            android:layout_gravity="center"-->
+<!--            android:padding="20dp"-->
+<!--            android:layout_margin="20dp" />-->
         <TextView
             android:id="@+id/voiceResultTextField"
             android:layout_width="wrap_content"

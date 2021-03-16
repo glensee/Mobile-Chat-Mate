@@ -39,6 +39,7 @@ class LoginFragment : Fragment(), View.OnClickListener {
             val loginButton = act.findViewById<Button>(R.id.enter)
             loginButton.setOnClickListener(this)
             db = Firebase.firestore
+            FirebaseFirestore.setLoggingEnabled(true)
         }
     }
 
@@ -55,22 +56,23 @@ class LoginFragment : Fragment(), View.OnClickListener {
                     .show()
             } else {
                 //TODO: check for validity of username and password
+                Log.d("cliffen", "adding to firestore")
                 val uuid = UUID.randomUUID()
-
+                Log.d("uuid", uuid.toString())
                 // Create a new user with a first and last name
                 val player = hashMapOf(
                     "name" to username,
-                    "id" to uuid
+                    "id" to uuid.toString()
                 )
 
                 // Add a new document with a generated ID
-                db.collection("users")
+                db.collection("players")
                     .add(player)
                     .addOnSuccessListener { documentReference ->
                         Log.d("cliffen", "DocumentSnapshot added with ID: ${documentReference.id}")
                     }
                     .addOnFailureListener { e ->
-                        Log.w("cliffen", "Error adding document", e)
+                        Log.d("cliffen", "Error adding document", e)
                     }
             }
         }
