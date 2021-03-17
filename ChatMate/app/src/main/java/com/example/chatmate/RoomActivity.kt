@@ -76,10 +76,20 @@ class RoomActivity : AppCompatActivity() {
                 viewOwnerStatus.text = "Status: " + ownerStatus
                 viewPlayerStatus.text = "Status: " + playerStatus
 
+                // change gameButton text
                 if (playerStatus == "ready" && identity == "owner") {
                     gameButton.text = "start game"
                 }
 
+                if (identity == "player") {
+                    if (playerStatus == "ready") {
+                        gameButton.text = "unready"
+                    } else {
+                        gameButton.text = "ready"
+                    }
+                }
+
+                // start game if both ready
                 if (ownerStatus == "ready" && playerStatus == "ready" && matchStarted) {
                     val it = Intent(this, GameActivity::class.java)
                     it.putExtra("roomId", roomId)
