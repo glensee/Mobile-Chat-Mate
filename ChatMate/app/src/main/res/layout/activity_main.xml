@@ -38,13 +38,6 @@
         android:text="Enter"
         style="@style/Widget.MaterialComponents.Button" />
 
-<!--    <Button-->
-<!--        android:id="@+id/delete"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Delete user"-->
-<!--        android:onClick="deleteUser"-->
-<!--        android:layout_marginTop="20sp"/>-->
 
     <Button
         android:id="@+id/goToGame"

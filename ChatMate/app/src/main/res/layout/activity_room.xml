@@ -7,18 +7,40 @@
     tools:context=".RoomActivity"
     android:orientation="vertical">
 
-    <Button
-        android:id="@+id/createRoom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="create room"
-        android:layout_gravity="center"
-        android:layout_marginTop="50sp"
-        android:onClick="createRoom"/>
-
-    <ListView
-        android:id="@+id/rooms"
+    <TextView
+        android:id="@+id/title"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50sp"
+        android:text="My Room"
+        android:gravity="center"
+        android:textSize="30sp"/>
+
+    <TextView
+        android:id="@+id/player1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50sp"
+        android:text="Player 1: "
+        android:gravity="center"
+        android:textSize="30sp"/>
+
+    <TextView
+        android:id="@+id/player2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50sp"
+        android:text="Player 2: "
+        android:gravity="center"
+        android:textSize="30sp"/>
+
+    <TextView
+        android:id="@+id/roomId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50sp"
+        android:text="Room ID: "
+        android:gravity="center"
+        android:textSize="30sp"/>
 
 </LinearLayout>
