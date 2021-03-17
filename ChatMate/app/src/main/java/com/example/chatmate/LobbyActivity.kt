@@ -5,8 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.AdapterView.OnItemClickListener
 import android.widget.ArrayAdapter
-import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.chatmate.databinding.ActivityLobbyBinding
 import com.google.firebase.firestore.*
@@ -21,6 +21,7 @@ class LobbyActivity : AppCompatActivity() {
     private lateinit var roomRef: CollectionReference
     private lateinit var roomsAdapter:ArrayAdapter<String>
     private var roomList = ArrayList<String>()
+    private var roomIdList = ArrayList<String>()
     private var playerName = ""
     private var uuid = ""
 
@@ -49,6 +50,7 @@ class LobbyActivity : AppCompatActivity() {
 
             if (snapshot != null) {
                 var tempRoomList = ArrayList<String>()
+                var tempRoomIdList = ArrayList<String>()
                 var snapshotDocuments = snapshot.documents
                 if (snapshotDocuments !== null) {
                     for (documentSnapshot in snapshotDocuments) {
@@ -56,6 +58,7 @@ class LobbyActivity : AppCompatActivity() {
                         if (docSnap != null) {
                             val owner = docSnap["owner"].toString()
                             val player =  docSnap["player"].toString()
+                            val roomId = docSnap["roomId"].toString()
                             var roomDesc = ""
 
                             if (player == "null") {
@@ -65,15 +68,32 @@ class LobbyActivity : AppCompatActivity() {
                             }
 
                             tempRoomList.add(roomDesc)
+                            tempRoomIdList.add(roomId)
                         }
                     }
                 }
 
+                // update list and id lists from firestore
                 roomList = tempRoomList
+                roomIdList = tempRoomIdList
 
                 // update list view
                 roomsAdapter = ArrayAdapter<String>(this, R.layout.simple_list_item_1, roomList)
                 binding.rooms.adapter = roomsAdapter
+
+                // set on click listener for listview items
+                binding.rooms.setOnItemClickListener{ _, _, index, _ ->
+                // register player in firebase
+                val roomId = roomIdList[index]
+                val data = hashMapOf("player" to playerName)
+                db.collection("rooms").document(roomId)
+                    .set(data, SetOptions.merge())
+
+                // enter lobby
+                val it = Intent(this, RoomActivity::class.java)
+                it.putExtra("roomId", roomId)
+                startActivity(it)
+                }
                 roomsAdapter.notifyDataSetChanged()
 
                 Log.i("cliffen", roomList.toString())
