@@ -89,7 +89,7 @@ class LobbyActivity : AppCompatActivity() {
                 db.collection("rooms").document(roomId)
                     .set(data, SetOptions.merge())
 
-                // enter lobby
+                // enter room
                 val it = Intent(this, RoomActivity::class.java)
                 it.putExtra("roomId", roomId)
                 startActivity(it)
