@@ -1,12 +1,16 @@
 package com.example.chatmate
 
 import android.app.Activity
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.Toast
 import com.example.chatmate.databinding.ActivityLobbyBinding
 import com.example.chatmate.databinding.ActivityRoomBinding
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
@@ -18,6 +22,9 @@ class RoomActivity : AppCompatActivity() {
     private var identity = ""
     private var owner = ""
     private var player = ""
+    private var ownerStatus = ""
+    private var playerStatus = ""
+    private var matchStarted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,10 +41,12 @@ class RoomActivity : AppCompatActivity() {
         // initialize view text field bindings
         val viewOwner = binding.player1
         val viewPlayer = binding.player2
-        val viewRoomId = binding.roomId
+        val viewOwnerStatus = binding.player1Status
+        val viewPlayerStatus = binding.player2Status
+//        val viewRoomId = binding.roomId
         val gameButton = binding.gameButton
 
-        (viewRoomId.text.toString() + roomId).also { viewRoomId.text = it }
+//        (viewRoomId.text.toString() + roomId).also { viewRoomId.text = it }
 
         // set button text depending on identity
         when (identity) {
@@ -58,14 +67,58 @@ class RoomActivity : AppCompatActivity() {
                 Log.d("cliffen", "Current data: ${snapshot.data}")
                 owner = snapshot.data!!["owner"].toString()
                 player = snapshot.data!!["player"].toString()
+                ownerStatus = snapshot.data!!["ownerStatus"].toString()
+                playerStatus = snapshot.data!!["playerStatus"].toString()
+                matchStarted = snapshot.data!!["matchStarted"].toString().toBoolean()
 
-                (viewOwner.text.toString() + owner).also { viewOwner.text = it }
-                (viewPlayer.text.toString() + player).also { viewPlayer.text = it }
+                viewOwner.text = "Player 1: " + owner
+                viewPlayer.text = "Player2: " + player
+                viewOwnerStatus.text = "Status: " + ownerStatus
+                viewPlayerStatus.text = "Status: " + playerStatus
+
+                if (playerStatus == "ready" && identity == "owner") {
+                    gameButton.text = "start game"
+                }
+
+                if (ownerStatus == "ready" && playerStatus == "ready" && matchStarted) {
+                    val it = Intent(this, GameActivity::class.java)
+                    it.putExtra("roomId", roomId)
+                    startActivity(it)
+                }
+
 
             } else {
                 Log.d("cliffen", "Current data: null")
             }
         }
 
+    }
+
+    fun startGame (view: View) {
+        when (identity) {
+            "player" -> {
+                // set player status to ready if previously not
+                var status = ""
+                if (playerStatus == "not ready") {
+                    status = "ready"
+                } else {
+                    status = "not ready"
+                }
+                val data = hashMapOf("playerStatus" to status)
+                db.collection("rooms").document(roomId)
+                        .set(data, SetOptions.merge())
+            }
+
+            "owner" -> {
+                // start the match if player ready
+                if (playerStatus == "ready") {
+                    val data = hashMapOf("matchStarted" to true)
+                    db.collection("rooms").document(roomId)
+                            .set(data, SetOptions.merge())
+                } else {
+                    Toast.makeText(this, "All players must be ready!", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 }

@@ -83,6 +83,7 @@ class LobbyActivity : AppCompatActivity() {
 
                 // set on click listener for listview items
                 binding.rooms.setOnItemClickListener{ _, _, index, _ ->
+
                 // register player in firebase
                 val roomId = roomIdList[index]
                 val data = hashMapOf("player" to playerName)
@@ -109,7 +110,9 @@ class LobbyActivity : AppCompatActivity() {
         val room = hashMapOf(
             "roomId" to uuid,
             "owner" to playerName,
-            "status" to "waiting"
+            "ownerStatus" to "ready",
+            "playerStatus" to "not ready",
+            "matchStarted" to false
         )
 
         db.collection("rooms").document(uuid)
