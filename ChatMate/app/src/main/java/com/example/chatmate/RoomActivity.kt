@@ -15,6 +15,7 @@ class RoomActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRoomBinding
     private lateinit var db: FirebaseFirestore
     private var roomId = ""
+    private var identity = ""
     private var owner = ""
     private var player = ""
 
@@ -25,7 +26,7 @@ class RoomActivity : AppCompatActivity() {
 
         // receive variables from intent
         roomId = intent.getStringExtra("roomId").toString()
-
+        identity = intent.getStringExtra("identity").toString()
         // initialize firestore
         db = Firebase.firestore
         FirebaseFirestore.setLoggingEnabled(true)
@@ -34,10 +35,19 @@ class RoomActivity : AppCompatActivity() {
         val viewOwner = binding.player1
         val viewPlayer = binding.player2
         val viewRoomId = binding.roomId
+        val gameButton = binding.gameButton
 
         (viewRoomId.text.toString() + roomId).also { viewRoomId.text = it }
 
-        val roomRef = db.collection("rooms").document(roomId)
+        // set button text depending on identity
+        when (identity) {
+            "owner" -> gameButton.text = "waiting for player"
+            "player" -> gameButton.text = "ready"
+        }
+
+
+        // add listener to update owner and player
+            val roomRef = db.collection("rooms").document(roomId)
         roomRef.addSnapshotListener { snapshot, e ->
             if (e != null) {
                 Log.w("cliffen", "Listen failed.", e)

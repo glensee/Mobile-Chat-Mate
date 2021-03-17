@@ -61,10 +61,10 @@ class LobbyActivity : AppCompatActivity() {
                             val roomId = docSnap["roomId"].toString()
                             var roomDesc = ""
 
-                            if (player == "null") {
-                                roomDesc = owner + "'s room"
-                            } else {
+                            if (owner == "null") {
                                 roomDesc = player + "'s room"
+                            } else {
+                                roomDesc = owner + "'s room"
                             }
 
                             tempRoomList.add(roomDesc)
@@ -92,6 +92,7 @@ class LobbyActivity : AppCompatActivity() {
                 // enter room
                 val it = Intent(this, RoomActivity::class.java)
                 it.putExtra("roomId", roomId)
+                it.putExtra("identity", "player")
                 startActivity(it)
                 }
                 roomsAdapter.notifyDataSetChanged()
@@ -118,6 +119,7 @@ class LobbyActivity : AppCompatActivity() {
 
         val it = Intent(this, RoomActivity::class.java)
         it.putExtra("roomId", uuid)
+        it.putExtra("identity", "owner")
         startActivity(it)
     }
     
