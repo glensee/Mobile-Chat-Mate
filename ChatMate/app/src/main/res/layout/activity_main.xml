@@ -11,25 +11,49 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="50sp"
+        android:layout_marginTop="80sp"
         android:gravity="center"
         android:text="Welcome to ChatMate!"
         android:textSize="30sp"
         android:fontFamily="sans-serif-light"/>
 
 
-    <fragment
-        android:id="@+id/LoginFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:name="com.example.chatmate.LoginFragment"
-        android:layout_weight="1"/>
+    <EditText
+        android:id="@+id/name"
+        android:layout_width="250sp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="150sp"
+        android:gravity="start"
+        android:hint="Username"
+        android:textColor="@color/black"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/enter"
+        android:layout_width="250sp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="100sp"
+        android:onClick="NavigateToHome"
+        android:text="Enter"
+        style="@style/Widget.MaterialComponents.Button" />
+
+<!--    <Button-->
+<!--        android:id="@+id/delete"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="Delete user"-->
+<!--        android:onClick="deleteUser"-->
+<!--        android:layout_marginTop="20sp"/>-->
 
     <Button
         android:id="@+id/goToGame"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Go to Game (Dev)"
-        android:onClick="NavigateToGame"/>
+        android:onClick="NavigateToGame"
+        android:layout_marginTop="200sp"/>
+
+
 
 </LinearLayout>
