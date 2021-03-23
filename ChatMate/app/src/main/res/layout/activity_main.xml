@@ -3,8 +3,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".HomeActivity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="#2A2731">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="100sp"
+        android:layout_height="100sp"
+        android:layout_gravity="start"
+        android:layout_marginLeft="50sp"
+        android:layout_marginTop="50sp"
+        app:srcCompat="@drawable/chatmate_logo" />
 
     <TextView
         android:id="@+id/text"
@@ -12,30 +23,38 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="80sp"
-        android:gravity="center"
-        android:text="Welcome to ChatMate!"
-        android:textSize="30sp"
-        android:fontFamily="@font/ibm_plex_sans_medium"/>
+        android:layout_marginHorizontal="50sp"
+        android:gravity="start"
+        android:text="Are you ready to experience a new way to checkmate?"
+        android:textSize="90px"
+        android:textColor="#EEECF1"
+        android:fontFamily="@font/ibm_plex_sans_semibold"/>
 
 
     <EditText
         android:id="@+id/name"
-        android:layout_width="250sp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="150sp"
-        android:gravity="start"
-        android:hint="Username"
-        android:textColor="@color/black"/>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/enter"
-        android:layout_width="250sp"
+        android:layout_width="300sp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="100sp"
+        android:gravity="start"
+        android:hint="Username"
+        android:backgroundTint="#9590A0"
+        android:textColorHint="#9590A0"
+        android:textColor="#9590A0"/>
+
+    <Button
+        android:id="@+id/enter"
+        android:layout_width="300sp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="50sp"
         android:onClick="NavigateToHome"
-        android:text="Enter"
+        android:backgroundTint="#EEECF1"
+        android:text="Let's go"
+        android:textColor="#383838"
+        app:cornerRadius="21px"
+
         style="@style/Widget.MaterialComponents.Button" />
 
 
@@ -46,6 +65,7 @@
         android:text="Go to Game (Dev)"
         android:onClick="NavigateToGame"
         android:layout_marginTop="200sp"/>
+
 
 
 
