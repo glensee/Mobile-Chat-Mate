@@ -15,7 +15,7 @@
         android:gravity="center"
         android:text="Welcome to ChatMate!"
         android:textSize="30sp"
-        android:fontFamily="sans-serif-light"/>
+        android:fontFamily="@font/ibm_plex_sans_medium"/>
 
 
     <EditText
