@@ -20,7 +20,8 @@
             android:configChanges="orientation|screenLayout|screenSize" />
         <activity
             android:name=".HomeActivity"
-            android:configChanges="orientation|screenLayout|screenSize" />
+            android:configChanges="orientation|screenLayout|screenSize"
+            android:theme="@android:style/Theme.Black.NoTitleBar"/>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

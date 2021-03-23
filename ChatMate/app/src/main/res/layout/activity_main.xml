@@ -22,7 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="80sp"
+        android:layout_marginTop="50sp"
         android:layout_marginHorizontal="50sp"
         android:gravity="start"
         android:text="Are you ready to experience a new way to checkmate?"
@@ -36,12 +36,14 @@
         android:layout_width="300sp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="100sp"
+        android:layout_marginTop="150sp"
         android:gravity="start"
         android:hint="Username"
-        android:backgroundTint="#9590A0"
+        android:fontFamily="@font/ibm_plex_sans_medium"
+        android:backgroundTint="#FFFFFF"
         android:textColorHint="#9590A0"
-        android:textColor="#9590A0"/>
+        android:textColor="#9590A0"
+        android:textSize="15sp"/>
 
     <Button
         android:id="@+id/enter"
@@ -52,10 +54,11 @@
         android:onClick="NavigateToHome"
         android:backgroundTint="#EEECF1"
         android:text="Let's go"
+        android:fontFamily="@font/redhattext_bold"
+        android:textAllCaps="false"
         android:textColor="#383838"
-        app:cornerRadius="21px"
-
-        style="@style/Widget.MaterialComponents.Button" />
+        app:cornerRadius="7sp"
+        android:textSize="18sp"/>
 
 
     <Button
