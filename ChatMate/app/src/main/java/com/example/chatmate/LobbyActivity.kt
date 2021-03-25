@@ -5,8 +5,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.AdapterView.OnItemClickListener
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.ListView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.chatmate.databinding.ActivityLobbyBinding
 import com.google.firebase.firestore.*
@@ -27,9 +29,9 @@ class LobbyActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        supportActionBar?.hide()
         binding = ActivityLobbyBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         // receive name and uuid from intent
         playerName = intent.getStringExtra("name").toString()
         uuid = intent.getStringExtra("uuid").toString()
@@ -78,7 +80,7 @@ class LobbyActivity : AppCompatActivity() {
                 roomIdList = tempRoomIdList
 
                 // update list view
-                roomsAdapter = ArrayAdapter<String>(this, R.layout.simple_list_item_1, roomList)
+                roomsAdapter = ArrayAdapter<String>(this, com.example.chatmate.R.layout.room_textview, roomList)
                 binding.rooms.adapter = roomsAdapter
 
                 // set on click listener for listview items

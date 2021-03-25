@@ -4,24 +4,67 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LobbyActivity"
-    android:orientation="vertical">
+    android:background="#2A2731"
+    android:orientation="vertical"
+    tools:context=".LobbyActivity">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:layout_gravity="start"
+        android:layout_marginLeft="50dp"
+        android:layout_marginTop="30dp"
+        app:srcCompat="@drawable/chatmate_logo"/>
+
+    <TextView
+        android:id="@+id/greeting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginHorizontal="50dp"
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/ibm_plex_sans_semibold"
+        android:gravity="start"
+        android:text="Find some friends, play some chess"
+        android:textColor="#EEECF1"
+        android:letterSpacing="0.02"
+        android:textSize="110px"/>
 
     <Button
-        android:id="@+id/createRoom"
-        android:layout_width="wrap_content"
+        android:id="@+id/local"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="create room"
         android:layout_gravity="center"
-        android:layout_marginTop="50sp"
-        android:onClick="createRoom"/>
+        android:layout_marginTop="30dp"
+        android:backgroundTint="#EEECF1"
+        android:fontFamily="@font/redhattext_bold"
+        android:letterSpacing="0"
+        android:onClick="createRoom"
+        android:paddingVertical="10dp"
+        android:text="Create your own room"
+        android:layout_marginHorizontal="50dp"
+        android:textAllCaps="false"
+        android:textColor="#383838"
+        android:textSize="18dp"
+        app:cornerRadius="7dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Or find an existing one here:"
+        android:layout_marginTop="30dp"
+        android:textColor="#FFFFFF"
+        android:fontFamily="@font/ibm_plex_sans_regular"
+        android:gravity="center"
+        android:textSize="15dp"/>
 
     <ListView
         android:id="@+id/rooms"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="50sp"/>
-
+        android:layout_marginTop="30dp"
+        android:layout_marginHorizontal="50sp"/>
 
 
 </LinearLayout>
