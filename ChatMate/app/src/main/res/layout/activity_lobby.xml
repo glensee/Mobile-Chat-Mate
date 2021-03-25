@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#2A2731"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".LobbyActivity"
     android:orientation="vertical"
-    tools:context=".LobbyActivity">
+    android:background="#2A2731">
 
     <ImageView
         android:id="@+id/imageView"
@@ -15,7 +15,8 @@
         android:layout_gravity="start"
         android:layout_marginLeft="50dp"
         android:layout_marginTop="30dp"
-        app:srcCompat="@drawable/chatmate_logo"/>
+        app:srcCompat="@drawable/chatmate_logo"
+        android:layout_weight="1"/>
 
     <TextView
         android:id="@+id/greeting"
@@ -29,42 +30,53 @@
         android:text="Find some friends, play some chess"
         android:textColor="#EEECF1"
         android:letterSpacing="0.02"
-        android:textSize="110px"/>
+        android:textSize="110px"
+        android:layout_weight="1"/>
 
-    <Button
-        android:id="@+id/local"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="30dp"
-        android:backgroundTint="#EEECF1"
-        android:fontFamily="@font/redhattext_bold"
-        android:letterSpacing="0"
-        android:onClick="createRoom"
-        android:paddingVertical="10dp"
-        android:text="Create your own room"
-        android:layout_marginHorizontal="50dp"
-        android:textAllCaps="false"
-        android:textColor="#383838"
-        android:textSize="18dp"
-        app:cornerRadius="7dp" />
+        android:layout_weight="1"
+        android:orientation="vertical">
+        <Button
+            android:id="@+id/local"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="30dp"
+            android:backgroundTint="#EEECF1"
+            android:fontFamily="@font/redhattext_bold"
+            android:letterSpacing="0"
+            android:onClick="createRoom"
+            android:paddingVertical="10dp"
+            android:text="Create your own room"
+            android:layout_marginHorizontal="50dp"
+            android:textAllCaps="false"
+            android:textColor="#383838"
+            android:textSize="22dp"
+            app:cornerRadius="7dp" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Or find an existing one here:"
-        android:layout_marginTop="30dp"
-        android:textColor="#FFFFFF"
-        android:fontFamily="@font/ibm_plex_sans_regular"
-        android:gravity="center"
-        android:textSize="15dp"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Or find an existing one here:"
+            android:layout_marginTop="30dp"
+            android:textColor="#FFFFFF"
+            android:fontFamily="@font/ibm_plex_sans_medium"
+            android:gravity="center"
+            android:textSize="15dp"/>
 
-    <ListView
-        android:id="@+id/rooms"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="30dp"
-        android:layout_marginHorizontal="50sp"/>
 
+        <ListView
+            android:id="@+id/rooms"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginHorizontal="50sp"
+            android:divider="#9590A0"
+            android:dividerHeight="1sp"
+            android:layout_marginBottom="20sp"
+            android:padding="10sp"/>
+    </LinearLayout>
 
 </LinearLayout>
