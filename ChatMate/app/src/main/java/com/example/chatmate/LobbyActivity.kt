@@ -112,8 +112,8 @@ class LobbyActivity : AppCompatActivity() {
         val room = hashMapOf(
             "roomId" to uuid,
             "owner" to playerName,
-            "ownerStatus" to "ready",
-            "playerStatus" to "not ready",
+            "ownerStatus" to "READY",
+            "playerStatus" to "WAITING",
             "matchStarted" to false
         )
 

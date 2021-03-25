@@ -28,6 +28,7 @@ class RoomActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        supportActionBar?.hide()
         binding = ActivityRoomBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -43,6 +44,7 @@ class RoomActivity : AppCompatActivity() {
         val viewPlayer = binding.player2
         val viewOwnerStatus = binding.player1Status
         val viewPlayerStatus = binding.player2Status
+        val greeting = binding.greeting
 //        val viewRoomId = binding.roomId
         val gameButton = binding.gameButton
 
@@ -50,8 +52,13 @@ class RoomActivity : AppCompatActivity() {
 
         // set button text depending on identity
         when (identity) {
-            "owner" -> gameButton.text = "waiting for player"
-            "player" -> gameButton.text = "ready"
+            "owner" -> {
+                gameButton.text = "waiting for player"
+                greeting.text = "Hang tight! We’re waiting for another ChatMater..."
+            }
+            "player" -> {
+                gameButton.text = "ready"
+            }
         }
 
 
@@ -71,10 +78,24 @@ class RoomActivity : AppCompatActivity() {
                 playerStatus = snapshot.data!!["playerStatus"].toString()
                 matchStarted = snapshot.data!!["matchStarted"].toString().toBoolean()
 
-                viewOwner.text = "Player 1: " + owner
-                viewPlayer.text = "Player2: " + player
-                viewOwnerStatus.text = "Status: " + ownerStatus
-                viewPlayerStatus.text = "Status: " + playerStatus
+                if (owner !== null) {
+                    viewOwner.text = "Player 1: " + owner
+                    viewOwnerStatus.text = ownerStatus
+                } else {
+                    viewOwner.text = "Player 1: "
+                    viewOwnerStatus.text = "WAITING"
+                }
+
+                if (player !== null) {
+                    viewPlayer.text = "Player2: " + player
+                    viewPlayerStatus.text = playerStatus
+                } else {
+                    viewPlayer.text = "Player 2: "
+                    viewPlayerStatus.text = "WAITING"
+                }
+
+
+
 
                 // change gameButton text
                 if (playerStatus == "ready" && identity == "owner") {
@@ -109,10 +130,10 @@ class RoomActivity : AppCompatActivity() {
             "player" -> {
                 // set player status to ready if previously not
                 var status = ""
-                if (playerStatus == "not ready") {
-                    status = "ready"
+                if (playerStatus == "WAITING") {
+                    status = "READY"
                 } else {
-                    status = "not ready"
+                    status = "WAITING"
                 }
                 val data = hashMapOf("playerStatus" to status)
                 db.collection("rooms").document(roomId)
@@ -121,7 +142,7 @@ class RoomActivity : AppCompatActivity() {
 
             "owner" -> {
                 // start the match if player ready
-                if (playerStatus == "ready") {
+                if (playerStatus == "READY") {
                     val data = hashMapOf("matchStarted" to true)
                     db.collection("rooms").document(roomId)
                             .set(data, SetOptions.merge())
