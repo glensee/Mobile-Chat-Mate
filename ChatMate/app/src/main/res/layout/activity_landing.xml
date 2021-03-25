@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,78 +8,176 @@
     android:orientation="vertical"
     tools:context=".LandingActivity">
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="90sp"
-        android:layout_height="90sp"
-        android:layout_gravity="start"
-        android:layout_marginLeft="50sp"
-        android:layout_marginTop="30sp"
-        app:srcCompat="@drawable/chatmate_logo" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout2"
+        android:layout_width="381dp"
+        android:layout_height="270dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.038">
 
-    <TextView
-        android:id="@+id/greeting"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginHorizontal="50sp"
-        android:layout_marginTop="20sp"
-        android:fontFamily="@font/ibm_plex_sans_semibold"
-        android:gravity="start"
-        android:text="Welcome back, "
-        android:textColor="#EEECF1"
-        android:letterSpacing="0.02"
-        android:textSize="120px" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="120sp"
-        android:layout_marginHorizontal="60sp"
-        android:layout_marginTop="30sp"
-        android:orientation="horizontal">
-
-        <LinearLayout
-            android:layout_width="120sp"
-            android:layout_height="match_parent"
-            android:background="@drawable/landing_match_stats_background"
-            android:gravity="center"
+        <TextView
+            android:id="@+id/greeting"
+            android:layout_width="315sp"
+            android:layout_height="119sp"
             android:layout_gravity="start"
-            android:orientation="vertical">
+            android:fontFamily="@font/ibm_plex_sans_semibold"
+            android:gravity="start"
+            android:letterSpacing="0.02"
+            android:text="Welcome back, "
+            android:textColor="#EEECF1"
+            android:textSize="45sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.242"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.814" />
 
-            <TextView
-                android:id="@+id/numberOfMatches"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/inter_bold"
-                android:gravity="center"
-                android:text="59"
-                android:textColor="#EEECF1"
-                android:textSize="30sp" />
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="90sp"
+            android:layout_height="90sp"
+            android:layout_gravity="start"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.058"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.088"
+            app:srcCompat="@drawable/chatmate_logo" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <TextView
-                android:id="@+id/matchesText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="15sp"
-                android:fontFamily="@font/ibm_plex_sans_regular"
-                android:gravity="center"
-                android:lineHeight="12sp"
-                android:text="Games in the past week"
-                android:textColor="#9590A0"
-                android:textSize="12sp" />
-        </LinearLayout>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="372dp"
+        android:layout_height="236dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.486"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.92">
 
-        <LinearLayout
-            android:layout_width="0sp"
-            android:layout_height="match_parent"
-            android:layout_weight="0.5"/>
-        <LinearLayout
-            android:layout_width="120sp"
-            android:layout_height="match_parent"
+        <Button
+            android:id="@+id/history"
+            android:layout_width="350sp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:backgroundTint="#EEECF1"
+            android:fontFamily="@font/redhattext_bold"
+            android:letterSpacing="0"
+            android:onClick="NavigateToGame"
+            android:paddingVertical="10sp"
+            android:text="Previous matches"
+            android:textAllCaps="false"
+            android:textColor="#383838"
+            android:textSize="18sp"
+            app:cornerRadius="7sp"
+            app:layout_constraintBottom_toTopOf="@+id/help"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/online"
+            app:layout_constraintVertical_bias="0.66" />
+
+        <Button
+            android:id="@+id/local"
+            android:layout_width="350sp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:backgroundTint="#EEECF1"
+            android:fontFamily="@font/redhattext_bold"
+            android:letterSpacing="0"
+            android:onClick="NavigateToGame"
+            android:paddingVertical="10sp"
+            android:text="Local chess game"
+            android:textAllCaps="false"
+            android:textColor="#383838"
+            android:textSize="18sp"
+            app:cornerRadius="7sp"
+            app:layout_constraintBottom_toTopOf="@+id/online"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.133" />
+
+        <Button
+            android:id="@+id/online"
+            android:layout_width="350sp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:backgroundTint="#EEECF1"
+            android:fontFamily="@font/redhattext_bold"
+            android:letterSpacing="0"
+            android:onClick="NavigateToGame"
+            android:paddingVertical="10sp"
+            android:text="Online chess game"
+            android:textAllCaps="false"
+            android:textColor="#383838"
+            android:textSize="18sp"
+            app:cornerRadius="7sp"
+            app:layout_constraintBottom_toTopOf="@+id/history"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/local"
+            app:layout_constraintVertical_bias="0.397" />
+
+        <Button
+            android:id="@+id/help"
+            android:layout_width="350sp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:backgroundTint="#EEECF1"
+            android:fontFamily="@font/redhattext_bold"
+            android:letterSpacing="0"
+            android:onClick="NavigateToGame"
+            android:paddingVertical="10sp"
+            android:text="Need help?"
+            android:textAllCaps="false"
+            android:textColor="#383838"
+            android:textSize="18sp"
+            app:cornerRadius="7sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/history"
+            app:layout_constraintVertical_bias="0.923" />
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/group2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="local,online,help,history" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout9"
+        android:layout_width="386dp"
+        android:layout_height="139dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.48"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="114dp"
+            android:layout_height="125dp"
             android:background="@drawable/landing_match_stats_background"
             android:gravity="center"
-            android:layout_gravity="right"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.147"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.571">
 
             <TextView
                 android:id="@+id/winRate"
@@ -89,11 +187,16 @@
                 android:gravity="center"
                 android:text="60%"
                 android:textColor="#EEECF1"
-                android:textSize="30sp" />
+                android:textSize="40sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.235" />
 
             <TextView
                 android:id="@+id/winRateText"
-                android:layout_width="match_parent"
+                android:layout_width="103dp"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20sp"
                 android:fontFamily="@font/ibm_plex_sans_regular"
@@ -101,98 +204,79 @@
                 android:lineHeight="12sp"
                 android:text="Win and Draw rate"
                 android:textColor="#9590A0"
-                android:textSize="12sp" />
-        </LinearLayout>
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.818" />
 
-    </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="114dp"
+            android:layout_height="125dp"
+            android:background="@drawable/landing_match_stats_background"
+            android:gravity="center"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.86"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/numberOfMatches"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_bold"
+                android:gravity="center"
+                android:text="59"
+                android:textColor="#EEECF1"
+                android:textSize="40sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.235" />
+
+            <TextView
+                android:id="@+id/matchesText"
+                android:layout_width="103dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20sp"
+                android:fontFamily="@font/ibm_plex_sans_regular"
+                android:gravity="center"
+                android:lineHeight="12sp"
+                android:text="Games in the past week"
+                android:textColor="#9590A0"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.818" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <Button
+        android:id="@+id/logout"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="50sp"
-        android:orientation="vertical">
-        <Button
-            android:id="@+id/local"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="30sp"
-            android:backgroundTint="#EEECF1"
-            android:text="Local chess game"
-            android:onClick="NavigateToGame"
-            android:paddingVertical="10sp"
-            android:letterSpacing="0"
-            android:fontFamily="@font/redhattext_bold"
-            android:textAllCaps="false"
-            android:textColor="#383838"
-            app:cornerRadius="7sp"
-            android:textSize="18sp"/>
-
-        <Button
-            android:id="@+id/online"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingVertical="10sp"
-            android:layout_gravity="center"
-            android:layout_marginTop="5sp"
-            android:backgroundTint="#EEECF1"
-            android:text="Online chess game"
-            android:onClick="NavigateToLobby"
-            android:letterSpacing="0"
-            android:fontFamily="@font/redhattext_bold"
-            android:textAllCaps="false"
-            android:textColor="#383838"
-            app:cornerRadius="7sp"
-            android:textSize="18sp"/>
-
-        <Button
-            android:id="@+id/history"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingVertical="10sp"
-            android:layout_gravity="center"
-            android:layout_marginTop="5sp"
-            android:backgroundTint="#EEECF1"
-            android:text="Previous matches"
-            android:fontFamily="@font/redhattext_bold"
-            android:letterSpacing="0"
-            android:textAllCaps="false"
-            android:textColor="#383838"
-            app:cornerRadius="7sp"
-            android:textSize="18sp"/>
-
-        <Button
-            android:id="@+id/help"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingVertical="10sp"
-            android:layout_gravity="center"
-            android:layout_marginTop="5sp"
-            android:backgroundTint="#EEECF1"
-            android:text="Need help?"
-            android:fontFamily="@font/redhattext_bold"
-            android:letterSpacing="0"
-            android:textAllCaps="false"
-            android:textColor="#383838"
-            app:cornerRadius="7sp"
-            android:textSize="18sp"/>
-
-        <Button
-            android:id="@+id/logout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="5sp"
-            style="@style/Widget.AppCompat.Button.Borderless"
-            android:text="@string/logout"
-            android:onClick="NavigateToHome"
-            android:fontFamily="@font/redhattext_bold"
-            android:letterSpacing="0"
-            android:textAllCaps="false"
-            android:textColor="#CDC9D6"
-            android:textSize="12sp"/>
-
-    </LinearLayout>
-
-
-</LinearLayout>
+        android:layout_gravity="center"
+        android:fontFamily="@font/redhattext_bold"
+        android:letterSpacing="0"
+        android:onClick="NavigateToHome"
+        android:text="@string/logout"
+        android:textAllCaps="false"
+        android:textColor="#CDC9D6"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+</androidx.constraintlayout.widget.ConstraintLayout>
