@@ -25,6 +25,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         // set data binding
         super.onCreate(savedInstanceState)
+        supportActionBar?.hide()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -57,7 +58,7 @@ class MainActivity : AppCompatActivity() {
 
         // if username empty
         if (name.length <= 0) {
-            Toast.makeText(this, "Please enter username and password!", Toast.LENGTH_SHORT)
+            Toast.makeText(this, "Please enter a username!", Toast.LENGTH_SHORT)
                 .show()
         } else {
             val sharedPref = this.getSharedPreferences("usernames", Context.MODE_PRIVATE)
@@ -98,7 +99,7 @@ class MainActivity : AppCompatActivity() {
                     Log.d("cliffen", "Error adding document", e)
                 }
 
-            val it = Intent(this, LobbyActivity::class.java)
+            val it = Intent(this, LandingActivity::class.java)
             it.putExtra("name", currentUser)
             it.putExtra("uuid", currentUUID)
             startActivity(it)

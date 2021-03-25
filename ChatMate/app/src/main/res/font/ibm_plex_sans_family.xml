@@ -26,4 +26,8 @@
         android:fontStyle="normal"
         android:fontWeight="600" />
 
+    <font
+        android:font="@font/ibm_plex_sans_regular"
+        android:fontStyle="normal"
+        android:fontWeight="600" />
 </font-family>

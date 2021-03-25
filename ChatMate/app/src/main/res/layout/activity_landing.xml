@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#2A2731"
+    android:orientation="vertical"
+    tools:context=".LandingActivity">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="90sp"
+        android:layout_height="90sp"
+        android:layout_gravity="start"
+        android:layout_marginLeft="50sp"
+        android:layout_marginTop="30sp"
+        app:srcCompat="@drawable/chatmate_logo" />
+
+    <TextView
+        android:id="@+id/greeting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginHorizontal="50sp"
+        android:layout_marginTop="20sp"
+        android:fontFamily="@font/ibm_plex_sans_semibold"
+        android:gravity="start"
+        android:text="Welcome back, "
+        android:textColor="#EEECF1"
+        android:letterSpacing="0.02"
+        android:textSize="120px" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="120sp"
+        android:layout_marginHorizontal="60sp"
+        android:layout_marginTop="30sp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="120sp"
+            android:layout_height="match_parent"
+            android:background="@drawable/landing_match_stats_background"
+            android:gravity="center"
+            android:layout_gravity="start"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/numberOfMatches"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_bold"
+                android:gravity="center"
+                android:text="59"
+                android:textColor="#EEECF1"
+                android:textSize="30sp" />
+
+            <TextView
+                android:id="@+id/matchesText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="15sp"
+                android:fontFamily="@font/ibm_plex_sans_regular"
+                android:gravity="center"
+                android:lineHeight="12sp"
+                android:text="Games in the past week"
+                android:textColor="#9590A0"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0sp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"/>
+        <LinearLayout
+            android:layout_width="120sp"
+            android:layout_height="match_parent"
+            android:background="@drawable/landing_match_stats_background"
+            android:gravity="center"
+            android:layout_gravity="right"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/winRate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_bold"
+                android:gravity="center"
+                android:text="60%"
+                android:textColor="#EEECF1"
+                android:textSize="30sp" />
+
+            <TextView
+                android:id="@+id/winRateText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20sp"
+                android:fontFamily="@font/ibm_plex_sans_regular"
+                android:gravity="center"
+                android:lineHeight="12sp"
+                android:text="Win and Draw rate"
+                android:textColor="#9590A0"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="50sp"
+        android:orientation="vertical">
+        <Button
+            android:id="@+id/local"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="30sp"
+            android:backgroundTint="#EEECF1"
+            android:text="Local chess game"
+            android:onClick="NavigateToGame"
+            android:paddingVertical="10sp"
+            android:letterSpacing="0"
+            android:fontFamily="@font/redhattext_bold"
+            android:textAllCaps="false"
+            android:textColor="#383838"
+            app:cornerRadius="7sp"
+            android:textSize="18sp"/>
+
+        <Button
+            android:id="@+id/online"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="10sp"
+            android:layout_gravity="center"
+            android:layout_marginTop="5sp"
+            android:backgroundTint="#EEECF1"
+            android:text="Online chess game"
+            android:onClick="NavigateToLobby"
+            android:letterSpacing="0"
+            android:fontFamily="@font/redhattext_bold"
+            android:textAllCaps="false"
+            android:textColor="#383838"
+            app:cornerRadius="7sp"
+            android:textSize="18sp"/>
+
+        <Button
+            android:id="@+id/history"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="10sp"
+            android:layout_gravity="center"
+            android:layout_marginTop="5sp"
+            android:backgroundTint="#EEECF1"
+            android:text="Previous matches"
+            android:fontFamily="@font/redhattext_bold"
+            android:letterSpacing="0"
+            android:textAllCaps="false"
+            android:textColor="#383838"
+            app:cornerRadius="7sp"
+            android:textSize="18sp"/>
+
+        <Button
+            android:id="@+id/help"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="10sp"
+            android:layout_gravity="center"
+            android:layout_marginTop="5sp"
+            android:backgroundTint="#EEECF1"
+            android:text="Need help?"
+            android:fontFamily="@font/redhattext_bold"
+            android:letterSpacing="0"
+            android:textAllCaps="false"
+            android:textColor="#383838"
+            app:cornerRadius="7sp"
+            android:textSize="18sp"/>
+
+        <Button
+            android:id="@+id/logout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="5sp"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:text="@string/logout"
+            android:onClick="NavigateToHome"
+            android:fontFamily="@font/redhattext_bold"
+            android:letterSpacing="0"
+            android:textAllCaps="false"
+            android:textColor="#CDC9D6"
+            android:textSize="12sp"/>
+
+    </LinearLayout>
+
+
+</LinearLayout>
