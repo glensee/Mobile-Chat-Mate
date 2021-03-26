@@ -48,8 +48,9 @@ class GameActivity : AppCompatActivity() {
     private var isOnlineGame = false
     private lateinit var roomId: String
     private lateinit var localPlayerName: String
-    private var localPlayerColor = Side.WHITE
+    private lateinit var localPlayerColor:Side
     private lateinit var onlinePlayerName: String
+    private  var isOnlineGameIntialized = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,7 +92,8 @@ class GameActivity : AppCompatActivity() {
 
         //Check for Online Game
         roomId = intent.getStringExtra("roomId").toString()
-        if(roomId != "null") {
+        if(roomId != "null" && !isOnlineGameIntialized) {
+            Log.d("ARIX", "setupOnlineGame")
             setupOnlineGame()
         }
     }
@@ -330,7 +332,6 @@ class GameActivity : AppCompatActivity() {
         // Initialize turn variable
         val turnData = hashMapOf("currentTurn" to board.sideToMove.toString())
         roomRef.set(turnData, SetOptions.merge())
-        sendBoardStateOnline()
 
         // Setup Headers
         roomRef.get().addOnSuccessListener { document ->
@@ -349,33 +350,38 @@ class GameActivity : AppCompatActivity() {
                     gameBinding.onlineGameTurnText.text = "${onlinePlayerName}'s (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
                 }
 
-            }
-        }
-
-        roomRef.addSnapshotListener { snapshot, e ->
-            if (e != null) {
-                return@addSnapshotListener
-            }
-
-            if (snapshot != null && snapshot.exists()) {
-                // On Board State Change
-                val onlineBoardState = snapshot.data!!["boardState"].toString()
-                if (board.fen !== onlineBoardState) {
-                    board.loadFromFen(onlineBoardState)
-                    renderBoardState()
-                    if (board.sideToMove == localPlayerColor) {
-                        gameBinding.onlineGameTurnText.text = "Your (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
-                    } else {
-                        gameBinding.onlineGameTurnText.text = "${onlinePlayerName}'s (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
+                roomRef.addSnapshotListener { snapshot, e ->
+                    if (e != null) {
+                        return@addSnapshotListener
                     }
-                    currentLegalMoves.clear()
-                    currentLegalMoves.addAll(board.legalMoves())
+
+                    if (snapshot != null && snapshot.exists()) {
+                        // On Board State Change
+
+                        val onlineBoardState = snapshot.data!!["boardState"].toString()
+                        if (onlineBoardState !== "null" && board.fen !== onlineBoardState) {
+                            Log.d("ARIX", "BOARD STATE CHANGE")
+                            Log.d("ARIX", onlineBoardState)
+                            board.loadFromFen(onlineBoardState)
+                            renderBoardState()
+                            if (board.sideToMove == localPlayerColor) {
+                                gameBinding.onlineGameTurnText.text = "Your (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
+                            } else {
+                                gameBinding.onlineGameTurnText.text = "${onlinePlayerName}'s (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
+                            }
+                            currentLegalMoves.clear()
+                            currentLegalMoves.addAll(board.legalMoves())
+                        }
+                    }
                 }
             }
         }
+        isOnlineGameIntialized = true
+
     }
 
     private fun sendBoardStateOnline() {
+        Log.d("ARIX", "SEND ONLINE")
         val roomRef = db.collection("rooms").document(roomId)
 
         val boardData = hashMapOf("boardState" to board.fen)
