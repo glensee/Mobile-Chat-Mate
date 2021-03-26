@@ -96,7 +96,9 @@ class LobbyActivity : AppCompatActivity() {
                 val it = Intent(this, RoomActivity::class.java)
                 it.putExtra("roomId", roomId)
                 it.putExtra("identity", "player")
-                startActivity(it)
+                it.putExtra("name", playerName)
+                it.putExtra("uuid", uuid)
+                    startActivity(it)
                 }
                 roomsAdapter.notifyDataSetChanged()
 
@@ -125,7 +127,8 @@ class LobbyActivity : AppCompatActivity() {
         val it = Intent(this, RoomActivity::class.java)
         it.putExtra("roomId", uuid)
         it.putExtra("identity", "owner")
+        it.putExtra("name", playerName)
+        it.putExtra("uuid", uuid)
         startActivity(it)
     }
-    
 }

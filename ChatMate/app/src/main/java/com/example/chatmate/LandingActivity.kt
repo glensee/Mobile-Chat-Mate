@@ -43,10 +43,7 @@ class LandingActivity : AppCompatActivity() {
     }
 
     fun NavigateToHome(view: View) {
-        val it = Intent(this, MainActivity::class.java)
-        it.putExtra("name", name)
-        it.putExtra("uuid", uuid)
-        startActivity(it)
+        finish()
     }
 
 }
