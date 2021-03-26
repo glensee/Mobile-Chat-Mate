@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.example.chatmate.databinding.ActivityGameBinding
 import com.github.bhlangonijr.chesslib.Board
 import com.github.bhlangonijr.chesslib.Piece
@@ -169,9 +170,9 @@ class GameActivity : AppCompatActivity() {
 
             // Set the Background for Image Button
             if (Square.squareAt(i).isLightSquare) {
-                chessTile.setBackgroundColor(Color.parseColor("#EEEED2"))
+                chessTile.setBackgroundColor(ContextCompat.getColor(this, R.color.chess_light))
             } else {
-                chessTile.setBackgroundColor(Color.parseColor("#769656"))
+                chessTile.setBackgroundColor(ContextCompat.getColor(this, R.color.chess_dark))
             }
         }
 
@@ -286,4 +287,6 @@ class GameActivity : AppCompatActivity() {
             }
         }
     }
+
+    
 }
