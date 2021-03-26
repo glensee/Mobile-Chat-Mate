@@ -8,12 +8,36 @@
     android:gravity="center"
     android:orientation="vertical">
 
-
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:background="@color/bg_main">
+        <TextView
+            android:id="@+id/onlineGameTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Currently playing with Mury"
+            android:textColor="@color/text_color_gray_40"
+            android:gravity="center"
+            android:paddingTop="40sp"
+            android:paddingBottom="15sp"/>
+        <TextView
+            android:id="@+id/onlineGameTurnText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Mury's (Black) Turn"
+            android:fontFamily="@font/ibm_plex_sans_bold"
+            android:textColor="@color/text_color_gray_5"
+            android:textSize="30sp"
+            android:gravity="center"/>
+    </LinearLayout>
 
     <com.example.chatmate.SquareLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:padding="20sp"
+        android:padding="10sp"
         android:background="@color/bg_main"
         >
         <LinearLayout
@@ -52,21 +76,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
-            <com.google.android.material.chip.Chip
-                android:id="@+id/turnChip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:text="White's Turn"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-                <TextView
-                    android:id="@+id/roomId"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
 
-                </TextView>
             </LinearLayout>
         </LinearLayout>
 
