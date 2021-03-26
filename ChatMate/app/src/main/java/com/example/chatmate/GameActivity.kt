@@ -14,8 +14,13 @@ import androidx.core.content.ContextCompat
 import com.example.chatmate.databinding.ActivityGameBinding
 import com.github.bhlangonijr.chesslib.Board
 import com.github.bhlangonijr.chesslib.Piece
+import com.github.bhlangonijr.chesslib.Side
 import com.github.bhlangonijr.chesslib.Square
 import com.github.bhlangonijr.chesslib.move.Move
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.speechly.client.slu.Segment
 import com.speechly.client.speech.Client
 import kotlinx.coroutines.Dispatchers
@@ -38,10 +43,23 @@ class GameActivity : AppCompatActivity() {
     // List of Legal Moves for Current Turn
     private val currentLegalMoves = ArrayList<Move>()
 
+    // Online Game Variables
+    private lateinit var db: FirebaseFirestore
+    private var isOnlineGame = false
+    private lateinit var roomId: String
+    private lateinit var localPlayerName: String
+    private var localPlayerColor = Side.WHITE
+    private lateinit var onlinePlayerName: String
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         gameBinding = ActivityGameBinding.inflate(layoutInflater)
         setContentView(gameBinding.root)
+        db = Firebase.firestore
+        this.supportActionBar!!.hide()
+
+        // Get Local Player Name
+        localPlayerName = intent.getStringExtra("name").toString()
 
         // Assign Voice Command Listener to Button
         gameBinding.voiceCommandBtn.setOnTouchListener(voiceCommandButtonTouchListener)
@@ -70,6 +88,12 @@ class GameActivity : AppCompatActivity() {
         renderBoardState()
         // Set All Current Legal Moves
         currentLegalMoves.addAll(board.legalMoves())
+
+        //Check for Online Game
+        roomId = intent.getStringExtra("roomId").toString()
+        if(roomId != "null") {
+            setupOnlineGame()
+        }
     }
 
     private var voiceCommandButtonTouchListener = object : View.OnTouchListener {
@@ -176,11 +200,13 @@ class GameActivity : AppCompatActivity() {
             }
         }
 
-        gameBinding.turnChip.text = " ${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}'s Turn"
     }
 
     private fun selectTileAtIndex (tileIndex: Int) {
         val sideToMove = board.sideToMove
+        if (isOnlineGame && localPlayerColor != sideToMove) {
+            return
+        }
         val pieceAtIndex = board.getPiece(Square.squareAt(tileIndex))
 
         // Check if a Chess Piece was Previously Selected
@@ -196,11 +222,11 @@ class GameActivity : AppCompatActivity() {
                 val allLegalMovesCurrent = board.legalMoves()
                 // iterating through all the legal moves on the board
                 currentLegalMoves.clear()
+                // add to list of piece's legal moves
+                currentLegalMoves.addAll(allLegalMovesCurrent)
                 for (eachMove in allLegalMovesCurrent) {
                     // if legal move is relevant to selected piece
                     if (Square.squareAt(tileSelectedIndex).toString().toLowerCase(Locale.ENGLISH) == eachMove.toString().substring(0,2)) {
-                        // add to list of piece's legal moves
-                        currentLegalMoves.add(eachMove)
                         // change colour of legal moves
                         chessTiles[Square.values().indexOf(eachMove.to)].setBackgroundColor(Color.parseColor("#48D1CC"))
                     }
@@ -222,11 +248,19 @@ class GameActivity : AppCompatActivity() {
                 renderBoardState()
                 tileSelectedIndex = -1
                 afterMoveHandler()
+
+                if (isOnlineGame){
+                    sendBoardStateOnline()
+                }
             }
         }
     }
 
     private fun movePieceWithVoiceCommand(command: String){
+        val sideToMove = board.sideToMove
+        if (isOnlineGame && localPlayerColor != sideToMove) {
+            return
+        }
         try {
             // Convert Command to a Move
             val commandSegments  = command.split(" TO ")
@@ -245,14 +279,15 @@ class GameActivity : AppCompatActivity() {
                 renderBoardState()
                 currentLegalMoves.clear()
                 currentLegalMoves.addAll(board.legalMoves())
+                gameBinding.voiceResultTextField.text = "Tap and hold on this side of the screen to speak"
                 afterMoveHandler()
             } else {
                 throw Error("Invalid Command")
             }
         } catch (error: Error) {
-            Toast.makeText(this, "Invalid Command. Please Try Again", Toast.LENGTH_SHORT)
+            Toast.makeText(this, "Invalid Command. Please Try Again", Toast.LENGTH_SHORT).show()
         } catch (error: Exception) {
-            Toast.makeText(this, "Invalid Command. Please Try Again", Toast.LENGTH_SHORT)
+            Toast.makeText(this, "Invalid Command. Please Try Again", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -288,5 +323,62 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
-    
+    private fun setupOnlineGame() {
+        isOnlineGame = true
+        val roomRef = db.collection("rooms").document(roomId)
+
+        // Initialize turn variable
+        val turnData = hashMapOf("currentTurn" to board.sideToMove.toString())
+        roomRef.set(turnData, SetOptions.merge())
+        sendBoardStateOnline()
+
+        // Setup Headers
+        roomRef.get().addOnSuccessListener { document ->
+            if (document != null) {
+                val owner = document.data?.getValue("owner").toString()
+                val player = document.data?.getValue("player").toString()
+                if (owner == localPlayerName) {
+                    localPlayerColor  = Side.WHITE
+                    onlinePlayerName = player
+                    gameBinding.onlineGameTitle.text = "Currently playing with $onlinePlayerName"
+                    gameBinding.onlineGameTurnText.text = "Your (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
+                } else {
+                    localPlayerColor  = Side.BLACK
+                    onlinePlayerName = owner
+                    gameBinding.onlineGameTitle.text = "Currently playing with $onlinePlayerName"
+                    gameBinding.onlineGameTurnText.text = "${onlinePlayerName}'s (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
+                }
+
+            }
+        }
+
+        roomRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                // On Board State Change
+                val onlineBoardState = snapshot.data!!["boardState"].toString()
+                if (board.fen !== onlineBoardState) {
+                    board.loadFromFen(onlineBoardState)
+                    renderBoardState()
+                    if (board.sideToMove == localPlayerColor) {
+                        gameBinding.onlineGameTurnText.text = "Your (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
+                    } else {
+                        gameBinding.onlineGameTurnText.text = "${onlinePlayerName}'s (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
+                    }
+                    currentLegalMoves.clear()
+                    currentLegalMoves.addAll(board.legalMoves())
+                }
+            }
+        }
+    }
+
+    private fun sendBoardStateOnline() {
+        val roomRef = db.collection("rooms").document(roomId)
+
+        val boardData = hashMapOf("boardState" to board.fen)
+        roomRef.set(boardData, SetOptions.merge())
+    }
 }
