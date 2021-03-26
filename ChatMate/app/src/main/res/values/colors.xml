@@ -10,6 +10,8 @@
 
     <color name="chess_light">#F0D9B5</color>
     <color name="chess_dark">#B58863</color>
+    <color name="chess_border">#B0A64C</color>
     <color name="bg_main">#2A2731</color>
     <color name="bg_alt">#1E1C23</color>
+    <color name="text_color_gray_40">#9590A0</color>
 </resources>
