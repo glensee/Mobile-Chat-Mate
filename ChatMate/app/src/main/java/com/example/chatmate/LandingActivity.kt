@@ -46,4 +46,9 @@ class LandingActivity : AppCompatActivity() {
         finish()
     }
 
+    fun NavigateToHistory(view: View) {
+        val it = Intent(this, HistoryActivity::class.java)
+        startActivity(it)
+    }
+
 }

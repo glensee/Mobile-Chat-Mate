@@ -13,7 +13,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ChatMate">
-        <activity android:name=".History"></activity>
+        <activity android:name=".HistoryActivity"></activity>
         <activity android:name=".RoomActivity" />
         <activity android:name=".LobbyActivity" />
         <activity

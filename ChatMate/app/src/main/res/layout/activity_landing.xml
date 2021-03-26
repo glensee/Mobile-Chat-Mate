@@ -162,6 +162,7 @@
                 android:layout_marginTop="5dp"
                 android:backgroundTint="#EEECF1"
                 android:fontFamily="@font/redhattext_bold"
+                android:onClick="NavigateToHistory"
                 android:letterSpacing="0"
                 android:paddingVertical="10dp"
                 android:text="Previous matches"
