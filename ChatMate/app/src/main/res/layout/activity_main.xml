@@ -27,7 +27,7 @@
         android:layout_marginHorizontal="50dp"
         android:gravity="start"
         android:text="Are you ready to experience a new way to checkmate?"
-        android:textSize="90px"
+        android:textSize="110px"
         android:textColor="#EEECF1"
         android:fontFamily="@font/ibm_plex_sans_semibold"
         android:layout_weight="1"/>
@@ -67,18 +67,5 @@
             android:textSize="18dp"/>
 
     </LinearLayout>
-
-
-
-    <Button
-        android:id="@+id/goToGame"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Go to Game (Dev)"
-        android:onClick="NavigateToGame"
-        android:layout_marginTop="50dp"/>
-
-
-
 
 </LinearLayout>

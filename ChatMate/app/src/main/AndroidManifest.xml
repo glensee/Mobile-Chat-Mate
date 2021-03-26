@@ -13,15 +13,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ChatMate">
-        <activity android:name=".RoomActivity"></activity>
+        <activity android:name=".History"></activity>
+        <activity android:name=".RoomActivity" />
         <activity android:name=".LobbyActivity" />
         <activity
             android:name=".GameActivity"
             android:configChanges="orientation|screenLayout|screenSize" />
         <activity
             android:name=".LandingActivity"
-            android:configChanges="orientation|screenLayout|screenSize"/>
-
+            android:configChanges="orientation|screenLayout|screenSize" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
