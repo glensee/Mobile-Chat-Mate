@@ -31,7 +31,9 @@
         android:textColor="#EEECF1"
         android:letterSpacing="0.02"
         android:textSize="110px"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:maxLines="2"/>
 
     <LinearLayout
         android:layout_width="match_parent"

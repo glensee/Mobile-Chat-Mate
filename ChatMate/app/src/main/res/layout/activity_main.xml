@@ -50,7 +50,8 @@
             android:backgroundTint="#FFFFFF"
             android:textColorHint="#9590A0"
             android:textColor="#9590A0"
-            android:textSize="15dp"/>
+            android:textSize="15dp"
+            android:maxLines="1"/>
 
         <Button
             android:id="@+id/enter"
