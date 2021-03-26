@@ -76,15 +76,31 @@ class RoomActivity : AppCompatActivity() {
             }
 
             if (snapshot != null && snapshot.exists()) {
-                Log.d("cliffen", "Current data: ${snapshot.data}")
-                owner = snapshot.data!!["owner"].toString()
-                player = snapshot.data!!["player"].toString()
-                ownerStatus = snapshot.data!!["ownerStatus"].toString()
-                playerStatus = snapshot.data!!["playerStatus"].toString()
+                Log.i("cliffen", "Current data: ${snapshot.data}")
+
+                // check if owner exists
+                if (snapshot.get("owner") !== null) {
+                    owner = snapshot.data!!["owner"].toString()
+                    ownerStatus = snapshot.data!!["ownerStatus"].toString()
+                } else {
+                    owner = ""
+                    ownerStatus = "WAITING"
+                }
+
+                // check if player exists
+                if (snapshot.get("player") !== null) {
+                    player = snapshot.data!!["player"].toString()
+                    playerStatus = snapshot.data!!["playerStatus"].toString()
+                } else {
+                    player = ""
+                    playerStatus = "WAITING"
+                }
+
+                // update match started value
                 matchStarted = snapshot.data!!["matchStarted"].toString().toBoolean()
 
-                if (owner !== "null") {
-
+                // if owner exists
+                if (owner !== "") {
                     if (identity == "player") {
                         greeting.text = "Would you like to duel with $owner in a chess game?"
                     }
@@ -101,7 +117,8 @@ class RoomActivity : AppCompatActivity() {
                     viewOwnerStatus.text = "WAITING"
                 }
 
-                if (player !== "null") {
+                // if player exists
+                if (player !== "") {
 
                     // change greeting text
                     if (identity == "owner") {
@@ -121,7 +138,7 @@ class RoomActivity : AppCompatActivity() {
                     viewPlayerStatus.text = "WAITING"
                 }
 
-
+                // change button text from if person is a player
                 if (identity == "player") {
                     if (playerStatus == "READY") {
                         gameButton.text = "Unready"
@@ -130,14 +147,13 @@ class RoomActivity : AppCompatActivity() {
                     }
                 }
 
-                // change button text to start game if both players are ready
-
+                // change button text if person is a room owner
                 if (identity == "owner") {
                     if (ownerStatus == "READY" && playerStatus == "READY") {
                         gameButton.text = "Start the game!"
-                    } else if (player !== "null" && playerStatus == "WAITING"){
+                    } else if (player !== ""  && playerStatus == "WAITING"){
                         gameButton.text = "Waiting for $player to be ready..."
-                    } else if (player == "null"){
+                    } else if (player == ""){
                         gameButton.text = "Leave"
                     }
                 }
@@ -158,14 +174,14 @@ class RoomActivity : AppCompatActivity() {
     }
 
     fun startGame (view: View) {
-        Log.i("cliffen","clicked!")
-        Log.i("cliffen","identity: $identity")
-        Log.i("cliffen","playerStatus: $playerStatus")
-        Log.i("cliffen","ownerStatus: $ownerStatus")
-        Log.i("cliffen","player: $player")
-
+//        Log.i("cliffen","clicked!")
+//        Log.i("cliffen","identity: $identity")
+//        Log.i("cliffen","playerStatus: $playerStatus")
+//        Log.i("cliffen","ownerStatus: $ownerStatus")
+//        Log.i("cliffen","player: $player")
 
         when (identity) {
+
             "player" -> {
                 // set player status to ready if previously not
                 var status = ""
@@ -185,10 +201,11 @@ class RoomActivity : AppCompatActivity() {
                     val data = hashMapOf("matchStarted" to true)
                     db.collection("rooms").document(roomId)
                             .set(data, SetOptions.merge())
-                } else if (player == "null") {
-                    Log.i("cliffen", "player is null!")
+                } else if (player == "") {
+                    // leave room
                     finish()
                 } else {
+                    // validation to alert owner when attempting to start without player being ready
                     Log.i("cliffen", "null name: " + player)
                     Toast.makeText(this, "All players must be ready!", Toast.LENGTH_SHORT).show()
                 }
