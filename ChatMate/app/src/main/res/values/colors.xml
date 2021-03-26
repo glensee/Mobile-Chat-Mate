@@ -7,4 +7,9 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="chess_light">#F0D9B5</color>
+    <color name="chess_dark">#B58863</color>
+    <color name="bg_main">#2A2731</color>
+    <color name="bg_alt">#1E1C23</color>
 </resources>
