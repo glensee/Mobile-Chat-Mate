@@ -162,6 +162,7 @@ class RoomActivity : AppCompatActivity() {
                 if (ownerStatus == "READY" && playerStatus == "READY" && matchStarted) {
                     val it = Intent(this, GameActivity::class.java)
                     it.putExtra("roomId", roomId)
+                    it.putExtra("name", name)
                     startActivity(it)
                 }
 
