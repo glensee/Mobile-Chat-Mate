@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
@@ -36,7 +37,7 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 
-class GameActivity : AppCompatActivity() {
+class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var gameBinding: ActivityGameBinding
     private lateinit var board: Board
     val speechlyClient: Client = Client.fromActivity(activity = this, appId = UUID.fromString("8a313e01-b0f3-4e6f-94a9-67cd65433135"))
@@ -66,6 +67,8 @@ class GameActivity : AppCompatActivity() {
     private lateinit var identity: String
     private var roomLeft = false
     private var boardSaved = false
+    // Text to speech
+    private var tts: TextToSpeech? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,6 +97,7 @@ class GameActivity : AppCompatActivity() {
                 Log.i("cliffen current segment", transcript)
             }
         }
+        tts = TextToSpeech(this, this)
 
         // Generate a new board
         board = Board()
@@ -284,6 +288,9 @@ class GameActivity : AppCompatActivity() {
                 renderBoardState()
                 return
             }
+            val squareSelectedIdx = Square.squareAt(tileSelectedIndex)
+            val squareIdx = Square.squareAt(tileIndex)
+
             // Check New Move Object
             var newMove = Move(Square.squareAt(tileSelectedIndex),Square.squareAt(tileIndex))
             if (sideToMove == Side.WHITE && newMove.to.rank == Rank.RANK_8 && board.getPiece(Square.squareAt(tileSelectedIndex)) == Piece.WHITE_PAWN) {
@@ -684,5 +691,30 @@ class GameActivity : AppCompatActivity() {
         if (!roomLeft) {
             deleteRoomDocument()
         }
+    }
+
+
+    override fun onInit(status: Int) {
+
+        if (status == TextToSpeech.SUCCESS) {
+            // set US English as language for tts
+            val result = tts!!.setLanguage(Locale.UK)
+
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e("TTS","The Language specified is not supported!")
+            }
+        } else {
+            Log.e("TTS", "Initilization Failed!")
+        }
+
+    }
+
+    public override fun onDestroy() {
+        // Shutdown TTS
+        if (tts != null) {
+            tts!!.stop()
+            tts!!.shutdown()
+        }
+        super.onDestroy()
     }
 }
