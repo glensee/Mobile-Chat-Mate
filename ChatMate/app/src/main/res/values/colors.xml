@@ -13,6 +13,8 @@
     <color name="chess_border">#B0A64C</color>
     <color name="bg_main">#2A2731</color>
     <color name="bg_alt">#1E1C23</color>
+    <color name="yellow">#D1941A</color>
     <color name="text_color_gray_5">#EEECF1</color>
     <color name="text_color_gray_40">#9590A0</color>
+    <color name="text_color_green">#84B04C</color>
 </resources>
