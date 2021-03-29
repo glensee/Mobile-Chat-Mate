@@ -13,6 +13,7 @@ import com.github.bhlangonijr.chesslib.Board
 import com.github.bhlangonijr.chesslib.Piece
 import com.github.bhlangonijr.chesslib.Side
 import com.github.bhlangonijr.chesslib.Square
+import com.github.bhlangonijr.chesslib.move.MoveList
 import com.github.bhlangonijr.chesslib.move.Move
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.firebase.firestore.FirebaseFirestore
@@ -33,6 +34,7 @@ import kotlin.collections.ArrayList
 class GameActivity : AppCompatActivity() {
     private lateinit var gameBinding: ActivityGameBinding
     private lateinit var board: Board
+    private lateinit var moveList: MoveList
     val speechlyClient: Client = Client.fromActivity(activity = this, appId = UUID.fromString("8a313e01-b0f3-4e6f-94a9-67cd65433135"))
     private lateinit var prevSegment: Segment
     // Keeps track of all generated Image Button Tiles
@@ -94,6 +96,9 @@ class GameActivity : AppCompatActivity() {
             gameBinding.onlineGameHeader.visibility = View.VISIBLE
             setupOnlineGame()
         }
+
+        // Generate a movelist
+        moveList = MoveList()
     }
 
     private var voiceCommandButtonTouchListener = object : View.OnTouchListener {
@@ -252,7 +257,7 @@ class GameActivity : AppCompatActivity() {
                 // TODO: Convert Move to the proper Notation (EUNICE)
                 val newMoveNotative = convertMoveToNotation(newMove)
                 // TODO: save move to a array before making the move (ARIX DO TMR)
-
+                // val san = encodeToSan(board, newMove)
                 board.doMove(newMove)
                 renderBoardState()
                 tileSelectedIndex = -1
@@ -408,6 +413,15 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun convertMoveToNotation (move: Move): String {
+        var notation = String()
+        // check what piece i moved
+
+        // check where i moved it to
+
+        // check if theres castling
+
+        // check if theres eating
+
         // Documentation for Move Object
         // https://github.com/bhlangonijr/chesslib/blob/master/src/main/java/com/github/bhlangonijr/chesslib/move/Move.java
 
