@@ -3,50 +3,72 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".HomeActivity"
-    android:orientation="vertical">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".MainActivity"
+    android:orientation="vertical"
+    android:background="#2A2731">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:layout_gravity="start"
+        android:layout_marginLeft="50dp"
+        android:layout_marginTop="50dp"
+        app:srcCompat="@drawable/chatmate_logo"/>
 
     <TextView
         android:id="@+id/text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="80sp"
-        android:gravity="center"
-        android:text="Welcome to ChatMate!"
-        android:textSize="30sp"
-        android:fontFamily="sans-serif-light"/>
-
-
-    <EditText
-        android:id="@+id/name"
-        android:layout_width="250sp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="150sp"
+        android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="50dp"
         android:gravity="start"
-        android:hint="Username"
-        android:textColor="@color/black"/>
+        android:text="Are you ready to experience a new way to checkmate?"
+        android:textSize="110px"
+        android:textColor="#EEECF1"
+        android:fontFamily="@font/ibm_plex_sans_semibold"
+        android:layout_weight="1"/>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/enter"
-        android:layout_width="250sp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="100sp"
-        android:onClick="NavigateToHome"
-        android:text="Enter"
-        style="@style/Widget.MaterialComponents.Button" />
-
-
-    <Button
-        android:id="@+id/goToGame"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Go to Game (Dev)"
-        android:onClick="NavigateToGame"
-        android:layout_marginTop="200sp"/>
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:layout_marginBottom="50dp">
+        <EditText
+            android:id="@+id/name"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="50dp"
+            android:gravity="start"
+            android:hint="Username"
+            android:fontFamily="@font/ibm_plex_sans_medium"
+            android:backgroundTint="#FFFFFF"
+            android:textColorHint="#9590A0"
+            android:textColor="#9590A0"
+            android:textSize="15dp"
+            android:maxLines="1"/>
+        <Button
+            android:id="@+id/enter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="#EEECF1"
+            android:fontFamily="@font/redhattext_bold"
+            android:letterSpacing="0"
+            android:onClick="NavigateToHome"
+            android:paddingVertical="10dp"
+            android:text="Let's go"
+            android:layout_marginHorizontal="50dp"
+            android:textAllCaps="false"
+            android:textColor="#383838"
+            android:textSize="18dp"
+            app:cornerRadius="7dp" />
 
-
+    </LinearLayout>
 
 </LinearLayout>

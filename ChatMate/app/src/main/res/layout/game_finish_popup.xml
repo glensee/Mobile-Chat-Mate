@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/bg_main"
+    android:padding="10dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/resultText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/redhattext_bold"
+            android:letterSpacing="0"
+            android:text="Black Wins"
+            android:textStyle="bold"
+            android:textSize="25dp"
+            android:textColor="@color/white"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="5dp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingHorizontal="10dp"
+            android:layout_marginTop="20dp">
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/whiteAvatar"
+                app:shapeAppearanceOverlay="@style/ImageViewRounded"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:src="@drawable/white_king"
+                android:background="@color/chess_dark"
+                android:scaleType="fitCenter">
+            </com.google.android.material.imageview.ShapeableImageView>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="VS"
+                android:fontFamily="@font/redhattext_bold"
+                android:textColor="@color/white"
+                android:textSize="18dp"
+                android:layout_marginHorizontal="10dp"
+                />
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/blackAvatar"
+                app:shapeAppearanceOverlay="@style/ImageViewRounded"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:src="@drawable/black_king"
+                android:background="@color/chess_dark"
+                android:scaleType="fitCenter">
+            </com.google.android.material.imageview.ShapeableImageView>
+        </LinearLayout>
+    </LinearLayout>
+        <Button
+            android:id="@+id/returnBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="#EEECF1"
+            android:fontFamily="@font/redhattext_bold"
+            android:letterSpacing="0"
+            android:paddingVertical="10dp"
+            android:text="Return to Lobby"
+            android:layout_marginHorizontal="50dp"
+            android:textAllCaps="false"
+            android:textColor="#383838"
+            android:textSize="18dp"
+            app:cornerRadius="7dp" />
+    </LinearLayout>
+</FrameLayout>

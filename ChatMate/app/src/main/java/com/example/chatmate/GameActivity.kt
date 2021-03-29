@@ -1,20 +1,24 @@
 package com.example.chatmate
-
+import android.app.Dialog
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.example.chatmate.databinding.ActivityGameBinding
 import com.github.bhlangonijr.chesslib.Board
 import com.github.bhlangonijr.chesslib.Piece
+import com.github.bhlangonijr.chesslib.Side
 import com.github.bhlangonijr.chesslib.Square
 import com.github.bhlangonijr.chesslib.move.Move
+import com.google.android.material.imageview.ShapeableImageView
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.speechly.client.slu.Segment
 import com.speechly.client.speech.Client
 import kotlinx.coroutines.Dispatchers
@@ -37,10 +41,24 @@ class GameActivity : AppCompatActivity() {
     // List of Legal Moves for Current Turn
     private val currentLegalMoves = ArrayList<Move>()
 
+    // Online Game Variables
+    private lateinit var db: FirebaseFirestore
+    private var isOnlineGame = false
+    private lateinit var roomId: String
+    private lateinit var localPlayerName: String
+    private lateinit var localPlayerColor:Side
+    private lateinit var onlinePlayerName: String
+    private  var isOnlineGameIntialized = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         gameBinding = ActivityGameBinding.inflate(layoutInflater)
         setContentView(gameBinding.root)
+        db = Firebase.firestore
+        this.supportActionBar!!.hide()
+
+        // Get Local Player Name
+        localPlayerName = intent.getStringExtra("name").toString()
 
         // Assign Voice Command Listener to Button
         gameBinding.voiceCommandBtn.setOnTouchListener(voiceCommandButtonTouchListener)
@@ -69,6 +87,13 @@ class GameActivity : AppCompatActivity() {
         renderBoardState()
         // Set All Current Legal Moves
         currentLegalMoves.addAll(board.legalMoves())
+
+        //Check for Online Game
+        roomId = intent.getStringExtra("roomId").toString()
+        if(roomId != "null" && !isOnlineGameIntialized) {
+            gameBinding.onlineGameHeader.visibility = View.VISIBLE
+            setupOnlineGame()
+        }
     }
 
     private var voiceCommandButtonTouchListener = object : View.OnTouchListener {
@@ -130,7 +155,11 @@ class GameActivity : AppCompatActivity() {
         // Using the Temporary Sequence, Add Tiles into the Main ArrayList That Tracks each Image Button
         // The Final Sequence matches the Sequence Used in the Board Class
         for (i in boardArrayList.size - 1 downTo 0) {
-            for (tile in boardArrayList[i]) {
+            var index = i
+            if (this::localPlayerColor.isInitialized && localPlayerColor == Side.BLACK) {
+                index = boardArrayList.size - 1 - i
+            }
+            for (tile in boardArrayList[index]) {
                 tile.tag = chessTiles.size
                 chessTiles.add(tile)
                 tile.setOnClickListener {
@@ -147,6 +176,7 @@ class GameActivity : AppCompatActivity() {
         val currentBoardStateArray = board.boardToArray()
 
         for (i in 0 until 64) {
+
             // Image Button to be Rendered on
             val chessTile = chessTiles[i]
 
@@ -169,17 +199,19 @@ class GameActivity : AppCompatActivity() {
 
             // Set the Background for Image Button
             if (Square.squareAt(i).isLightSquare) {
-                chessTile.setBackgroundColor(Color.parseColor("#EEEED2"))
+                chessTile.setBackgroundColor(ContextCompat.getColor(this, R.color.chess_light))
             } else {
-                chessTile.setBackgroundColor(Color.parseColor("#769656"))
+                chessTile.setBackgroundColor(ContextCompat.getColor(this, R.color.chess_dark))
             }
         }
 
-        gameBinding.turnChip.text = " ${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}'s Turn"
     }
 
     private fun selectTileAtIndex (tileIndex: Int) {
         val sideToMove = board.sideToMove
+        if (isOnlineGame && localPlayerColor != sideToMove) {
+            return
+        }
         val pieceAtIndex = board.getPiece(Square.squareAt(tileIndex))
 
         // Check if a Chess Piece was Previously Selected
@@ -195,11 +227,11 @@ class GameActivity : AppCompatActivity() {
                 val allLegalMovesCurrent = board.legalMoves()
                 // iterating through all the legal moves on the board
                 currentLegalMoves.clear()
+                // add to list of piece's legal moves
+                currentLegalMoves.addAll(allLegalMovesCurrent)
                 for (eachMove in allLegalMovesCurrent) {
                     // if legal move is relevant to selected piece
                     if (Square.squareAt(tileSelectedIndex).toString().toLowerCase(Locale.ENGLISH) == eachMove.toString().substring(0,2)) {
-                        // add to list of piece's legal moves
-                        currentLegalMoves.add(eachMove)
                         // change colour of legal moves
                         chessTiles[Square.values().indexOf(eachMove.to)].setBackgroundColor(Color.parseColor("#48D1CC"))
                     }
@@ -221,11 +253,19 @@ class GameActivity : AppCompatActivity() {
                 renderBoardState()
                 tileSelectedIndex = -1
                 afterMoveHandler()
+
+                if (isOnlineGame){
+                    sendBoardStateOnline()
+                }
             }
         }
     }
 
     private fun movePieceWithVoiceCommand(command: String){
+        val sideToMove = board.sideToMove
+        if (isOnlineGame && localPlayerColor != sideToMove) {
+            return
+        }
         try {
             // Convert Command to a Move
             val commandSegments  = command.split(" TO ")
@@ -238,20 +278,19 @@ class GameActivity : AppCompatActivity() {
             val newMove = Move(from, to)
             // Check if New Move is Legal
             if(newMove in currentLegalMoves) {
-                Log.d("newMove", newMove.toString())
-                Log.d("legalMoves", currentLegalMoves.toString())
                 board.doMove(newMove)
                 renderBoardState()
                 currentLegalMoves.clear()
                 currentLegalMoves.addAll(board.legalMoves())
+                gameBinding.voiceResultTextField.text = "Tap and hold on this side of the screen to speak"
                 afterMoveHandler()
             } else {
                 throw Error("Invalid Command")
             }
         } catch (error: Error) {
-            Toast.makeText(this, "Invalid Command. Please Try Again", Toast.LENGTH_SHORT)
+            Toast.makeText(this, "Invalid Command. Please Try Again", Toast.LENGTH_SHORT).show()
         } catch (error: Exception) {
-            Toast.makeText(this, "Invalid Command. Please Try Again", Toast.LENGTH_SHORT)
+            // Toast.makeText(this, "Invalid Command. Please Try Again", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -271,19 +310,92 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun afterMoveHandler() {
+        val myDialog = Dialog(this)
+        myDialog.setContentView(R.layout.game_finish_popup)
+        myDialog.setCanceledOnTouchOutside(false)
+        myDialog.setCancelable(false)
         if (board.isMated) {
-
+            myDialog.show()
+            val result = "${board.sideToMove.flip().toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)} Wins"
+            myDialog.findViewById<TextView>(R.id.resultText).setText(result)
+            if(board.sideToMove == Side.BLACK){
+                myDialog.findViewById<ShapeableImageView>(R.id.whiteAvatar).setBackgroundColor(ContextCompat.getColor(this, R.color.text_color_green))
+            } else {
+                myDialog.findViewById<ShapeableImageView>(R.id.blackAvatar).setBackgroundColor(ContextCompat.getColor(this, R.color.text_color_green))
+            }
         } else if (board.isDraw) {
             if (board.isRepetition) {
-
+                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
+                myDialog.show()
             } else if (board.isInsufficientMaterial) {
-
+                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
+                myDialog.show()
             } else if (board.halfMoveCounter >= 100) {
-
+                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
+                myDialog.show()
             }
             else if (board.isStaleMate){
-
+                myDialog.findViewById<TextView>(R.id.resultText).setText("Stale Mate")
+                myDialog.show()
             }
         }
+    }
+
+    private fun setupOnlineGame() {
+        isOnlineGame = true
+        val roomRef = db.collection("rooms").document(roomId)
+
+        // Initialize turn variable
+        val turnData = hashMapOf("currentTurn" to board.sideToMove.toString())
+        roomRef.set(turnData, SetOptions.merge())
+
+        // Setup Headers
+        roomRef.get().addOnSuccessListener { document ->
+            if (document != null) {
+                val owner = document.data?.getValue("owner").toString()
+                val player = document.data?.getValue("player").toString()
+                if (owner == localPlayerName) {
+                    localPlayerColor  = Side.WHITE
+                    onlinePlayerName = player
+                    gameBinding.onlineGameTitle.text = "Currently playing with $onlinePlayerName"
+                    gameBinding.onlineGameTurnText.text = "Your (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
+                } else {
+                    localPlayerColor  = Side.BLACK
+                    onlinePlayerName = owner
+                    gameBinding.onlineGameTitle.text = "Currently playing with $onlinePlayerName"
+                    gameBinding.onlineGameTurnText.text = "${onlinePlayerName}'s (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
+                }
+
+                roomRef.addSnapshotListener { snapshot, e ->
+                    if (e != null) {
+                        return@addSnapshotListener
+                    }
+
+                    if (snapshot != null && snapshot.exists()) {
+                        // On Board State Change
+                        val onlineBoardState = snapshot.data!!["boardState"].toString()
+                        if (onlineBoardState !== "null" && board.fen !== onlineBoardState) {
+                            board.loadFromFen(onlineBoardState)
+                            renderBoardState()
+                            if (board.sideToMove == localPlayerColor) {
+                                gameBinding.onlineGameTurnText.text = "Your (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
+                            } else {
+                                gameBinding.onlineGameTurnText.text = "${onlinePlayerName}'s (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
+                            }
+                            currentLegalMoves.clear()
+                            currentLegalMoves.addAll(board.legalMoves())
+                        }
+                    }
+                }
+            }
+        }
+        isOnlineGameIntialized = true
+
+    }
+
+    private fun sendBoardStateOnline() {
+        val roomRef = db.collection("rooms").document(roomId)
+        val boardData = hashMapOf("boardState" to board.fen)
+        roomRef.set(boardData, SetOptions.merge())
     }
 }
