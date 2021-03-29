@@ -91,7 +91,6 @@ class GameActivity : AppCompatActivity() {
         //Check for Online Game
         roomId = intent.getStringExtra("roomId").toString()
         if(roomId != "null" && !isOnlineGameIntialized) {
-            Log.d("ARIX", "setupOnineGame")
             gameBinding.onlineGameHeader.visibility = View.VISIBLE
             setupOnlineGame()
         }
@@ -279,8 +278,6 @@ class GameActivity : AppCompatActivity() {
             val newMove = Move(from, to)
             // Check if New Move is Legal
             if(newMove in currentLegalMoves) {
-                Log.d("newMove", newMove.toString())
-                Log.d("legalMoves", currentLegalMoves.toString())
                 board.doMove(newMove)
                 renderBoardState()
                 currentLegalMoves.clear()
@@ -376,11 +373,8 @@ class GameActivity : AppCompatActivity() {
 
                     if (snapshot != null && snapshot.exists()) {
                         // On Board State Change
-
                         val onlineBoardState = snapshot.data!!["boardState"].toString()
                         if (onlineBoardState !== "null" && board.fen !== onlineBoardState) {
-                            Log.d("ARIX", "BOARD STATE CHANGE")
-                            Log.d("ARIX", onlineBoardState)
                             board.loadFromFen(onlineBoardState)
                             renderBoardState()
                             if (board.sideToMove == localPlayerColor) {
@@ -400,9 +394,7 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun sendBoardStateOnline() {
-        Log.d("ARIX", "SEND ONLINE")
         val roomRef = db.collection("rooms").document(roomId)
-
         val boardData = hashMapOf("boardState" to board.fen)
         roomRef.set(boardData, SetOptions.merge())
     }
