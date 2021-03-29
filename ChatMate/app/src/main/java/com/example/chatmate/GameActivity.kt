@@ -1,14 +1,11 @@
 package com.example.chatmate
-
+import android.app.Dialog
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.chatmate.databinding.ActivityGameBinding
@@ -17,6 +14,7 @@ import com.github.bhlangonijr.chesslib.Piece
 import com.github.bhlangonijr.chesslib.Side
 import com.github.bhlangonijr.chesslib.Square
 import com.github.bhlangonijr.chesslib.move.Move
+import com.google.android.material.imageview.ShapeableImageView
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
@@ -93,7 +91,8 @@ class GameActivity : AppCompatActivity() {
         //Check for Online Game
         roomId = intent.getStringExtra("roomId").toString()
         if(roomId != "null" && !isOnlineGameIntialized) {
-            Log.d("ARIX", "setupOnlineGame")
+            Log.d("ARIX", "setupOnineGame")
+            gameBinding.onlineGameHeader.visibility = View.VISIBLE
             setupOnlineGame()
         }
     }
@@ -314,18 +313,33 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun afterMoveHandler() {
+        val myDialog = Dialog(this)
+        myDialog.setContentView(R.layout.game_finish_popup)
+        myDialog.setCanceledOnTouchOutside(false)
+        myDialog.setCancelable(false)
         if (board.isMated) {
-
+            myDialog.show()
+            val result = "${board.sideToMove.flip().toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)} Wins"
+            myDialog.findViewById<TextView>(R.id.resultText).setText(result)
+            if(board.sideToMove == Side.BLACK){
+                myDialog.findViewById<ShapeableImageView>(R.id.whiteAvatar).setBackgroundColor(ContextCompat.getColor(this, R.color.text_color_green))
+            } else {
+                myDialog.findViewById<ShapeableImageView>(R.id.blackAvatar).setBackgroundColor(ContextCompat.getColor(this, R.color.text_color_green))
+            }
         } else if (board.isDraw) {
             if (board.isRepetition) {
-
+                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
+                myDialog.show()
             } else if (board.isInsufficientMaterial) {
-
+                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
+                myDialog.show()
             } else if (board.halfMoveCounter >= 100) {
-
+                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
+                myDialog.show()
             }
             else if (board.isStaleMate){
-
+                myDialog.findViewById<TextView>(R.id.resultText).setText("Stale Mate")
+                myDialog.show()
             }
         }
     }
