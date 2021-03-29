@@ -249,6 +249,10 @@ class GameActivity : AppCompatActivity() {
             val newMove = Move(Square.squareAt(tileSelectedIndex),Square.squareAt(tileIndex))
             // Check if New Move is Legal
             if(newMove in currentLegalMoves) {
+                // TODO: Convert Move to the proper Notation (EUNICE)
+                val newMoveNotative = convertMoveToNotation(newMove)
+                // TODO: save move to a array before making the move (ARIX DO TMR)
+
                 board.doMove(newMove)
                 renderBoardState()
                 tileSelectedIndex = -1
@@ -278,6 +282,10 @@ class GameActivity : AppCompatActivity() {
             val newMove = Move(from, to)
             // Check if New Move is Legal
             if(newMove in currentLegalMoves) {
+                // TODO: Convert Move to the proper Notation (EUNICE)
+                val newMoveNotative = convertMoveToNotation(newMove)
+                // TODO: save move to a array before making the move (ARIX DO TMR)
+
                 board.doMove(newMove)
                 renderBoardState()
                 currentLegalMoves.clear()
@@ -397,5 +405,19 @@ class GameActivity : AppCompatActivity() {
         val roomRef = db.collection("rooms").document(roomId)
         val boardData = hashMapOf("boardState" to board.fen)
         roomRef.set(boardData, SetOptions.merge())
+    }
+
+    private fun convertMoveToNotation (move: Move): String {
+        // Documentation for Move Object
+        // https://github.com/bhlangonijr/chesslib/blob/master/src/main/java/com/github/bhlangonijr/chesslib/move/Move.java
+
+        // Documentation for Board Object
+        // https://github.com/bhlangonijr/chesslib/blob/master/src/main/java/com/github/bhlangonijr/chesslib/Board.java
+
+        Log.d("Debuging For Eunice", move.to.toString()) // the SQUARE that the move is going to
+        Log.d("Debuging For Eunice", move.toString())
+
+        // return a string of the move notation
+        return ""
     }
 }
