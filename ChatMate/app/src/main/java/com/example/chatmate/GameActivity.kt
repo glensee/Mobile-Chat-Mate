@@ -157,7 +157,11 @@ class GameActivity : AppCompatActivity() {
         // Using the Temporary Sequence, Add Tiles into the Main ArrayList That Tracks each Image Button
         // The Final Sequence matches the Sequence Used in the Board Class
         for (i in boardArrayList.size - 1 downTo 0) {
-            for (tile in boardArrayList[i]) {
+            var index = i
+            if (this::localPlayerColor.isInitialized && localPlayerColor == Side.BLACK) {
+                index = boardArrayList.size - 1 - i
+            }
+            for (tile in boardArrayList[index]) {
                 tile.tag = chessTiles.size
                 chessTiles.add(tile)
                 tile.setOnClickListener {
@@ -174,6 +178,7 @@ class GameActivity : AppCompatActivity() {
         val currentBoardStateArray = board.boardToArray()
 
         for (i in 0 until 64) {
+
             // Image Button to be Rendered on
             val chessTile = chessTiles[i]
 
@@ -289,7 +294,7 @@ class GameActivity : AppCompatActivity() {
         } catch (error: Error) {
             Toast.makeText(this, "Invalid Command. Please Try Again", Toast.LENGTH_SHORT).show()
         } catch (error: Exception) {
-            Toast.makeText(this, "Invalid Command. Please Try Again", Toast.LENGTH_SHORT).show()
+            // Toast.makeText(this, "Invalid Command. Please Try Again", Toast.LENGTH_SHORT).show()
         }
     }
 
