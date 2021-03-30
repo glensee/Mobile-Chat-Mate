@@ -88,7 +88,9 @@ class LobbyActivity : AppCompatActivity() {
 
                 // register player in firebase
                 val roomId = roomIdList[index]
-                val data = hashMapOf("player" to playerName)
+                val data = hashMapOf(
+                    "player" to playerName,
+                    "playerStatus" to "WAITING")
                 db.collection("rooms").document(roomId)
                     .set(data, SetOptions.merge())
 

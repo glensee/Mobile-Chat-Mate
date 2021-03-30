@@ -59,7 +59,7 @@ class RoomActivity : AppCompatActivity() {
         // set button text depending on identity
         when (identity) {
             "owner" -> {
-                gameButton.text = "waiting for player"
+                gameButton.text = "Waiting for player..."
                 greeting.text = "Hang tight! We’re waiting for another ChatMater..."
             }
             "player" -> {
@@ -90,6 +90,8 @@ class RoomActivity : AppCompatActivity() {
                     owner = ""
                     ownerStatus = "WAITING"
                     viewOwnerStatus.setTextColor(Color.parseColor("#B0A64C"))
+                    Toast.makeText(this, "room closed by owner", Toast.LENGTH_SHORT).show()
+                    finish()
                 }
 
                 // check if player exists
@@ -101,7 +103,9 @@ class RoomActivity : AppCompatActivity() {
                     playerStatus = "WAITING"
                     viewPlayerStatus.setTextColor(Color.parseColor("#B0A64C"))
 
-
+                    if (identity == "owner") {
+                        greeting.text = "Hang tight! We’re waiting for another ChatMater..."
+                    }
                 }
 
                 // update match started value
@@ -144,6 +148,9 @@ class RoomActivity : AppCompatActivity() {
                     }
 
                 } else {
+                    if (identity == "owner") {
+                        greeting.text = "Hang tight! We’re waiting for another ChatMater..."
+                    }
                     viewPlayer.text = "Player 2: "
                     viewPlayerStatus.text = "WAITING"
                     viewPlayerStatus.setTextColor(Color.parseColor("#B0A64C"))
@@ -162,12 +169,15 @@ class RoomActivity : AppCompatActivity() {
                 if (identity == "owner") {
                     if (ownerStatus == "READY" && playerStatus == "READY") {
                         gameButton.text = "Start the game!"
+                        gameButton.setBackgroundColor(Color.parseColor("#EEECF1"))
+                        gameButton.setEnabled(true);
                     } else {
-                        gameButton.text = "Leave"
+                        gameButton.text = "Waiting for player..."
+                        gameButton.setBackgroundColor(Color.parseColor("#808080"))
+                        gameButton.setEnabled(false);
                     }
                 }
 
-                // start game if both ready
                 if (ownerStatus == "READY" && playerStatus == "READY" && matchStarted) {
                     val it = Intent(this, GameActivity::class.java)
                     it.putExtra("roomId", roomId)
@@ -177,18 +187,13 @@ class RoomActivity : AppCompatActivity() {
 
 
             } else {
-                Log.d("cliffen", "Current data: null")
+                Log.d("cliffen", "Room is gone")
             }
         }
 
     }
 
     fun startGame (view: View) {
-//        Log.i("cliffen","clicked!")
-//        Log.i("cliffen","identity: $identity")
-//        Log.i("cliffen","playerStatus: $playerStatus")
-//        Log.i("cliffen","ownerStatus: $ownerStatus")
-//        Log.i("cliffen","player: $player")
 
         when (identity) {
 
@@ -212,35 +217,75 @@ class RoomActivity : AppCompatActivity() {
                     db.collection("rooms").document(roomId)
                             .set(data, SetOptions.merge())
                 } else {
-                    // leave room
-
-                    // delete room from firestore
-                    db.collection("rooms").document(roomId)
-                        .delete()
-                        .addOnSuccessListener { Log.d("cliffen", "DocumentSnapshot successfully deleted!") }
-                        .addOnFailureListener { e -> Log.w("cliffen", "Error deleting document", e) }
-
-                    // return to lobby
-                    finish()
+                    // validation to alert owner when attempting to start without player being ready
+                    Log.i("cliffen", "null name: " + player)
+                    Toast.makeText(this, "All players must be ready!", Toast.LENGTH_SHORT).show()
                 }
-//                else {
-//                    // validation to alert owner when attempting to start without player being ready
-//                    Log.i("cliffen", "null name: " + player)
-//                    Toast.makeText(this, "All players must be ready!", Toast.LENGTH_SHORT).show()
-//                }
             }
         }
     }
 
     fun leaveRoom (view: View) {
         val docRef = db.collection("rooms").document(roomId)
+        if (identity == "player") {
 
-        // Remove the 'capital' field from the document
-        val updates = hashMapOf<String, Any>(
-            "player" to FieldValue.delete()
-        )
+            // Remove the 'player' field from the document
+            val updates = hashMapOf<String, Any>(
+                "player" to FieldValue.delete()
+            )
 
-        docRef.update(updates).addOnCompleteListener { }
-        finish()
+            docRef.update(updates).addOnCompleteListener { }
+            finish()
+        } else {
+            // remove 'owner' field from document to let player know owner left
+            val updates = hashMapOf<String, Any>(
+                "owner" to FieldValue.delete()
+            )
+            docRef.update(updates).addOnCompleteListener { }
+
+            // delete room from firestore
+            db.collection("rooms").document(roomId)
+                .delete()
+                .addOnSuccessListener { Log.d("cliffen", "DocumentSnapshot successfully deleted!") }
+                .addOnFailureListener { e -> Log.w("cliffen", "Error deleting document", e) }
+        }
     }
+
+    private fun leaveRoom () {
+        val docRef = db.collection("rooms").document(roomId)
+        if (identity == "player") {
+
+            // Remove the 'player' field from the document
+            val updates = hashMapOf<String, Any>(
+                "player" to FieldValue.delete()
+            )
+
+            docRef.update(updates).addOnCompleteListener { }
+            finish()
+
+        } else {
+            // remove 'owner' field from document to let player know owner left
+            val updates = hashMapOf<String, Any>(
+                "owner" to FieldValue.delete()
+            )
+            docRef.update(updates).addOnCompleteListener { }
+
+            // delete room from firestore
+            db.collection("rooms").document(roomId)
+                .delete()
+                .addOnSuccessListener { Log.d("cliffen", "DocumentSnapshot successfully deleted!") }
+                .addOnFailureListener { e -> Log.w("cliffen", "Error deleting document", e) }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.i("cliffen", "starting onStop...")
+        if (!matchStarted) {
+            leaveRoom()
+        }
+        Log.i("cliffen", "onstop ended")
+
+    }
+
 }
