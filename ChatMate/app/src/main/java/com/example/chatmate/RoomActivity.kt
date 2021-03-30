@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.example.chatmate.databinding.ActivityRoomBinding
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
@@ -63,13 +64,16 @@ class RoomActivity : AppCompatActivity() {
             }
             "player" -> {
                 gameButton.text = "Ready"
+                binding.leaveRoom.visibility = View.VISIBLE
             }
         }
 
 
         // add listener to update owner and player
             val roomRef = db.collection("rooms").document(roomId)
+
         roomRef.addSnapshotListener { snapshot, e ->
+            Log.i("cliffen debug", roomRef.toString())
             if (e != null) {
                 Log.w("cliffen", "Listen failed.", e)
                 return@addSnapshotListener
@@ -166,8 +170,6 @@ class RoomActivity : AppCompatActivity() {
 
 
             } else {
-                // leave activity if room is closed
-                finish()
                 Log.d("cliffen", "Current data: null")
             }
         }
@@ -221,5 +223,17 @@ class RoomActivity : AppCompatActivity() {
 //                }
             }
         }
+    }
+
+    fun leaveRoom (view: View) {
+        val docRef = db.collection("rooms").document(roomId)
+
+        // Remove the 'capital' field from the document
+        val updates = hashMapOf<String, Any>(
+            "player" to FieldValue.delete()
+        )
+
+        docRef.update(updates).addOnCompleteListener { }
+        finish()
     }
 }

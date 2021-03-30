@@ -130,6 +130,24 @@
             android:textColor="#383838"
             android:textSize="18dp"
             app:cornerRadius="7dp"/>
+
+        <Button
+            android:id="@+id/leaveRoom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="#EEECF1"
+            android:visibility="gone"
+            android:fontFamily="@font/redhattext_bold"
+            android:letterSpacing="0"
+            android:paddingVertical="10dp"
+            android:text="Leave"
+            android:onClick="leaveRoom"
+            android:textAllCaps="false"
+            android:textColor="#383838"
+            android:textSize="18dp"
+            app:cornerRadius="7dp"/>
     </LinearLayout>
 
 
