@@ -151,9 +151,7 @@ class RoomActivity : AppCompatActivity() {
                 if (identity == "owner") {
                     if (ownerStatus == "READY" && playerStatus == "READY") {
                         gameButton.text = "Start the game!"
-                    } else if (player !== ""  && playerStatus == "WAITING"){
-                        gameButton.text = "Waiting for $player to be ready..."
-                    } else if (player == ""){
+                    } else {
                         gameButton.text = "Leave"
                     }
                 }
@@ -168,6 +166,8 @@ class RoomActivity : AppCompatActivity() {
 
 
             } else {
+                // leave activity if room is closed
+                finish()
                 Log.d("cliffen", "Current data: null")
             }
         }
@@ -202,7 +202,7 @@ class RoomActivity : AppCompatActivity() {
                     val data = hashMapOf("matchStarted" to true)
                     db.collection("rooms").document(roomId)
                             .set(data, SetOptions.merge())
-                } else if (player == "") {
+                } else {
                     // leave room
 
                     // delete room from firestore
@@ -213,11 +213,12 @@ class RoomActivity : AppCompatActivity() {
 
                     // return to lobby
                     finish()
-                } else {
-                    // validation to alert owner when attempting to start without player being ready
-                    Log.i("cliffen", "null name: " + player)
-                    Toast.makeText(this, "All players must be ready!", Toast.LENGTH_SHORT).show()
                 }
+//                else {
+//                    // validation to alert owner when attempting to start without player being ready
+//                    Log.i("cliffen", "null name: " + player)
+//                    Toast.makeText(this, "All players must be ready!", Toast.LENGTH_SHORT).show()
+//                }
             }
         }
     }

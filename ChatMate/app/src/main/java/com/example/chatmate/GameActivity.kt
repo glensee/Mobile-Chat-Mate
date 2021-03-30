@@ -171,6 +171,7 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun renderBoardState () {
+        Log.i("cliffen", "render 1")
         // Get the Current State of the Chess Board in an Array Sequence
         // Each Index Represents a Tile on the Board and The Item Represents the Piece Type
         val currentBoardStateArray = board.boardToArray()
@@ -310,38 +311,38 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun afterMoveHandler() {
-        val myDialog = Dialog(this)
-        myDialog.setContentView(R.layout.game_finish_popup)
-        myDialog.setCanceledOnTouchOutside(false)
-        myDialog.setCancelable(false)
-        myDialog.findViewById<Button>(R.id.returnBtn).setOnClickListener{
-            finish()
-        }
-        if (board.isMated) {
-            myDialog.show()
-            val result = "${board.sideToMove.flip().toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)} Wins"
-            myDialog.findViewById<TextView>(R.id.resultText).setText(result)
-            if(board.sideToMove == Side.BLACK){
-                myDialog.findViewById<ShapeableImageView>(R.id.whiteAvatar).setBackgroundColor(ContextCompat.getColor(this, R.color.text_color_green))
-            } else {
-                myDialog.findViewById<ShapeableImageView>(R.id.blackAvatar).setBackgroundColor(ContextCompat.getColor(this, R.color.text_color_green))
-            }
-        } else if (board.isDraw) {
-            if (board.isRepetition) {
-                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
-                myDialog.show()
-            } else if (board.isInsufficientMaterial) {
-                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
-                myDialog.show()
-            } else if (board.halfMoveCounter >= 100) {
-                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
-                myDialog.show()
-            }
-            else if (board.isStaleMate){
-                myDialog.findViewById<TextView>(R.id.resultText).setText("Stale Mate")
-                myDialog.show()
-            }
-        }
+//        val myDialog = Dialog(this)
+//        myDialog.setContentView(R.layout.game_finish_popup)
+//        myDialog.setCanceledOnTouchOutside(false)
+//        myDialog.setCancelable(false)
+//        myDialog.findViewById<Button>(R.id.returnBtn).setOnClickListener{
+//            finish()
+//        }
+//        if (board.isMated) {
+//            myDialog.show()
+//            val result = "${board.sideToMove.flip().toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)} Wins"
+//            myDialog.findViewById<TextView>(R.id.resultText).setText(result)
+//            if(board.sideToMove == Side.BLACK){
+//                myDialog.findViewById<ShapeableImageView>(R.id.whiteAvatar).setBackgroundColor(ContextCompat.getColor(this, R.color.text_color_green))
+//            } else {
+//                myDialog.findViewById<ShapeableImageView>(R.id.blackAvatar).setBackgroundColor(ContextCompat.getColor(this, R.color.text_color_green))
+//            }
+//        } else if (board.isDraw) {
+//            if (board.isRepetition) {
+//                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
+//                myDialog.show()
+//            } else if (board.isInsufficientMaterial) {
+//                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
+//                myDialog.show()
+//            } else if (board.halfMoveCounter >= 100) {
+//                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
+//                myDialog.show()
+//            }
+//            else if (board.isStaleMate){
+//                myDialog.findViewById<TextView>(R.id.resultText).setText("Stale Mate")
+//                myDialog.show()
+//            }
+//        }
     }
 
     private fun setupOnlineGame() {
