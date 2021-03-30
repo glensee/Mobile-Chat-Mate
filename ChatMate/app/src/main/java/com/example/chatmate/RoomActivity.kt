@@ -204,6 +204,14 @@ class RoomActivity : AppCompatActivity() {
                             .set(data, SetOptions.merge())
                 } else if (player == "") {
                     // leave room
+
+                    // delete room from firestore
+                    db.collection("rooms").document(roomId)
+                        .delete()
+                        .addOnSuccessListener { Log.d("cliffen", "DocumentSnapshot successfully deleted!") }
+                        .addOnFailureListener { e -> Log.w("cliffen", "Error deleting document", e) }
+
+                    // return to lobby
                     finish()
                 } else {
                     // validation to alert owner when attempting to start without player being ready

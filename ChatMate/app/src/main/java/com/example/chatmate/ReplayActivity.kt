@@ -4,7 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.example.chatmate.databinding.ActivityReplayBinding
 
-class Replay : AppCompatActivity() {
+class ReplayActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityReplayBinding
 
