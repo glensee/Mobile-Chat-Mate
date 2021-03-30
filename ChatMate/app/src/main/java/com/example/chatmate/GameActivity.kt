@@ -314,6 +314,9 @@ class GameActivity : AppCompatActivity() {
         myDialog.setContentView(R.layout.game_finish_popup)
         myDialog.setCanceledOnTouchOutside(false)
         myDialog.setCancelable(false)
+        myDialog.findViewById<Button>(R.id.returnBtn).setOnClickListener{
+            finish()
+        }
         if (board.isMated) {
             myDialog.show()
             val result = "${board.sideToMove.flip().toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)} Wins"
