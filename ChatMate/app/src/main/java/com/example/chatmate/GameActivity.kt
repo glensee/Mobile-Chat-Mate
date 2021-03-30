@@ -314,6 +314,9 @@ class GameActivity : AppCompatActivity() {
         myDialog.setContentView(R.layout.game_finish_popup)
         myDialog.setCanceledOnTouchOutside(false)
         myDialog.setCancelable(false)
+        myDialog.findViewById<Button>(R.id.returnBtn).setOnClickListener{
+            finish()
+        }
         if (board.isMated) {
             myDialog.show()
             val result = "${board.sideToMove.flip().toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)} Wins"
@@ -377,6 +380,7 @@ class GameActivity : AppCompatActivity() {
                         if (onlineBoardState !== "null" && board.fen !== onlineBoardState) {
                             board.loadFromFen(onlineBoardState)
                             renderBoardState()
+                            afterMoveHandler()
                             if (board.sideToMove == localPlayerColor) {
                                 gameBinding.onlineGameTurnText.text = "Your (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
                             } else {
@@ -390,7 +394,6 @@ class GameActivity : AppCompatActivity() {
             }
         }
         isOnlineGameIntialized = true
-
     }
 
     private fun sendBoardStateOnline() {
