@@ -42,6 +42,7 @@ class GameActivity : AppCompatActivity() {
     private var tileSelectedIndex = -1
     // List of Legal Moves for Current Turn
     private val currentLegalMoves = ArrayList<Move>()
+    private var finalString = ""
 
     // Online Game Variables
     private lateinit var db: FirebaseFirestore
@@ -50,7 +51,8 @@ class GameActivity : AppCompatActivity() {
     private lateinit var localPlayerName: String
     private lateinit var localPlayerColor:Side
     private lateinit var onlinePlayerName: String
-    private  var isOnlineGameIntialized = false
+    private var isOnlineGameIntialized = false
+    private var seg = String()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,8 +73,9 @@ class GameActivity : AppCompatActivity() {
                     gameBinding.voiceResultTextField.text = transcript
                     Log.d("DEBUG", transcript)
                     try {
-                        if (segment.words.values.size >= 5) {
+                        if (transcript.contains("TO") && segment.words.values.size >= 5 && seg != transcript) {
                             movePieceWithVoiceCommand(transcript)
+                            seg = transcript
                         }
                     } catch(error: Error) {
                         Log.d("ERROR", error.toString())
@@ -109,6 +112,7 @@ class GameActivity : AppCompatActivity() {
                     speechlyClient.startContext()
                 }
                 MotionEvent.ACTION_UP -> {
+                    Log.i("eunice", "wonky shit")
                     speechlyClient.stopContext()
                     GlobalScope.launch(Dispatchers.Default) {
                         delay(500)
@@ -257,7 +261,10 @@ class GameActivity : AppCompatActivity() {
                 // TODO: Convert Move to the proper Notation (EUNICE)
                 val newMoveNotative = convertMoveToNotation(newMove)
                 // TODO: save move to a array before making the move (ARIX DO TMR)
-                // val san = encodeToSan(board, newMove)
+                val moveListLocal = MoveListLocal() as MoveListLocal
+                val tempBoard = board.clone()
+                val san = moveListLocal.encodeSan(tempBoard, newMove)
+                Log.d("debug san", san.toString())
                 board.doMove(newMove)
                 renderBoardState()
                 tileSelectedIndex = -1
@@ -272,6 +279,7 @@ class GameActivity : AppCompatActivity() {
 
     private fun movePieceWithVoiceCommand(command: String){
         val sideToMove = board.sideToMove
+        Log.d("eunice", "eunice")
         if (isOnlineGame && localPlayerColor != sideToMove) {
             return
         }
