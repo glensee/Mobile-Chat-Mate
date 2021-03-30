@@ -380,6 +380,7 @@ class GameActivity : AppCompatActivity() {
                         if (onlineBoardState !== "null" && board.fen !== onlineBoardState) {
                             board.loadFromFen(onlineBoardState)
                             renderBoardState()
+                            afterMoveHandler()
                             if (board.sideToMove == localPlayerColor) {
                                 gameBinding.onlineGameTurnText.text = "Your (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
                             } else {
@@ -393,7 +394,6 @@ class GameActivity : AppCompatActivity() {
             }
         }
         isOnlineGameIntialized = true
-
     }
 
     private fun sendBoardStateOnline() {
