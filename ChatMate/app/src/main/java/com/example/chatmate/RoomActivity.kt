@@ -89,6 +89,7 @@ class RoomActivity : AppCompatActivity() {
                 } else {
                     owner = ""
                     ownerStatus = "WAITING"
+                    viewOwnerStatus.setTextColor(Color.parseColor("#B0A64C"))
                 }
 
                 // check if player exists
@@ -98,6 +99,9 @@ class RoomActivity : AppCompatActivity() {
                 } else {
                     player = ""
                     playerStatus = "WAITING"
+                    viewPlayerStatus.setTextColor(Color.parseColor("#B0A64C"))
+
+
                 }
 
                 // update match started value
@@ -119,6 +123,8 @@ class RoomActivity : AppCompatActivity() {
                 } else {
                     viewOwner.text = "Player 1: "
                     viewOwnerStatus.text = "WAITING"
+                    viewOwnerStatus.setTextColor(Color.parseColor("#B0A64C"))
+
                 }
 
                 // if player exists
@@ -140,6 +146,7 @@ class RoomActivity : AppCompatActivity() {
                 } else {
                     viewPlayer.text = "Player 2: "
                     viewPlayerStatus.text = "WAITING"
+                    viewPlayerStatus.setTextColor(Color.parseColor("#B0A64C"))
                 }
 
                 // change button text from if person is a player
