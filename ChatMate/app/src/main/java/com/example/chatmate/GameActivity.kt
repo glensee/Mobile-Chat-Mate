@@ -97,7 +97,7 @@ class GameActivity : AppCompatActivity() {
                 MotionEvent.ACTION_UP -> {
                     speechlyClient.stopContext()
                     GlobalScope.launch(Dispatchers.Default) {
-                        delay(500)
+                        delay(1500)
                         val transcript = finalSegment.words.values.map{it.value}.joinToString(" ")
                         Log.i("cliffen final segment", transcript)
                         GlobalScope.launch(Dispatchers.Main) {
