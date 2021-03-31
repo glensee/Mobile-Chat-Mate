@@ -49,7 +49,7 @@ class GameActivity : AppCompatActivity() {
     private lateinit var localPlayerColor:Side
     private lateinit var onlinePlayerName: String
     private  var isOnlineGameIntialized = false
-
+    private lateinit var finalSegment: Segment
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         gameBinding = ActivityGameBinding.inflate(layoutInflater)
@@ -64,18 +64,9 @@ class GameActivity : AppCompatActivity() {
         gameBinding.voiceCommandBtn.setOnTouchListener(voiceCommandButtonTouchListener)
         GlobalScope.launch(Dispatchers.Default) {
             speechlyClient.onSegmentChange { segment: Segment ->
+                finalSegment = segment
                 val transcript = segment.words.values.map{it.value}.joinToString(" ")
-                GlobalScope.launch(Dispatchers.Main) {
-                    gameBinding.voiceResultTextField.text = transcript
-                    Log.d("DEBUG", transcript)
-                    try {
-                        if (segment.words.values.size >= 5) {
-                            movePieceWithVoiceCommand(transcript)
-                        }
-                    } catch(error: Error) {
-                        Log.d("ERROR", error.toString())
-                    }
-                }
+                Log.i("cliffen current segment", transcript)
             }
         }
 
@@ -107,6 +98,19 @@ class GameActivity : AppCompatActivity() {
                     speechlyClient.stopContext()
                     GlobalScope.launch(Dispatchers.Default) {
                         delay(500)
+                        val transcript = finalSegment.words.values.map{it.value}.joinToString(" ")
+                        Log.i("cliffen final segment", transcript)
+                        GlobalScope.launch(Dispatchers.Main) {
+                            gameBinding.voiceResultTextField.text = transcript
+                            Log.d("DEBUG", transcript)
+                            try {
+                                if (finalSegment.words.values.size >= 5) {
+                                    movePieceWithVoiceCommand(transcript)
+                                }
+                            } catch(error: Error) {
+                                Log.d("ERROR", error.toString())
+                            }
+                        }
                     }
                 }
             }
