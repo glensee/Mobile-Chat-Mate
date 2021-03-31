@@ -26,6 +26,7 @@ class LobbyActivity : AppCompatActivity() {
     private var roomIdList = ArrayList<String>()
     private var playerName = ""
     private var uuid = ""
+    private lateinit var snapshotListener: ListenerRegistration
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,7 +45,7 @@ class LobbyActivity : AppCompatActivity() {
 
         // listen to room changes
         roomRef = db.collection("rooms")
-        roomRef.addSnapshotListener { snapshot, e ->
+        snapshotListener = roomRef.addSnapshotListener { snapshot, e ->
             if (e != null) {
                 Log.w("cliffen", "Listen failed.", e)
                 return@addSnapshotListener
@@ -100,7 +101,8 @@ class LobbyActivity : AppCompatActivity() {
                 it.putExtra("identity", "player")
                 it.putExtra("name", playerName)
                 it.putExtra("uuid", uuid)
-                    startActivity(it)
+                snapshotListener.remove()
+                startActivity(it)
                 }
                 roomsAdapter.notifyDataSetChanged()
 
@@ -131,6 +133,7 @@ class LobbyActivity : AppCompatActivity() {
         it.putExtra("identity", "owner")
         it.putExtra("name", playerName)
         it.putExtra("uuid", uuid)
+        snapshotListener.remove()
         startActivity(it)
     }
 }

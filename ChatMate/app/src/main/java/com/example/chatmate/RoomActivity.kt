@@ -11,6 +11,7 @@ import android.widget.Toast
 import com.example.chatmate.databinding.ActivityRoomBinding
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -28,6 +29,7 @@ class RoomActivity : AppCompatActivity() {
     private var matchStarted = false
     private var name = ""
     private var uuid = ""
+    private lateinit var snapshotListener: ListenerRegistration
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,7 +74,7 @@ class RoomActivity : AppCompatActivity() {
         // add listener to update owner and player
             val roomRef = db.collection("rooms").document(roomId)
 
-        roomRef.addSnapshotListener { snapshot, e ->
+        snapshotListener = roomRef.addSnapshotListener { snapshot, e ->
             Log.i("cliffen debug", roomRef.toString())
             if (e != null) {
                 Log.w("cliffen", "Listen failed.", e)
@@ -91,6 +93,7 @@ class RoomActivity : AppCompatActivity() {
                     ownerStatus = "WAITING"
                     viewOwnerStatus.setTextColor(Color.parseColor("#B0A64C"))
                     Toast.makeText(this, "room closed by owner", Toast.LENGTH_SHORT).show()
+                    snapshotListener.remove()
                     finish()
                 }
 
@@ -179,6 +182,8 @@ class RoomActivity : AppCompatActivity() {
                 }
 
                 if (ownerStatus == "READY" && playerStatus == "READY" && matchStarted) {
+                    Log.i("cliffen", "i started one time")
+                    snapshotListener.remove()
                     val it = Intent(this, GameActivity::class.java)
                     it.putExtra("roomId", roomId)
                     it.putExtra("name", name)
@@ -235,6 +240,7 @@ class RoomActivity : AppCompatActivity() {
             )
 
             docRef.update(updates).addOnCompleteListener { }
+            snapshotListener.remove()
             finish()
         } else {
             // remove 'owner' field from document to let player know owner left
@@ -261,6 +267,7 @@ class RoomActivity : AppCompatActivity() {
             )
 
             docRef.update(updates).addOnCompleteListener { }
+            snapshotListener.remove()
             finish()
 
         } else {

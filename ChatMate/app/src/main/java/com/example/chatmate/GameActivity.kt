@@ -14,8 +14,11 @@ import com.github.bhlangonijr.chesslib.Piece
 import com.github.bhlangonijr.chesslib.Side
 import com.github.bhlangonijr.chesslib.Square
 import com.github.bhlangonijr.chesslib.move.Move
+import com.google.android.gms.tasks.Task
 import com.google.android.material.imageview.ShapeableImageView
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -50,6 +53,9 @@ class GameActivity : AppCompatActivity() {
     private lateinit var onlinePlayerName: String
     private  var isOnlineGameIntialized = false
     private lateinit var finalSegment: Segment
+    private lateinit var successListener: Task<DocumentSnapshot>
+    private lateinit var snapshotListener: ListenerRegistration
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         gameBinding = ActivityGameBinding.inflate(layoutInflater)
@@ -320,6 +326,8 @@ class GameActivity : AppCompatActivity() {
 //        myDialog.setCanceledOnTouchOutside(false)
 //        myDialog.setCancelable(false)
 //        myDialog.findViewById<Button>(R.id.returnBtn).setOnClickListener{
+            // remove firestore snapshot and success listener
+//            snapshotListener.remove()
 //            finish()
 //        }
 //        if (board.isMated) {
@@ -373,31 +381,32 @@ class GameActivity : AppCompatActivity() {
                     gameBinding.onlineGameTitle.text = "Currently playing with $onlinePlayerName"
                     gameBinding.onlineGameTurnText.text = "${onlinePlayerName}'s (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
                 }
+            }
+        }
 
-                roomRef.addSnapshotListener { snapshot, e ->
-                    if (e != null) {
-                        return@addSnapshotListener
-                    }
+        snapshotListener = roomRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                return@addSnapshotListener
+            }
 
-                    if (snapshot != null && snapshot.exists()) {
-                        // On Board State Change
-                        val onlineBoardState = snapshot.data!!["boardState"].toString()
-                        if (onlineBoardState !== "null" && board.fen !== onlineBoardState) {
-                            board.loadFromFen(onlineBoardState)
-                            renderBoardState()
-                            afterMoveHandler()
-                            if (board.sideToMove == localPlayerColor) {
-                                gameBinding.onlineGameTurnText.text = "Your (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
-                            } else {
-                                gameBinding.onlineGameTurnText.text = "${onlinePlayerName}'s (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
-                            }
-                            currentLegalMoves.clear()
-                            currentLegalMoves.addAll(board.legalMoves())
-                        }
+            if (snapshot != null && snapshot.exists()) {
+                // On Board State Change
+                val onlineBoardState = snapshot.data!!["boardState"].toString()
+                if (onlineBoardState !== "null" && board.fen !== onlineBoardState) {
+                    board.loadFromFen(onlineBoardState)
+                    renderBoardState()
+                    afterMoveHandler()
+                    if (board.sideToMove == localPlayerColor) {
+                        gameBinding.onlineGameTurnText.text = "Your (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
+                    } else {
+                        gameBinding.onlineGameTurnText.text = "${onlinePlayerName}'s (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
                     }
+                    currentLegalMoves.clear()
+                    currentLegalMoves.addAll(board.legalMoves())
                 }
             }
         }
+
         isOnlineGameIntialized = true
     }
 
