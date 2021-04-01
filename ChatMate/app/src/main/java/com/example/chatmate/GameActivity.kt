@@ -263,6 +263,7 @@ class GameActivity : AppCompatActivity() {
                 board.doMove(newMove)
                 renderBoardState()
                 tileSelectedIndex = -1
+
                 afterMoveHandler()
 
                 if (isOnlineGame){
@@ -326,7 +327,7 @@ class GameActivity : AppCompatActivity() {
         myDialog.setCanceledOnTouchOutside(false)
         myDialog.setCancelable(false)
         myDialog.findViewById<Button>(R.id.returnBtn).setOnClickListener{
-             remove firestore snapshot and success listener
+             //remove firestore snapshot and success listener
             snapshotListener.remove()
             finish()
         }
@@ -357,12 +358,20 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
+    private fun saveBoardHistory() {
+
+    }
+
     private fun setupOnlineGame() {
+        var boardHistory = ArrayList<String>()
+        boardHistory.add(board.fen)
         isOnlineGame = true
         val roomRef = db.collection("rooms").document(roomId)
 
         // Initialize turn variable
-        val turnData = hashMapOf("currentTurn" to board.sideToMove.toString())
+        val turnData = hashMapOf(
+                "currentTurn" to board.sideToMove.toString(),
+                "boardHistory" to boardHistory)
         roomRef.set(turnData, SetOptions.merge())
 
         // Setup Headers
@@ -392,6 +401,7 @@ class GameActivity : AppCompatActivity() {
             if (snapshot != null && snapshot.exists()) {
                 // On Board State Change
                 val onlineBoardState = snapshot.data!!["boardState"].toString()
+
                 if (onlineBoardState !== "null" && board.fen !== onlineBoardState) {
                     board.loadFromFen(onlineBoardState)
                     renderBoardState()
@@ -411,8 +421,28 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun sendBoardStateOnline() {
+        val TAG = "cliffen"
+        var boardHistory = ArrayList<String>()
         val roomRef = db.collection("rooms").document(roomId)
-        val boardData = hashMapOf("boardState" to board.fen)
+
+        roomRef.get()
+                .addOnSuccessListener { document ->
+                    if (document != null) {
+                        Log.d(TAG, "DocumentSnapshot data: ${document.data}")
+                        boardHistory = document.data!!["boardHistory"] as ArrayList<String>
+                    } else {
+                        Log.d(TAG, "No such document")
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    Log.d(TAG, "get failed with ", exception)
+                }
+
+        boardHistory.add(board.fen)
+        Log.i("cliffen", boardHistory.toString())
+        val boardData = hashMapOf(
+            "boardState" to board.fen,
+            "boardHistory" to boardHistory)
         roomRef.set(boardData, SetOptions.merge())
     }
 }
