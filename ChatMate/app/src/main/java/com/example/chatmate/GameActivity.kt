@@ -321,40 +321,40 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun afterMoveHandler() {
-//        val myDialog = Dialog(this)
-//        myDialog.setContentView(R.layout.game_finish_popup)
-//        myDialog.setCanceledOnTouchOutside(false)
-//        myDialog.setCancelable(false)
-//        myDialog.findViewById<Button>(R.id.returnBtn).setOnClickListener{
-            // remove firestore snapshot and success listener
-//            snapshotListener.remove()
-//            finish()
-//        }
-//        if (board.isMated) {
-//            myDialog.show()
-//            val result = "${board.sideToMove.flip().toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)} Wins"
-//            myDialog.findViewById<TextView>(R.id.resultText).setText(result)
-//            if(board.sideToMove == Side.BLACK){
-//                myDialog.findViewById<ShapeableImageView>(R.id.whiteAvatar).setBackgroundColor(ContextCompat.getColor(this, R.color.text_color_green))
-//            } else {
-//                myDialog.findViewById<ShapeableImageView>(R.id.blackAvatar).setBackgroundColor(ContextCompat.getColor(this, R.color.text_color_green))
-//            }
-//        } else if (board.isDraw) {
-//            if (board.isRepetition) {
-//                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
-//                myDialog.show()
-//            } else if (board.isInsufficientMaterial) {
-//                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
-//                myDialog.show()
-//            } else if (board.halfMoveCounter >= 100) {
-//                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
-//                myDialog.show()
-//            }
-//            else if (board.isStaleMate){
-//                myDialog.findViewById<TextView>(R.id.resultText).setText("Stale Mate")
-//                myDialog.show()
-//            }
-//        }
+        val myDialog = Dialog(this)
+        myDialog.setContentView(R.layout.game_finish_popup)
+        myDialog.setCanceledOnTouchOutside(false)
+        myDialog.setCancelable(false)
+        myDialog.findViewById<Button>(R.id.returnBtn).setOnClickListener{
+             remove firestore snapshot and success listener
+            snapshotListener.remove()
+            finish()
+        }
+        if (board.isMated) {
+            myDialog.show()
+            val result = "${board.sideToMove.flip().toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)} Wins"
+            myDialog.findViewById<TextView>(R.id.resultText).setText(result)
+            if(board.sideToMove == Side.BLACK){
+                myDialog.findViewById<ShapeableImageView>(R.id.whiteAvatar).setBackgroundColor(ContextCompat.getColor(this, R.color.text_color_green))
+            } else {
+                myDialog.findViewById<ShapeableImageView>(R.id.blackAvatar).setBackgroundColor(ContextCompat.getColor(this, R.color.text_color_green))
+            }
+        } else if (board.isDraw) {
+            if (board.isRepetition) {
+                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
+                myDialog.show()
+            } else if (board.isInsufficientMaterial) {
+                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
+                myDialog.show()
+            } else if (board.halfMoveCounter >= 100) {
+                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
+                myDialog.show()
+            }
+            else if (board.isStaleMate){
+                myDialog.findViewById<TextView>(R.id.resultText).setText("Stale Mate")
+                myDialog.show()
+            }
+        }
     }
 
     private fun setupOnlineGame() {
