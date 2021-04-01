@@ -3,6 +3,7 @@ package com.example.chatmate
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
+import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -238,7 +239,7 @@ class RoomActivity : AppCompatActivity() {
             val updates = hashMapOf<String, Any>(
                 "player" to FieldValue.delete()
             )
-
+            MediaPlayer.create(this, R.raw.ui_click).start()
             docRef.update(updates).addOnCompleteListener { }
             snapshotListener.remove()
             finish()
@@ -265,7 +266,7 @@ class RoomActivity : AppCompatActivity() {
             val updates = hashMapOf<String, Any>(
                 "player" to FieldValue.delete()
             )
-
+            MediaPlayer.create(this, R.raw.ui_click).start()
             docRef.update(updates).addOnCompleteListener { }
             snapshotListener.remove()
             finish()

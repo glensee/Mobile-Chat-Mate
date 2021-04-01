@@ -1,6 +1,7 @@
 package com.example.chatmate
 import android.app.Dialog
 import android.graphics.Color
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
@@ -55,6 +56,7 @@ class GameActivity : AppCompatActivity() {
     private lateinit var finalSegment: Segment
     private lateinit var successListener: Task<DocumentSnapshot>
     private lateinit var snapshotListener: ListenerRegistration
+    private lateinit var mediaPlayer: MediaPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,6 +93,18 @@ class GameActivity : AppCompatActivity() {
             gameBinding.onlineGameHeader.visibility = View.VISIBLE
             setupOnlineGame()
         }
+    }
+
+    override fun onResume() {
+        mediaPlayer = MediaPlayer.create(this, R.raw.music)
+        mediaPlayer.isLooping = true
+        mediaPlayer.start()
+        super.onResume()
+    }
+
+    override fun onPause() {
+        mediaPlayer.stop()
+        super.onPause()
     }
 
     private var voiceCommandButtonTouchListener = object : View.OnTouchListener {
@@ -326,7 +340,7 @@ class GameActivity : AppCompatActivity() {
         myDialog.setCanceledOnTouchOutside(false)
         myDialog.setCancelable(false)
         myDialog.findViewById<Button>(R.id.returnBtn).setOnClickListener{
-             remove firestore snapshot and success listener
+//             remove firestore snapshot and success listener
             snapshotListener.remove()
             finish()
         }
