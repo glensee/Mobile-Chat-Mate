@@ -30,7 +30,6 @@ import java.lang.Exception
 import java.util.*
 import kotlin.collections.ArrayList
 
-
 class GameActivity : AppCompatActivity() {
     private lateinit var gameBinding: ActivityGameBinding
     private lateinit var board: Board
@@ -42,7 +41,7 @@ class GameActivity : AppCompatActivity() {
     private var tileSelectedIndex = -1
     // List of Legal Moves for Current Turn
     private val currentLegalMoves = ArrayList<Move>()
-    private var finalString = ""
+    private var moveSanList = ArrayList<String>()
 
     // Online Game Variables
     private lateinit var db: FirebaseFirestore
@@ -258,13 +257,11 @@ class GameActivity : AppCompatActivity() {
             val newMove = Move(Square.squareAt(tileSelectedIndex),Square.squareAt(tileIndex))
             // Check if New Move is Legal
             if(newMove in currentLegalMoves) {
-                // TODO: Convert Move to the proper Notation (EUNICE)
-                val newMoveNotative = convertMoveToNotation(newMove)
                 // TODO: save move to a array before making the move (ARIX DO TMR)
-                val moveListLocal = MoveListLocal() as MoveListLocal
+                val moveListLocal = MoveListLocal()
                 val tempBoard = board.clone()
                 val san = moveListLocal.encodeSan(tempBoard, newMove)
-                Log.d("debug san", san.toString())
+                moveSanList.add(san)
                 board.doMove(newMove)
                 renderBoardState()
                 tileSelectedIndex = -1
@@ -295,10 +292,11 @@ class GameActivity : AppCompatActivity() {
             val newMove = Move(from, to)
             // Check if New Move is Legal
             if(newMove in currentLegalMoves) {
-                // TODO: Convert Move to the proper Notation (EUNICE)
-                val newMoveNotative = convertMoveToNotation(newMove)
                 // TODO: save move to a array before making the move (ARIX DO TMR)
-
+                val moveListLocal = MoveListLocal()
+                val tempBoard = board.clone()
+                val san = moveListLocal.encodeSan(tempBoard, newMove)
+                moveSanList.add(san)
                 board.doMove(newMove)
                 renderBoardState()
                 currentLegalMoves.clear()
@@ -339,6 +337,7 @@ class GameActivity : AppCompatActivity() {
             myDialog.show()
             val result = "${board.sideToMove.flip().toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)} Wins"
             myDialog.findViewById<TextView>(R.id.resultText).setText(result)
+            // TODO clear movelist
             if(board.sideToMove == Side.BLACK){
                 myDialog.findViewById<ShapeableImageView>(R.id.whiteAvatar).setBackgroundColor(ContextCompat.getColor(this, R.color.text_color_green))
             } else {
@@ -346,16 +345,20 @@ class GameActivity : AppCompatActivity() {
             }
         } else if (board.isDraw) {
             if (board.isRepetition) {
+                // TODO clear movelist
                 myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
                 myDialog.show()
             } else if (board.isInsufficientMaterial) {
+                // TODO clear movelist
                 myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
                 myDialog.show()
             } else if (board.halfMoveCounter >= 100) {
+                // TODO clear movelist
                 myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
                 myDialog.show()
             }
             else if (board.isStaleMate){
+                // TODO clear movelist
                 myDialog.findViewById<TextView>(R.id.resultText).setText("Stale Mate")
                 myDialog.show()
             }
@@ -420,26 +423,4 @@ class GameActivity : AppCompatActivity() {
         roomRef.set(boardData, SetOptions.merge())
     }
 
-    private fun convertMoveToNotation (move: Move): String {
-        var notation = String()
-        // check what piece i moved
-
-        // check where i moved it to
-
-        // check if theres castling
-
-        // check if theres eating
-
-        // Documentation for Move Object
-        // https://github.com/bhlangonijr/chesslib/blob/master/src/main/java/com/github/bhlangonijr/chesslib/move/Move.java
-
-        // Documentation for Board Object
-        // https://github.com/bhlangonijr/chesslib/blob/master/src/main/java/com/github/bhlangonijr/chesslib/Board.java
-
-        Log.d("Debuging For Eunice", move.to.toString()) // the SQUARE that the move is going to
-        Log.d("Debuging For Eunice", move.toString())
-
-        // return a string of the move notation
-        return ""
-    }
 }
