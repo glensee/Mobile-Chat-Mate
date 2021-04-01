@@ -423,4 +423,9 @@ class GameActivity : AppCompatActivity() {
         roomRef.set(boardData, SetOptions.merge())
     }
 
+    fun flipView(view: View) {
+        val flipper = findViewById<ViewFlipper>(R.id.viewFlipper)
+        flipper.showNext()
+    }
+
 }
