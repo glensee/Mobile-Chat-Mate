@@ -187,6 +187,7 @@ class RoomActivity : AppCompatActivity() {
                     val it = Intent(this, GameActivity::class.java)
                     it.putExtra("roomId", roomId)
                     it.putExtra("name", name)
+                    it.putExtra("identity", identity)
                     startActivity(it)
                 }
 

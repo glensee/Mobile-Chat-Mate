@@ -1,11 +1,14 @@
 package com.example.chatmate
 import android.app.Dialog
+import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.*
+import android.widget.Toast.LENGTH_SHORT
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.chatmate.databinding.ActivityGameBinding
@@ -28,9 +31,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.io.FileOutputStream
+import java.io.OutputStreamWriter
 import java.lang.Exception
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 
 class GameActivity : AppCompatActivity() {
@@ -49,12 +55,17 @@ class GameActivity : AppCompatActivity() {
     private var isOnlineGame = false
     private lateinit var roomId: String
     private lateinit var localPlayerName: String
+    private lateinit var opponent: String
     private lateinit var localPlayerColor:Side
     private lateinit var onlinePlayerName: String
     private  var isOnlineGameIntialized = false
     private lateinit var finalSegment: Segment
     private lateinit var successListener: Task<DocumentSnapshot>
     private lateinit var snapshotListener: ListenerRegistration
+    private lateinit var boardHistory: ArrayList<String>
+    private var boardHistoryLocal = ArrayList<String>()
+    private lateinit var identity: String
+    private var roomLeft = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,6 +76,9 @@ class GameActivity : AppCompatActivity() {
 
         // Get Local Player Name
         localPlayerName = intent.getStringExtra("name").toString()
+
+        // Get identity
+        identity = intent.getStringExtra("identity").toString()
 
         // Assign Voice Command Listener to Button
         gameBinding.voiceCommandBtn.setOnTouchListener(voiceCommandButtonTouchListener)
@@ -78,6 +92,10 @@ class GameActivity : AppCompatActivity() {
 
         // Generate a new board
         board = Board()
+
+        // Initialize local boardHistoryArray for local multiplayer
+        boardHistoryLocal.add(board.fen)
+
         // Create Image button tiles in the layout
         generateChessBoardTileButtons()
         // Set the Image in the Image button based on pieces in board class
@@ -261,6 +279,12 @@ class GameActivity : AppCompatActivity() {
             // Check if New Move is Legal
             if(newMove in currentLegalMoves) {
                 board.doMove(newMove)
+
+                // Save board state to boardHistoryLocal array if game is offline
+                if (!isOnlineGame) {
+                    boardHistoryLocal.add(board.fen)
+                    Log.i("cliffen", boardHistoryLocal.toString())
+                }
                 renderBoardState()
                 tileSelectedIndex = -1
 
@@ -328,12 +352,18 @@ class GameActivity : AppCompatActivity() {
         myDialog.setCancelable(false)
         myDialog.findViewById<Button>(R.id.returnBtn).setOnClickListener{
              //remove firestore snapshot and success listener
-            snapshotListener.remove()
+            if (isOnlineGame) {
+                snapshotListener.remove()
+                deleteRoomDocument()
+                roomLeft = true
+            }
             finish()
         }
         if (board.isMated) {
             myDialog.show()
-            val result = "${board.sideToMove.flip().toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)} Wins"
+            val winner = board.sideToMove.flip().toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)
+            val result = "$winner Wins"
+            saveBoardHistory(winner)
             myDialog.findViewById<TextView>(R.id.resultText).setText(result)
             if(board.sideToMove == Side.BLACK){
                 myDialog.findViewById<ShapeableImageView>(R.id.whiteAvatar).setBackgroundColor(ContextCompat.getColor(this, R.color.text_color_green))
@@ -343,76 +373,156 @@ class GameActivity : AppCompatActivity() {
         } else if (board.isDraw) {
             if (board.isRepetition) {
                 myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
+                saveBoardHistory("")
                 myDialog.show()
             } else if (board.isInsufficientMaterial) {
                 myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
+                saveBoardHistory("")
                 myDialog.show()
             } else if (board.halfMoveCounter >= 100) {
                 myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
+                saveBoardHistory("")
                 myDialog.show()
             }
             else if (board.isStaleMate){
                 myDialog.findViewById<TextView>(R.id.resultText).setText("Stale Mate")
+                saveBoardHistory("")
                 myDialog.show()
             }
         }
     }
 
-    private fun saveBoardHistory() {
+    private fun deleteRoomDocument() {
+        val TAG = "cliffen"
+        val roomRef = db.collection("rooms").document(roomId)
 
+        roomRef.get()
+                .addOnSuccessListener { document ->
+                    if (document != null && document.exists()) {
+                        Log.d(TAG, "DocumentSnapshot data: ${document.data}")
+                        val roomClosed = document.data!!["roomClosed"]
+
+                        if (document.get("roomClosed") !== null) {
+                            // delete room from firestore
+                            db.collection("rooms").document(roomId)
+                                    .delete()
+                                    .addOnSuccessListener { Log.d("cliffen", "DocumentSnapshot successfully deleted!") }
+                                    .addOnFailureListener { e -> Log.w("cliffen", "Error deleting document", e) }
+                        } else {
+                            val roomClosed = hashMapOf("roomClosed" to 1)
+                            roomRef.set(roomClosed, SetOptions.merge())
+                        }
+
+                    } else {
+                        Log.d(TAG, "Failed to delete document")
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    Log.d(TAG, "get failed with ", exception)
+                }
+    }
+
+    private fun saveBoardHistory(winner: String) {
+
+        val TAG = "cliffen"
+        val roomRef = db.collection("rooms").document(roomId)
+
+        try {
+                val fileOutputStream: FileOutputStream = openFileOutput("${localPlayerName}.txt", Context.MODE_APPEND)
+                val outputWriter = OutputStreamWriter(fileOutputStream)
+
+                if (isOnlineGame) {
+                    roomRef.get()
+                            .addOnSuccessListener { document ->
+                                if (document != null && document.exists()) {
+                                    Log.d(TAG, "DocumentSnapshot data: ${document.data}")
+                                    boardHistory = document.data!!["boardHistory"]!! as ArrayList<String>
+                                    outputWriter.write("$localPlayerName vs $opponent  $boardHistory  $winner " + "\n")
+                                    outputWriter.close()
+
+                                } else {
+                                    Toast.makeText(this, "Failed to add match to history!", LENGTH_SHORT).show()
+                                    Log.d(TAG, "No such document")
+                                }
+                            }
+                            .addOnFailureListener { exception ->
+                                Toast.makeText(this, "Failed to add match to history!", LENGTH_SHORT).show()
+                                Log.d(TAG, "get failed with ", exception)
+                            }
+                } else {
+                    outputWriter.write("Local game  $boardHistoryLocal  $winner " + "\n")
+                    outputWriter.close()
+                }
+
+            }
+
+        catch (e: Exception) {
+            Toast.makeText(this, "Failed to add match to history!", LENGTH_SHORT).show()
+            e.printStackTrace()
+        }
     }
 
     private fun setupOnlineGame() {
-        var boardHistory = ArrayList<String>()
-        boardHistory.add(board.fen)
+
         isOnlineGame = true
         val roomRef = db.collection("rooms").document(roomId)
+        var turnData = HashMap<Any, Any>()
 
         // Initialize turn variable
-        val turnData = hashMapOf(
-                "currentTurn" to board.sideToMove.toString(),
-                "boardHistory" to boardHistory)
+        if (identity == "owner") {
+            val boardHistory = ArrayList<String>()
+            boardHistory.add(board.fen)
+            turnData = hashMapOf(
+                    "currentTurn" to board.sideToMove.toString(),
+                    "boardHistory" to boardHistory)
+        } else {
+            turnData = hashMapOf("currentTurn" to board.sideToMove.toString())
+        }
+
         roomRef.set(turnData, SetOptions.merge())
 
         // Setup Headers
         roomRef.get().addOnSuccessListener { document ->
             if (document != null) {
+
+                snapshotListener = roomRef.addSnapshotListener { snapshot, e ->
+                    if (e != null) {
+                        return@addSnapshotListener
+                    }
+
+                    if (snapshot != null && snapshot.exists()) {
+                        // On Board State Change
+                        val onlineBoardState = snapshot.data!!["boardState"].toString()
+
+                        if (onlineBoardState !== "null" && board.fen !== onlineBoardState) {
+                            board.loadFromFen(onlineBoardState)
+                            renderBoardState()
+                            afterMoveHandler()
+                            if (board.sideToMove == localPlayerColor) {
+                                gameBinding.onlineGameTurnText.text = "Your (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
+                            } else {
+                                gameBinding.onlineGameTurnText.text = "${onlinePlayerName}'s (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
+                            }
+                            currentLegalMoves.clear()
+                            currentLegalMoves.addAll(board.legalMoves())
+                        }
+                    }
+                }
+
                 val owner = document.data?.getValue("owner").toString()
                 val player = document.data?.getValue("player").toString()
                 if (owner == localPlayerName) {
+                    opponent = player
                     localPlayerColor  = Side.WHITE
                     onlinePlayerName = player
                     gameBinding.onlineGameTitle.text = "Currently playing with $onlinePlayerName"
                     gameBinding.onlineGameTurnText.text = "Your (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
                 } else {
+                    opponent = owner
                     localPlayerColor  = Side.BLACK
                     onlinePlayerName = owner
                     gameBinding.onlineGameTitle.text = "Currently playing with $onlinePlayerName"
                     gameBinding.onlineGameTurnText.text = "${onlinePlayerName}'s (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
-                }
-            }
-        }
-
-        snapshotListener = roomRef.addSnapshotListener { snapshot, e ->
-            if (e != null) {
-                return@addSnapshotListener
-            }
-
-            if (snapshot != null && snapshot.exists()) {
-                // On Board State Change
-                val onlineBoardState = snapshot.data!!["boardState"].toString()
-
-                if (onlineBoardState !== "null" && board.fen !== onlineBoardState) {
-                    board.loadFromFen(onlineBoardState)
-                    renderBoardState()
-                    afterMoveHandler()
-                    if (board.sideToMove == localPlayerColor) {
-                        gameBinding.onlineGameTurnText.text = "Your (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
-                    } else {
-                        gameBinding.onlineGameTurnText.text = "${onlinePlayerName}'s (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
-                    }
-                    currentLegalMoves.clear()
-                    currentLegalMoves.addAll(board.legalMoves())
                 }
             }
         }
@@ -422,7 +532,6 @@ class GameActivity : AppCompatActivity() {
 
     private fun sendBoardStateOnline() {
         val TAG = "cliffen"
-        var boardHistory = ArrayList<String>()
         val roomRef = db.collection("rooms").document(roomId)
 
         roomRef.get()
@@ -430,6 +539,13 @@ class GameActivity : AppCompatActivity() {
                     if (document != null) {
                         Log.d(TAG, "DocumentSnapshot data: ${document.data}")
                         boardHistory = document.data!!["boardHistory"] as ArrayList<String>
+                        Log.i("cliffen before", boardHistory.toString())
+                        boardHistory.add(board.fen)
+                        Log.i("cliffen after", boardHistory.toString())
+                        val boardData = hashMapOf(
+                                "boardState" to board.fen,
+                                "boardHistory" to boardHistory)
+                        roomRef.set(boardData, SetOptions.merge())
                     } else {
                         Log.d(TAG, "No such document")
                     }
@@ -437,12 +553,12 @@ class GameActivity : AppCompatActivity() {
                 .addOnFailureListener { exception ->
                     Log.d(TAG, "get failed with ", exception)
                 }
+    }
 
-        boardHistory.add(board.fen)
-        Log.i("cliffen", boardHistory.toString())
-        val boardData = hashMapOf(
-            "boardState" to board.fen,
-            "boardHistory" to boardHistory)
-        roomRef.set(boardData, SetOptions.merge())
+    override fun onStop() {
+        super.onStop()
+        if (!roomLeft) {
+            deleteRoomDocument()
+        }
     }
 }
