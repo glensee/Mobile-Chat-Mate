@@ -96,6 +96,7 @@ class GameActivity : AppCompatActivity() {
     }
 
     override fun onResume() {
+        // Play Maplestory music
         mediaPlayer = MediaPlayer.create(this, R.raw.music)
         mediaPlayer.isLooping = true
         mediaPlayer.start()
