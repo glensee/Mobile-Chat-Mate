@@ -66,6 +66,7 @@ class GameActivity : AppCompatActivity() {
     private var boardHistoryLocal = ArrayList<String>()
     private lateinit var identity: String
     private var roomLeft = false
+    private var boardSaved = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -363,7 +364,9 @@ class GameActivity : AppCompatActivity() {
             myDialog.show()
             val winner = board.sideToMove.flip().toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)
             val result = "$winner Wins"
-            saveBoardHistory(winner)
+            if (!isOnlineGame) {
+                saveBoardHistory(winner)
+            }
             myDialog.findViewById<TextView>(R.id.resultText).setText(result)
             if(board.sideToMove == Side.BLACK){
                 myDialog.findViewById<ShapeableImageView>(R.id.whiteAvatar).setBackgroundColor(ContextCompat.getColor(this, R.color.text_color_green))
@@ -373,20 +376,28 @@ class GameActivity : AppCompatActivity() {
         } else if (board.isDraw) {
             if (board.isRepetition) {
                 myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
-                saveBoardHistory("")
+                if (!isOnlineGame) {
+                    saveBoardHistory("")
+                }
                 myDialog.show()
             } else if (board.isInsufficientMaterial) {
                 myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
-                saveBoardHistory("")
+                if (!isOnlineGame) {
+                    saveBoardHistory("")
+                }
                 myDialog.show()
             } else if (board.halfMoveCounter >= 100) {
                 myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
-                saveBoardHistory("")
+                if (!isOnlineGame) {
+                    saveBoardHistory("")
+                }
                 myDialog.show()
             }
             else if (board.isStaleMate){
                 myDialog.findViewById<TextView>(R.id.resultText).setText("Stale Mate")
-                saveBoardHistory("")
+                if (!isOnlineGame) {
+                    saveBoardHistory("")
+                }
                 myDialog.show()
             }
         }
@@ -438,6 +449,7 @@ class GameActivity : AppCompatActivity() {
                                     Log.d(TAG, "DocumentSnapshot data: ${document.data}")
                                     boardHistory = document.data!!["boardHistory"]!! as ArrayList<String>
                                     outputWriter.write("$localPlayerName vs $opponent  $boardHistory  $winner " + "\n")
+                                    boardSaved = true
                                     outputWriter.close()
 
                                 } else {
@@ -451,6 +463,7 @@ class GameActivity : AppCompatActivity() {
                             }
                 } else {
                     outputWriter.write("Local game  $boardHistoryLocal  $winner " + "\n")
+                    boardSaved = true
                     outputWriter.close()
                 }
 
@@ -505,6 +518,25 @@ class GameActivity : AppCompatActivity() {
                             }
                             currentLegalMoves.clear()
                             currentLegalMoves.addAll(board.legalMoves())
+                        }
+
+                        // save match history if mated
+                        if (!boardSaved) {
+                            if (board.isMated) {
+                                val winner = board.sideToMove.flip().toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)
+                                saveBoardHistory(winner)
+                            } else if (board.isDraw) {
+                                if (board.isRepetition) {
+                                    saveBoardHistory("")
+                                } else if (board.isInsufficientMaterial) {
+                                    saveBoardHistory("")
+                                } else if (board.halfMoveCounter >= 100) {
+                                    saveBoardHistory("")
+                                }
+                                else if (board.isStaleMate){
+                                    saveBoardHistory("")
+                                }
+                            }
                         }
                     }
                 }
