@@ -192,7 +192,7 @@ class GameActivity : AppCompatActivity() {
         // The Final Sequence matches the Sequence Used in the Board Class
         for (i in boardArrayList.size - 1 downTo 0) {
             var index = i
-            if (this::localPlayerColor.isInitialized && localPlayerColor == Side.BLACK) {
+            if (identity != "owner") {
                 index = boardArrayList.size - 1 - i
             }
             for (tile in boardArrayList[index]) {
