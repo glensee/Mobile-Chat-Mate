@@ -448,7 +448,11 @@ class GameActivity : AppCompatActivity() {
                                 if (document != null && document.exists()) {
                                     Log.d(TAG, "DocumentSnapshot data: ${document.data}")
                                     boardHistory = document.data!!["boardHistory"]!! as ArrayList<String>
-                                    outputWriter.write("$localPlayerName vs $opponent  $boardHistory  $winner " + "\n")
+                                    if (identity == "owner") {
+                                        outputWriter.write("$localPlayerName vs $opponent  $boardHistory  $winner " + "\n")
+                                    } else {
+                                        outputWriter.write("$opponent vs $localPlayerName  $boardHistory  $winner " + "\n")
+                                    }
                                     boardSaved = true
                                     outputWriter.close()
 

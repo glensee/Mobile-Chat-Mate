@@ -1,5 +1,6 @@
 package com.example.chatmate
 
+import android.opengl.Visibility
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -45,8 +46,13 @@ class ReplayActivity : AppCompatActivity() {
         // assigning variables to be displayed
         title = matchesInfo[0]
         val boardHistoryString = matchesInfo[1].toString().trim('[').trim(']')
-        boardHistory = boardHistoryString.split(", ") as ArrayList<String>
-        winner = matchesInfo[2]
+        Log.i(TAG, boardHistoryString)
+        if (boardHistoryString.contains(", ")) {
+            boardHistory = boardHistoryString.split(", ") as ArrayList<String>
+        } else {
+            boardHistory.add(boardHistoryString)
+        }
+        winner = matchesInfo[2].trim(' ')
         Log.i(TAG, "history: $boardHistory")
         Log.i(TAG, matchesInfo.toString())
 
@@ -58,14 +64,36 @@ class ReplayActivity : AppCompatActivity() {
         // Set the Image in the Image button based on pieces in board class
         renderBoardState(0)
 
+        // display player names
+        if (title == "Local game") {
+            binding.player1.text = "White"
+            binding.player2.text = "Black"
+        } else {
+            val playerArray = title.split(" vs ") as ArrayList<String>
+            binding.player1.text = playerArray.get(0)
+            binding.player2.text = playerArray.get(1)
+        }
+
+        // display winner tag
+        if (winner == "White") {
+            binding.trophy1.visibility = View.VISIBLE
+            binding.trophy2.visibility = View.GONE
+        } else if (winner == "Black") {
+            binding.trophy1.visibility = View.GONE
+            binding.trophy2.visibility = View.VISIBLE
+        }
+
         // adding seekbar value change listener
         val seekbar = binding.seekbar
         seekbar.min = 0
         seekbar.max = boardHistory.size -1
         seekbar.progress = 0
 
+        binding.moves.text = "Moves: ${seekbar.progress}/${seekbar.max}"
+
         seekbar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                binding.moves.text = "Moves: ${seekbar.progress}/${seekbar.max}"
                 renderBoardState(progress)
             }
 
@@ -165,6 +193,18 @@ class ReplayActivity : AppCompatActivity() {
                 chessTile.setBackgroundColor(ContextCompat.getColor(this, R.color.chess_dark))
             }
         }
+
+    }
+
+    private fun nextMove(view: View) {
+
+    }
+
+    private fun prevMove(view: View) {
+
+    }
+
+    private fun leaveRoom(view: View) {
 
     }
 }
