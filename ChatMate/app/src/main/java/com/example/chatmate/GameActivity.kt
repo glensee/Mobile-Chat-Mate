@@ -58,7 +58,10 @@ class GameActivity : AppCompatActivity() {
     private lateinit var finalSegment: Segment
     private lateinit var successListener: Task<DocumentSnapshot>
     private lateinit var snapshotListener: ListenerRegistration
+
+    // Music variables
     private lateinit var mediaPlayer: MediaPlayer
+    private var isMute = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -441,5 +444,17 @@ class GameActivity : AppCompatActivity() {
         val roomRef = db.collection("rooms").document(roomId)
         val boardData = hashMapOf("boardState" to board.fen)
         roomRef.set(boardData, SetOptions.merge())
+    }
+
+    fun adjustMusic(view: View) {
+        if (isMute) {
+            isMute = false
+            mediaPlayer.start()
+            gameBinding.adjustMusicBtn.icon = getDrawable(R.drawable.sound)
+        } else {
+            isMute = true
+            mediaPlayer.pause()
+            gameBinding.adjustMusicBtn.icon = getDrawable(R.drawable.mute)
+        }
     }
 }

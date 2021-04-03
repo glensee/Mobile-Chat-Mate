@@ -81,11 +81,29 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1">
+
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/adjustMusicBtn"
+                    style="@style/Widget.MaterialComponents.Button.Icon"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginRight="5sp"
+                    android:insetLeft="0dp"
+                    android:insetTop="0dp"
+                    android:insetRight="0dp"
+                    android:insetBottom="0dp"
+                    android:onClick="adjustMusic"
+                    app:icon="@drawable/sound"
+                    app:iconPadding="0dp"
+                    app:iconSize="24dp"
+                    app:shapeAppearanceOverlay="@style/ImageViewRounded" />
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/hideBoardToggleBtn"
                     android:layout_width="50dp"
