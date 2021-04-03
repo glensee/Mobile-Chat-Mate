@@ -285,10 +285,14 @@ class GameActivity : AppCompatActivity() {
                 return
             }
             // Check New Move Object
-            val newMove = Move(Square.squareAt(tileSelectedIndex),Square.squareAt(tileIndex))
+            var newMove = Move(Square.squareAt(tileSelectedIndex),Square.squareAt(tileIndex))
+            if (sideToMove == Side.WHITE && newMove.to.rank == Rank.RANK_8 && board.getPiece(Square.squareAt(tileSelectedIndex)) == Piece.WHITE_PAWN) {
+                openPromotionDialog(sideToMove, newMove)
+            } else if (sideToMove == Side.BLACK && newMove.to.rank == Rank.RANK_1 && board.getPiece(Square.squareAt(tileSelectedIndex)) == Piece.BLACK_PAWN) {
+                openPromotionDialog(sideToMove, newMove)
+            }
             // Check if New Move is Legal
             if(newMove in currentLegalMoves) {
-
                 board.doMove(newMove)
 
                 // Save board state to boardHistoryLocal array if game is offline
@@ -304,6 +308,80 @@ class GameActivity : AppCompatActivity() {
                 if (isOnlineGame){
                     sendBoardStateOnline()
                 }
+            }
+        }
+    }
+
+    private fun openPromotionDialog(side: Side, newMove: Move){
+        val myDialog = Dialog(this)
+        myDialog.setContentView(R.layout.pawn_promotion_popup)
+
+        val queenBtn = myDialog.findViewById<ImageButton>(R.id.queenBtn)
+        val knightBtn = myDialog.findViewById<ImageButton>(R.id.knightBtn)
+        val bishopBtn = myDialog.findViewById<ImageButton>(R.id.bishopBtn)
+        val rookBtn = myDialog.findViewById<ImageButton>(R.id.rookBtn)
+        if(side == Side.WHITE) {
+            queenBtn.setImageResource(R.drawable.w_queen_2x_ns)
+            knightBtn.setImageResource(R.drawable.w_knight_2x_ns)
+            bishopBtn.setImageResource(R.drawable.w_bishop_2x_ns)
+            rookBtn.setImageResource(R.drawable.w_rook_2x_ns)
+        } else {
+            queenBtn.setImageResource(R.drawable.b_queen_2x_ns)
+            knightBtn.setImageResource(R.drawable.b_knight_2x_ns)
+            bishopBtn.setImageResource(R.drawable.b_bishop_2x_ns)
+            rookBtn.setImageResource(R.drawable.b_rook_2x_ns)
+        }
+        queenBtn.setOnClickListener {
+            if(side == Side.WHITE) {
+                movePieceAndPromote(newMove, Piece.WHITE_QUEEN)
+            } else {
+                movePieceAndPromote(newMove, Piece.BLACK_QUEEN)
+            }
+            myDialog.dismiss()
+        }
+        knightBtn.setOnClickListener {
+            if(side == Side.WHITE) {
+                movePieceAndPromote(newMove, Piece.WHITE_KNIGHT)
+            } else {
+                movePieceAndPromote(newMove, Piece.BLACK_KNIGHT)
+            }
+            myDialog.dismiss()
+        }
+        bishopBtn.setOnClickListener {
+            if(side == Side.WHITE) {
+                movePieceAndPromote(newMove, Piece.WHITE_BISHOP)
+            } else {
+                movePieceAndPromote(newMove, Piece.BLACK_BISHOP)
+            }
+            myDialog.dismiss()
+        }
+        rookBtn.setOnClickListener {
+            if(side == Side.WHITE) {
+                movePieceAndPromote(newMove, Piece.WHITE_ROOK)
+            } else {
+                movePieceAndPromote(newMove, Piece.BLACK_ROOK)
+            }
+            myDialog.dismiss()
+        }
+        myDialog.show()
+    }
+    private fun movePieceAndPromote(move: Move, piece: Piece){
+        val newMove = Move(move.from, move.to, piece)
+        if(newMove in currentLegalMoves) {
+            board.doMove(newMove)
+
+            // Save board state to boardHistoryLocal array if game is offline
+            if (!isOnlineGame) {
+                boardHistoryLocal.add(board.fen)
+                Log.i("cliffen", boardHistoryLocal.toString())
+            }
+            renderBoardState()
+            tileSelectedIndex = -1
+
+            afterMoveHandler()
+
+            if (isOnlineGame){
+                sendBoardStateOnline()
             }
         }
     }
