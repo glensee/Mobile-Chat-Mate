@@ -30,6 +30,7 @@ class ReplayActivity : AppCompatActivity() {
     private var boardHistory = ArrayList<String>()
     private var winner = ""
     private var title = ""
+    private lateinit var seekbar: SeekBar
     private lateinit var localPlayerColor:Side
 
 
@@ -84,7 +85,7 @@ class ReplayActivity : AppCompatActivity() {
         }
 
         // adding seekbar value change listener
-        val seekbar = binding.seekbar
+        seekbar = binding.seekbar
         seekbar.min = 0
         seekbar.max = boardHistory.size -1
         seekbar.progress = 0
@@ -196,15 +197,23 @@ class ReplayActivity : AppCompatActivity() {
 
     }
 
-    private fun nextMove(view: View) {
-
+    fun nextMove(view: View) {
+        if (seekbar.progress < seekbar.max) {
+            seekbar.progress += 1
+        } else {
+            seekbar.progress = seekbar.max
+        }
     }
 
-    private fun prevMove(view: View) {
-
+    fun prevMove(view: View) {
+        if (seekbar.progress > 0) {
+            seekbar.progress -= 1
+        } else {
+            seekbar.progress = 0
+        }
     }
 
-    private fun leaveRoom(view: View) {
-
+    fun leaveRoom(view: View) {
+        finish()
     }
 }
