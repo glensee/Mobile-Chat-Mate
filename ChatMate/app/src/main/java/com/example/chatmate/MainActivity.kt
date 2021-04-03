@@ -60,6 +60,8 @@ class MainActivity : AppCompatActivity() {
         if (name.length <= 0) {
             Toast.makeText(this, "Please enter a username!", Toast.LENGTH_SHORT)
                 .show()
+        } else if (name.contains(" ")) {
+            Toast.makeText(this, "Spaces in name not allowed!", Toast.LENGTH_SHORT).show()
         } else {
             val sharedPref = this.getSharedPreferences("usernames", Context.MODE_PRIVATE)
             val existingUUID = sharedPref.getString(name,  null)

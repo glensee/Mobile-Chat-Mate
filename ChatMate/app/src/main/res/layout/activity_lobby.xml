@@ -29,7 +29,7 @@
         android:text="Find some friends, play some chess"
         android:textColor="#EEECF1"
         android:letterSpacing="0.02"
-        android:textSize="110px"/>
+        android:textSize="40dp"/>
 
     <LinearLayout
         android:layout_width="match_parent"
