@@ -61,10 +61,13 @@
                     android:id="@+id/player1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Mary"
+                    android:text="Maryasdkjfhsadjfsajdfhasiufoh"
                     android:fontFamily="@font/ibm_plex_sans_bold"
                     android:textColor="@color/text_color_gray_5"
                     android:textSize="30sp"
+                    android:lines="1"
+                    android:ellipsize="end"
+                    android:maxWidth="100dp"
                     android:gravity="center"/>
             </LinearLayout>
                 <TextView
@@ -95,6 +98,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Eunice"
+                    android:lines="1"
+                    android:ellipsize="end"
+                    android:maxWidth="100dp"
                     android:fontFamily="@font/ibm_plex_sans_bold"
                     android:textColor="@color/text_color_gray_5"
                     android:textSize="30sp"
