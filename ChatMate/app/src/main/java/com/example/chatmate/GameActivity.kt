@@ -12,10 +12,7 @@ import android.widget.Toast.LENGTH_SHORT
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.chatmate.databinding.ActivityGameBinding
-import com.github.bhlangonijr.chesslib.Board
-import com.github.bhlangonijr.chesslib.Piece
-import com.github.bhlangonijr.chesslib.Side
-import com.github.bhlangonijr.chesslib.Square
+import com.github.bhlangonijr.chesslib.*
 import com.github.bhlangonijr.chesslib.move.Move
 import com.google.android.gms.tasks.Task
 import com.google.android.material.imageview.ShapeableImageView
@@ -104,19 +101,19 @@ class GameActivity : AppCompatActivity() {
         // Initialize local boardHistoryArray for local multiplayer
         boardHistoryLocal.add(board.fen)
 
-        // Create Image button tiles in the layout
-        generateChessBoardTileButtons()
-        // Set the Image in the Image button based on pieces in board class
-        renderBoardState()
-        // Set All Current Legal Moves
-        currentLegalMoves.addAll(board.legalMoves())
-
         //Check for Online Game
         roomId = intent.getStringExtra("roomId").toString()
         if(roomId != "null" && !isOnlineGameIntialized) {
             gameBinding.onlineGameHeader.visibility = View.VISIBLE
             setupOnlineGame()
         }
+
+        // Create Image button tiles in the layout
+        generateChessBoardTileButtons()
+        // Set the Image in the Image button based on pieces in board class
+        renderBoardState()
+        // Set All Current Legal Moves
+        currentLegalMoves.addAll(board.legalMoves())
     }
 
     private var voiceCommandButtonTouchListener = object : View.OnTouchListener {
@@ -192,7 +189,7 @@ class GameActivity : AppCompatActivity() {
         // The Final Sequence matches the Sequence Used in the Board Class
         for (i in boardArrayList.size - 1 downTo 0) {
             var index = i
-            if (identity != "owner") {
+            if (isOnlineGame && identity != "owner") {
                 index = boardArrayList.size - 1 - i
             }
             for (tile in boardArrayList[index]) {
@@ -291,6 +288,7 @@ class GameActivity : AppCompatActivity() {
             val newMove = Move(Square.squareAt(tileSelectedIndex),Square.squareAt(tileIndex))
             // Check if New Move is Legal
             if(newMove in currentLegalMoves) {
+
                 board.doMove(newMove)
 
                 // Save board state to boardHistoryLocal array if game is offline
