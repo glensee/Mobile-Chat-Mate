@@ -44,6 +44,8 @@ class GameActivity : AppCompatActivity() {
     private var tileSelectedIndex = -1
     // List of Legal Moves for Current Turn
     private val currentLegalMoves = ArrayList<Move>()
+    // Hidden Board
+    private var isBoardHidden = false
 
     // Online Game Variables
     private lateinit var db: FirebaseFirestore
@@ -65,6 +67,11 @@ class GameActivity : AppCompatActivity() {
         db = Firebase.firestore
         this.supportActionBar!!.hide()
 
+        //
+        gameBinding.hideBoardToggleBtn.setOnClickListener{
+            isBoardHidden = !isBoardHidden
+            renderBoardState()
+        }
         // Get Local Player Name
         localPlayerName = intent.getStringExtra("name").toString()
 
@@ -206,28 +213,33 @@ class GameActivity : AppCompatActivity() {
             // Image Button to be Rendered on
             val chessTile = chessTiles[i]
 
-            // Render Image Base on Piece Value
-            when (currentBoardStateArray[i].value()) {
-                "WHITE_ROOK" -> chessTile.setImageResource(R.drawable.w_rook_2x_ns)
-                "WHITE_KNIGHT" -> chessTile.setImageResource(R.drawable.w_knight_2x_ns)
-                "WHITE_BISHOP" -> chessTile.setImageResource(R.drawable.w_bishop_2x_ns)
-                "WHITE_QUEEN" -> chessTile.setImageResource(R.drawable.w_queen_2x_ns)
-                "WHITE_KING" -> chessTile.setImageResource(R.drawable.w_king_2x_ns)
-                "WHITE_PAWN" -> chessTile.setImageResource(R.drawable.w_pawn_2x_ns)
-                "BLACK_PAWN" -> chessTile.setImageResource(R.drawable.b_pawn_2x_ns)
-                "BLACK_ROOK" -> chessTile.setImageResource(R.drawable.b_rook_2x_ns)
-                "BLACK_KNIGHT" -> chessTile.setImageResource(R.drawable.b_knight_2x_ns)
-                "BLACK_BISHOP" -> chessTile.setImageResource(R.drawable.b_bishop_2x_ns)
-                "BLACK_QUEEN" -> chessTile.setImageResource(R.drawable.b_queen_2x_ns)
-                "BLACK_KING" -> chessTile.setImageResource(R.drawable.b_king_2x_ns)
-                else -> chessTile.setImageResource(0)
-            }
+            if (!isBoardHidden) {
+                // Render Image Base on Piece Value
+                when (currentBoardStateArray[i].value()) {
+                    "WHITE_ROOK" -> chessTile.setImageResource(R.drawable.w_rook_2x_ns)
+                    "WHITE_KNIGHT" -> chessTile.setImageResource(R.drawable.w_knight_2x_ns)
+                    "WHITE_BISHOP" -> chessTile.setImageResource(R.drawable.w_bishop_2x_ns)
+                    "WHITE_QUEEN" -> chessTile.setImageResource(R.drawable.w_queen_2x_ns)
+                    "WHITE_KING" -> chessTile.setImageResource(R.drawable.w_king_2x_ns)
+                    "WHITE_PAWN" -> chessTile.setImageResource(R.drawable.w_pawn_2x_ns)
+                    "BLACK_PAWN" -> chessTile.setImageResource(R.drawable.b_pawn_2x_ns)
+                    "BLACK_ROOK" -> chessTile.setImageResource(R.drawable.b_rook_2x_ns)
+                    "BLACK_KNIGHT" -> chessTile.setImageResource(R.drawable.b_knight_2x_ns)
+                    "BLACK_BISHOP" -> chessTile.setImageResource(R.drawable.b_bishop_2x_ns)
+                    "BLACK_QUEEN" -> chessTile.setImageResource(R.drawable.b_queen_2x_ns)
+                    "BLACK_KING" -> chessTile.setImageResource(R.drawable.b_king_2x_ns)
+                    else -> chessTile.setImageResource(0)
+                }
 
-            // Set the Background for Image Button
-            if (Square.squareAt(i).isLightSquare) {
-                chessTile.setBackgroundColor(ContextCompat.getColor(this, R.color.chess_light))
+                // Set the Background for Image Button
+                if (Square.squareAt(i).isLightSquare) {
+                    chessTile.setBackgroundColor(ContextCompat.getColor(this, R.color.chess_light))
+                } else {
+                    chessTile.setBackgroundColor(ContextCompat.getColor(this, R.color.chess_dark))
+                }
             } else {
-                chessTile.setBackgroundColor(ContextCompat.getColor(this, R.color.chess_dark))
+                chessTile.setImageResource(0)
+                chessTile.setBackgroundColor(ContextCompat.getColor(this, R.color.chess_border))
             }
         }
 

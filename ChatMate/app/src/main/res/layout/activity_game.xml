@@ -76,12 +76,30 @@
             />
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="match_parent">
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/hideBoardToggleBtn"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    style="@style/Widget.MaterialComponents.Button.Icon"
+                    app:icon="@drawable/white_king"
+                    app:iconSize="24dp"
+                    app:iconPadding="0dp"
+                    android:insetLeft="0dp"
+                    android:insetTop="0dp"
+                    android:insetRight="0dp"
+                    android:insetBottom="0dp"
+                    app:shapeAppearanceOverlay="@style/ImageViewRounded"
+                    />
             </LinearLayout>
         </LinearLayout>
 
