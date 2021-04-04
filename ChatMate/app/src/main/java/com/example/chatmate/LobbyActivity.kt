@@ -70,8 +70,16 @@ class LobbyActivity : AppCompatActivity() {
                                 roomDesc = owner + "'s room"
                             }
 
-                            tempRoomList.add(roomDesc)
-                            tempRoomIdList.add(roomId)
+                            // Hide room if it is full
+                            if (docSnap.get("player") == null || player == null) {
+                                tempRoomList.add(roomDesc)
+                                tempRoomIdList.add(roomId)
+                            }
+//                            if (docSnap.get("owner") !== null && docSnap.get("player") == null && owner !== null && player == null) {
+//                                tempRoomList.add(roomDesc)
+//                                tempRoomIdList.add(roomId)
+//                            }
+
                         }
                     }
                 }
