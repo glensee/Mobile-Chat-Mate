@@ -179,11 +179,6 @@ class LobbyActivity : AppCompatActivity() {
                                 tempRoomList.add(roomDesc)
                                 tempRoomIdList.add(roomId)
                             }
-//                            if (docSnap.get("owner") !== null && docSnap.get("player") == null && owner !== null && player == null) {
-//                                tempRoomList.add(roomDesc)
-//                                tempRoomIdList.add(roomId)
-//                            }
-
                         }
                     }
                 }
