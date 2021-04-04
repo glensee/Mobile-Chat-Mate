@@ -23,7 +23,7 @@
             android:layout_gravity="center"
             android:fontFamily="@font/ibm_plex_sans_semibold"
             android:gravity="center"
-            android:onClick="flipView"
+            android:onClick="flipViewBlack"
             android:paddingHorizontal="20sp"
             android:rotation="180"
             android:text="Tap and hold on this side of the screen to speak"
@@ -38,8 +38,8 @@
 
         <ViewFlipper
             android:id="@+id/viewFlipperBlack"
-            android:layout_width="395sp"
-            android:layout_height="175sp"
+            android:layout_width="412sp"
+            android:layout_height="140sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
@@ -56,81 +56,64 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" >
 
-                <ImageView
-                    android:id="@+id/blackMoveBackgroundBlack"
-                    android:layout_width="271dp"
-                    android:layout_height="match_parent"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="125sp"
-                    android:rotation="90"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintVertical_bias="0.5"
-                    app:srcCompat="@drawable/rectangle_371" />
-
                 <ListView
                     android:id="@+id/sanMovesBlack"
-                    android:layout_width="178dp"
-                    android:layout_height="134dp"
+                    android:layout_width="200dp"
+                    android:layout_height="150dp"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentTop="true"
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentBottom="true"
                     android:layout_marginStart="170sp"
-                    android:layout_marginTop="20sp"
+                    android:layout_marginTop="15sp"
                     android:layout_marginEnd="50sp"
-                    android:layout_marginBottom="20sp"
+                    android:layout_marginBottom="0sp"
                     android:rotation="180"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintVertical_bias="0.5"></ListView>
 
-<!--                <TextView-->
-<!--                    android:id="@+id/timeLeftBlack"-->
-<!--                    android:layout_width="50sp"-->
-<!--                    android:layout_height="50sp"-->
-<!--                    android:layout_alignParentStart="true"-->
-<!--                    android:layout_alignParentTop="true"-->
-<!--                    android:layout_alignParentEnd="true"-->
-<!--                    android:layout_alignParentBottom="true"-->
-<!--                    android:layout_marginStart="40sp"-->
-<!--                    android:layout_marginTop="110sp"-->
-<!--                    android:layout_marginEnd="260sp"-->
-<!--                    android:layout_marginBottom="40sp"-->
-<!--                    android:gravity="center"-->
-<!--                    android:text="Time Left:"-->
-<!--                    android:rotation="180"-->
-<!--                    android:textColor="#FFFFFF"-->
-<!--                    app:layout_constraintVertical_bias="0.9"-->
-<!--                    tools:layout_editor_absoluteX="296dp"-->
-<!--                    tools:layout_editor_absoluteY="90dp" />-->
+                <TextView
+                    android:id="@+id/timeLeftBlack"
+                    android:layout_width="50sp"
+                    android:layout_height="50sp"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginStart="40sp"
+                    android:layout_marginTop="90sp"
+                    android:layout_marginEnd="260sp"
+                    android:layout_marginBottom="20sp"
+                    android:gravity="center"
+                    android:text="Time Left:"
+                    android:rotation="180"
+                    android:textColor="#FFFFFF"
+                    app:layout_constraintVertical_bias="0.9" />
 
-<!--                <TextView-->
-<!--                    android:id="@+id/timerBlack"-->
-<!--                    android:layout_width="50sp"-->
-<!--                    android:layout_height="50sp"-->
-<!--                    android:layout_alignParentStart="true"-->
-<!--                    android:layout_alignParentTop="true"-->
-<!--                    android:layout_alignParentEnd="true"-->
-<!--                    android:layout_alignParentBottom="true"-->
-<!--                    android:layout_marginStart="40sp"-->
-<!--                    android:layout_marginTop="80sp"-->
-<!--                    android:layout_marginEnd="260sp"-->
-<!--                    android:layout_marginBottom="70sp"-->
-<!--                    android:gravity="center"-->
-<!--                    android:text="Timer"-->
-<!--                    android:rotation="180"-->
-<!--                    android:textColor="#FFFFFF"-->
-<!--                    app:layout_constraintVertical_bias="0.9"-->
-<!--                    tools:layout_editor_absoluteX="296dp"-->
-<!--                    tools:layout_editor_absoluteY="90dp" />-->
+                <TextView
+                    android:id="@+id/timerBlack"
+                    android:layout_width="50sp"
+                    android:layout_height="50sp"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginStart="40sp"
+                    android:layout_marginTop="60sp"
+                    android:layout_marginEnd="260sp"
+                    android:layout_marginBottom="50sp"
+                    android:gravity="center"
+                    android:text="Timer"
+                    android:textSize="25sp"
+                    android:rotation="180"
+                    android:textColor="#FFFFFF"
+                    app:layout_constraintVertical_bias="0.9"/>
 
-<!--                <LinearLayout-->
-<!--                    android:id="@+id/voiceCommandBtnBlack"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="293dp"-->
-<!--                    android:orientation="horizontal"/>-->
+                <LinearLayout
+                    android:id="@+id/voiceCommandBtnBlack"
+                    android:layout_width="match_parent"
+                    android:layout_height="293dp"
+                    android:orientation="horizontal"/>
 
             </RelativeLayout>
 
@@ -150,10 +133,9 @@
                     android:background="@drawable/circle"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.765"
+                    app:layout_constraintHorizontal_bias="0.906"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.877" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <Button
                     android:id="@+id/topleftBlack"
@@ -162,10 +144,9 @@
                     android:background="@drawable/circle"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.241"
+                    app:layout_constraintHorizontal_bias="0.093"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.133" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <Button
                     android:id="@+id/bottomleftBlack"
@@ -174,10 +155,9 @@
                     android:background="@drawable/circle"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.241"
+                    app:layout_constraintHorizontal_bias="0.364"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.877" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <Button
                     android:id="@+id/toprightBlack"
@@ -186,10 +166,16 @@
                     android:background="@drawable/circle"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.765"
+                    app:layout_constraintHorizontal_bias="0.635"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.133" />
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_begin="411dp" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -272,8 +258,8 @@
 
         <ViewFlipper
             android:id="@+id/viewFlipper"
-            android:layout_width="395sp"
-            android:layout_height="175sp"
+            android:layout_width="412sp"
+            android:layout_height="140sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
@@ -290,22 +276,6 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" >
 
-                <ImageView
-                    android:id="@+id/blackMoveBackground"
-                    android:layout_width="230sp"
-                    android:layout_height="200sp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="55sp"
-                    android:layout_marginTop="5sp"
-                    android:layout_marginEnd="200sp"
-                    android:layout_marginBottom="20sp"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintVertical_bias="0.5"
-                    app:srcCompat="@drawable/rectangle_371" />
-
                 <ListView
                     android:id="@+id/sanMoves"
                     android:layout_width="230sp"
@@ -314,10 +284,10 @@
                     android:layout_alignParentTop="true"
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentBottom="true"
-                    android:layout_marginStart="55sp"
-                    android:layout_marginTop="5sp"
-                    android:layout_marginEnd="200sp"
-                    android:layout_marginBottom="20sp"
+                    android:layout_marginStart="50sp"
+                    android:layout_marginTop="0sp"
+                    android:layout_marginEnd="170sp"
+                    android:layout_marginBottom="15sp"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintVertical_bias="0.5"></ListView>
 
@@ -330,9 +300,9 @@
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentBottom="true"
                     android:layout_marginStart="260sp"
-                    android:layout_marginTop="40sp"
+                    android:layout_marginTop="20sp"
                     android:layout_marginEnd="40sp"
-                    android:layout_marginBottom="110sp"
+                    android:layout_marginBottom="90sp"
                     android:gravity="center"
                     android:text="Time Left:"
                     android:textColor="#FFFFFF"
@@ -349,11 +319,12 @@
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentBottom="true"
                     android:layout_marginStart="260sp"
-                    android:layout_marginTop="70sp"
+                    android:layout_marginTop="50sp"
                     android:layout_marginEnd="40sp"
-                    android:layout_marginBottom="80sp"
+                    android:layout_marginBottom="60sp"
                     android:gravity="center"
                     android:text="Timer"
+                    android:textSize="25sp"
                     android:textColor="#FFFFFF"
                     app:layout_constraintVertical_bias="0.9"
                     tools:layout_editor_absoluteX="296dp"
@@ -383,10 +354,9 @@
                     android:background="@drawable/circle"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.765"
+                    app:layout_constraintHorizontal_bias="0.906"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.877" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <Button
                     android:id="@+id/topleft"
@@ -395,10 +365,9 @@
                     android:background="@drawable/circle"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.241"
+                    app:layout_constraintHorizontal_bias="0.093"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.133" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <Button
                     android:id="@+id/bottomleft"
@@ -407,10 +376,9 @@
                     android:background="@drawable/circle"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.241"
+                    app:layout_constraintHorizontal_bias="0.364"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.877" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <Button
                     android:id="@+id/topright"
@@ -419,10 +387,9 @@
                     android:background="@drawable/circle"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.765"
+                    app:layout_constraintHorizontal_bias="0.635"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.133" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

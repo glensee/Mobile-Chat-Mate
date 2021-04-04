@@ -428,4 +428,9 @@ class GameActivity : AppCompatActivity() {
         flipper.showNext()
     }
 
+    fun flipViewBlack(view: View) {
+        val flipper = findViewById<ViewFlipper>(R.id.viewFlipperBlack)
+        flipper.showNext()
+    }
+
 }
