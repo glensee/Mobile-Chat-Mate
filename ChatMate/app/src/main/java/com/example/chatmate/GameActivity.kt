@@ -301,7 +301,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             // Check if New Move is Legal
             if(newMove in currentLegalMoves) {
                 board.doMove(newMove)
-
+                tts!!.speak("$squareSelectedIdx to $squareIdx", TextToSpeech.QUEUE_FLUSH, null,"")
                 // Save board state to boardHistoryLocal array if game is offline
                 if (!isOnlineGame) {
                     boardHistoryLocal.add(board.fen)
@@ -414,6 +414,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     sendBoardStateOnline()
                 }
                 board.doMove(newMove)
+                tts!!.speak("$from to $to", TextToSpeech.QUEUE_FLUSH, null,"")
                 renderBoardState()
                 currentLegalMoves.clear()
                 currentLegalMoves.addAll(board.legalMoves())
