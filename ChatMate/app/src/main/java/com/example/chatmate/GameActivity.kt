@@ -410,6 +410,9 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             val newMove = Move(from, to)
             // Check if New Move is Legal
             if(newMove in currentLegalMoves) {
+                if (isOnlineGame){
+                    sendBoardStateOnline()
+                }
                 board.doMove(newMove)
                 renderBoardState()
                 currentLegalMoves.clear()
