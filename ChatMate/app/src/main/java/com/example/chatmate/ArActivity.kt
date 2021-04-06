@@ -15,11 +15,11 @@ import com.google.ar.core.HitResult
 import com.google.ar.core.Plane
 import com.google.ar.sceneform.AnchorNode
 import com.google.ar.sceneform.Node
+import com.google.ar.sceneform.math.Quaternion
 import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.ux.ArFragment
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 /**
@@ -51,7 +51,7 @@ class ArActivity : AppCompatActivity() {
     private val halfBoard = 0.02937f
     private val pieceScaleVector = Vector3(0.025f, 0.025f, 0.025f)
     private val boardScaleVector = Vector3(1.7f, 1.7f, 1.7f)
-    private val pieceNames = arrayListOf("pawn", "rook", "knight", "bishop","queen", "king") as ArrayList<String>
+    private val pieceNames = arrayListOf("pawn", "rook", "knight", "bishop", "queen", "king") as ArrayList<String>
 
 
     // CompletableFuture requires api level 24
@@ -209,9 +209,9 @@ class ArActivity : AppCompatActivity() {
             if (openGlVersionString.toDouble() < MIN_OPENGL_VERSION) {
                 Log.e(TAG, "Sceneform requires OpenGL ES 3.0 later")
                 Toast.makeText(
-                    activity,
-                    "Sceneform requires OpenGL ES 3.0 or later",
-                    Toast.LENGTH_LONG
+                        activity,
+                        "Sceneform requires OpenGL ES 3.0 or later",
+                        Toast.LENGTH_LONG
                 )
                     .show()
                 activity.finish()
@@ -302,6 +302,7 @@ class ArActivity : AppCompatActivity() {
         val knight1 = Node()
         knight1!!.setParent(anchorNode)
         knight1!!.localScale = pieceScaleVector
+        knight1.setLocalRotation(Quaternion.axisAngle(Vector3(0f, 1f, 0f), 180f))
         knight1!!.localPosition = getPosition("knight", 1, "white")
         knight1!!.renderable = knightRenderable
 
@@ -309,6 +310,7 @@ class ArActivity : AppCompatActivity() {
         val knight2 = Node()
         knight2!!.setParent(anchorNode)
         knight2!!.localScale = pieceScaleVector
+        knight2.setLocalRotation(Quaternion.axisAngle(Vector3(0f, 1f, 0f), 180f))
         knight2!!.localPosition = getPosition("knight", 2, "white")
         knight2!!.renderable = knightRenderable
 
@@ -316,6 +318,7 @@ class ArActivity : AppCompatActivity() {
         val bishop1 = Node()
         bishop1!!.setParent(anchorNode)
         bishop1!!.localScale = pieceScaleVector
+        bishop1.setLocalRotation(Quaternion.axisAngle(Vector3(0f, 1f, 0f), 180f))
         bishop1!!.localPosition = getPosition("bishop", 1, "white")
         bishop1!!.renderable = bishopRenderable
 
@@ -323,6 +326,7 @@ class ArActivity : AppCompatActivity() {
         val bishop2 = Node()
         bishop2!!.setParent(anchorNode)
         bishop2!!.localScale = pieceScaleVector
+        bishop1.setLocalRotation(Quaternion.axisAngle(Vector3(0f, 1f, 0f), 180f))
         bishop2!!.localPosition = getPosition("bishop", 2, "white")
         bishop2!!.renderable = bishopRenderable
 
@@ -342,7 +346,7 @@ class ArActivity : AppCompatActivity() {
 
     }
 
-    fun getPosition(piece:String, position:Int, colour:String): Vector3 {
+    fun getPosition(piece: String, position: Int, colour: String): Vector3 {
         val y = 0.020f
         var x = 0f
         var z = 0f
@@ -351,23 +355,23 @@ class ArActivity : AppCompatActivity() {
                 when (piece) {
                     "pawn" -> {
                         z = 5 * halfBoard
-                        x = (-7 + (position-1) * 2) * halfBoard
+                        x = (-7 + (position - 1) * 2) * halfBoard
                     }
 
                     "rook" -> {
                         z = 7 * halfBoard
-                        x = (-7 + (position-1) * 14 ) * halfBoard
+                        x = (-7 + (position - 1) * 14) * halfBoard
                     }
 
                     "knight" -> {
                         z = 7 * halfBoard
-                        x = (-5 + (position-1) * 10 ) * halfBoard
+                        x = (-5 + (position - 1) * 10) * halfBoard
 
                     }
 
                     "bishop" -> {
                         z = 7 * halfBoard
-                        x = (-3 + (position-1) * 6 ) * halfBoard
+                        x = (-3 + (position - 1) * 6) * halfBoard
 
                     }
 
