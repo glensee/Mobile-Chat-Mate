@@ -15,7 +15,7 @@ class HistoryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityHistoryBinding
     private lateinit var matchesAdapter: ArrayAdapter<String>
     private lateinit var name: String
-    private var matchesInfo = ArrayList<String>()
+    private var matchesInfo = ArrayList<ArrayList<String>>()
     private var matchesList = ArrayList<String>()
 
     private var TAG = "cliffen"
@@ -30,14 +30,14 @@ class HistoryActivity : AppCompatActivity() {
         try {
             val scan = Scanner(openFileInput("$name.txt"))
             while (scan.hasNextLine()) {
-                val historyArray = scan.nextLine().toString().split("  ")
-                val title = historyArray.get(0)
-
+                val historyArray = scan.nextLine().toString().split("  ") as ArrayList<String>
+                val title = historyArray[0]
+                matchesInfo.add(historyArray)
                 matchesList.add(title)
 
             }
         } catch (error: Exception) {
-            Log.i("cliffen", error.toString())
+            Log.i(TAG, error.toString())
         }
 
 
@@ -48,20 +48,9 @@ class HistoryActivity : AppCompatActivity() {
 
         // set on click listener for listview items
         binding.matches.setOnItemClickListener { _, _, index, _ ->
-            val scanner = Scanner(openFileInput("$name.txt"))
-            if (index == 0) {
-                matchesInfo = scanner.nextLine().toString().split("  ") as ArrayList<String>
-            } else {
-                for (i in 0 until index-1) {
-                    scanner.nextLine()
-                }
-                matchesInfo = scanner.nextLine().toString().split("  ") as ArrayList<String>
-            }
-
             val it = Intent(this, ReplayActivity::class.java)
-            it.putExtra("matchesInfo", matchesInfo)
+            it.putExtra("matchesInfo", matchesInfo[index])
             startActivity(it)
-            Log.i("cliffen", "${matchesList[index]} clicked!")
         }
         matchesAdapter.notifyDataSetChanged()
 

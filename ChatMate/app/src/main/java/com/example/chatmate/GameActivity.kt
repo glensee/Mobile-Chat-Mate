@@ -209,7 +209,6 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun renderBoardState () {
-        Log.i("cliffen", "render 1")
         // Get the Current State of the Chess Board in an Array Sequence
         // Each Index Represents a Tile on the Board and The Item Represents the Piece Type
         val currentBoardStateArray = board.boardToArray()
@@ -304,17 +303,14 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 board.doMove(newMove)
                 tts!!.speak("$squareSelectedIdx to $squareIdx", TextToSpeech.QUEUE_FLUSH, null,"")
                 // Save board state to boardHistoryLocal array if game is offline
-                if (!isOnlineGame) {
-                    boardHistoryLocal.add(board.fen)
-                    Log.i("cliffen", boardHistoryLocal.toString())
-                }
                 renderBoardState()
                 tileSelectedIndex = -1
-
                 afterMoveHandler()
 
                 if (isOnlineGame){
                     sendBoardStateOnline()
+                } else {
+                    boardHistoryLocal.add(board.fen)
                 }
             }
         }
@@ -411,9 +407,6 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             val newMove = Move(from, to)
             // Check if New Move is Legal
             if(newMove in currentLegalMoves) {
-                if (!isOnlineGame) {
-                    boardHistoryLocal.add(board.fen)
-                }
                 board.doMove(newMove)
                 tts!!.speak("$from to $to", TextToSpeech.QUEUE_FLUSH, null,"")
                 renderBoardState()
@@ -423,6 +416,8 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 afterMoveHandler()
                 if (isOnlineGame){
                     sendBoardStateOnline()
+                } else {
+                    boardHistoryLocal.add(board.fen)
                 }
             } else {
                 throw Error("Invalid Command")
