@@ -70,7 +70,6 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var boardSaved = false
     // Text to speech
     private var tts: TextToSpeech? = null
-    private lateinit var mediaPlayer: MediaPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -120,18 +119,6 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         renderBoardState()
         // Set All Current Legal Moves
         currentLegalMoves.addAll(board.legalMoves())
-    }
-
-    override fun onResume() {
-        mediaPlayer = MediaPlayer.create(this, R.raw.music)
-        mediaPlayer.isLooping = true
-        mediaPlayer.start()
-        super.onResume()
-    }
-
-    override fun onPause() {
-        mediaPlayer.stop()
-        super.onPause()
     }
 
     private var voiceCommandButtonTouchListener = object : View.OnTouchListener {
