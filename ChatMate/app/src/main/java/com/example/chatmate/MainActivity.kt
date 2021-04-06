@@ -46,11 +46,12 @@ class MainActivity : AppCompatActivity() {
         Log.i("cliffen", "past that stage")
     }
 
-    fun NavigateToGame(view: View) {
+    fun NavigateToAR(view: View) {
         Log.e("cliffen", "dev mode")
-        val it = Intent(this, GameActivity::class.java)
+        val it = Intent(this, ArActivity::class.java)
         startActivity(it)
     }
+
 
     fun NavigateToHome(view: View) {
         // get username and password
