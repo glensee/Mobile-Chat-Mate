@@ -411,8 +411,8 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             val newMove = Move(from, to)
             // Check if New Move is Legal
             if(newMove in currentLegalMoves) {
-                if (isOnlineGame){
-                    sendBoardStateOnline()
+                if (!isOnlineGame) {
+                    boardHistoryLocal.add(board.fen)
                 }
                 board.doMove(newMove)
                 tts!!.speak("$from to $to", TextToSpeech.QUEUE_FLUSH, null,"")
@@ -421,6 +421,9 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 currentLegalMoves.addAll(board.legalMoves())
                 gameBinding.voiceResultTextField.text = "Tap and hold on this side of the screen to speak"
                 afterMoveHandler()
+                if (isOnlineGame){
+                    sendBoardStateOnline()
+                }
             } else {
                 throw Error("Invalid Command")
             }
