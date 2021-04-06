@@ -406,6 +406,8 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
             val newMove = Move(from, to)
             // Check if New Move is Legal
+            currentLegalMoves.clear()
+            currentLegalMoves.addAll(board.legalMoves())
             if(newMove in currentLegalMoves) {
                 board.doMove(newMove)
                 tts!!.speak("$from to $to", TextToSpeech.QUEUE_FLUSH, null,"")
