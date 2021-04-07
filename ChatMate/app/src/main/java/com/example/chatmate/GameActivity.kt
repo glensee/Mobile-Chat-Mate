@@ -458,6 +458,8 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 deleteRoomDocument()
                 roomLeft = true
             }
+            val it = Intent()
+            setResult(RESULT_OK, it)
             finish()
         }
         if (board.isMated) {
