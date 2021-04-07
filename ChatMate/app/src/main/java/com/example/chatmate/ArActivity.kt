@@ -5,6 +5,7 @@ import android.app.Activity
 import android.app.ActivityManager
 import android.app.Dialog
 import android.content.Context
+import android.graphics.Color
 import android.os.Build
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
@@ -14,33 +15,39 @@ import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.chatmate.databinding.ActivityArBinding
-import com.github.bhlangonijr.chesslib.Board
-import com.github.bhlangonijr.chesslib.Side
-import com.github.bhlangonijr.chesslib.Square
+import com.github.bhlangonijr.chesslib.*
 import com.github.bhlangonijr.chesslib.move.Move
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.ar.core.HitResult
 import com.google.ar.core.Plane
 import com.google.ar.sceneform.AnchorNode
+import com.google.ar.sceneform.HitTestResult
 import com.google.ar.sceneform.Node
 import com.google.ar.sceneform.math.Quaternion
 import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.math.Vector3Evaluator
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.ux.ArFragment
+import com.google.firebase.firestore.SetOptions
 import com.speechly.client.slu.Segment
 import com.speechly.client.speech.Client
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.io.FileOutputStream
+import java.io.OutputStreamWriter
 import java.lang.Exception
+import java.lang.Math.round
 import java.util.*
+import kotlin.math.abs
+import kotlin.math.ceil
 import kotlin.math.floor
 
 
@@ -80,47 +87,13 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
 
     // board renderable
     private var boardRenderable: ModelRenderable? = null
+    private var tileRenderable: ModelRenderable? = null
+    private var selectedRenderable: ModelRenderable? = null
 
     // node list
     private var nodeList = ArrayList<Node>()
     private lateinit var anchorNode: AnchorNode
-
-    // white pieces nodes
-    private var whitePawn1 = Node()
-    private var whitePawn2 = Node()
-    private var whitePawn3 = Node()
-    private var whitePawn4 = Node()
-    private var whitePawn5 = Node()
-    private var whitePawn6 = Node()
-    private var whitePawn7 = Node()
-    private var whitePawn8 = Node()
-    private var whiteRook1 = Node()
-    private var whiteRook2 = Node()
-    private var whiteKnight1 = Node()
-    private var whiteKnight2 = Node()
-    private var whiteBishop1 = Node()
-    private var whiteBishop2 = Node()
-    private var whiteQueen = Node()
-    private var whiteKing = Node()
     
-    // black pieces nodes
-    private var blackPawn1 = Node()
-    private var blackPawn2 = Node()
-    private var blackPawn3 = Node()
-    private var blackPawn4 = Node()
-    private var blackPawn5 = Node()
-    private var blackPawn6 = Node()
-    private var blackPawn7 = Node()
-    private var blackPawn8 = Node()
-    private var blackRook1 = Node()
-    private var blackRook2 = Node()
-    private var blackKnight1 = Node()
-    private var blackKnight2 = Node()
-    private var blackBishop1 = Node()
-    private var blackBishop2 = Node()
-    private var blackQueen = Node()
-    private var blackKing = Node()
-
     // board node
     private var board: Node? = null
 
@@ -129,6 +102,8 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
     private var boardHistoryLocal = ArrayList<String>()
     private lateinit var virtualBoard: Board
     private val currentLegalMoves = ArrayList<Move>()
+    private var isOnlineGame = false
+    private var tileSelectedIndex = -1
 
     // board array to store node references
     private var referencesArray = ArrayList<String>()
@@ -370,9 +345,31 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                     null
                 }
 
+        // Build tile renderable
+        ModelRenderable.builder()
+                .setSource(this, R.raw.tile)
+                .build()
+                .thenAccept { renderable -> tileRenderable = renderable }
+                .exceptionally { throwable ->
+                    val toast: Toast =
+                            Toast.makeText(this, "Unable to load renderable", Toast.LENGTH_LONG)
+                    toast.setGravity(Gravity.CENTER, 0, 0)
+                    toast.show()
+                    null
+                }
 
-
-
+        // Build selected renderable
+        ModelRenderable.builder()
+                .setSource(this, R.raw.selected)
+                .build()
+                .thenAccept { renderable -> selectedRenderable = renderable }
+                .exceptionally { throwable ->
+                    val toast: Toast =
+                            Toast.makeText(this, "Unable to load renderable", Toast.LENGTH_LONG)
+                    toast.setGravity(Gravity.CENTER, 0, 0)
+                    toast.show()
+                    null
+                }
 
         arFragment!!.setOnTapArPlaneListener { hitResult: HitResult, plane: Plane?, motionEvent: MotionEvent? ->
             if (boardRenderable == null) return@setOnTapArPlaneListener
@@ -392,7 +389,6 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 board!!.setParent(anchorNode)
                 board!!.localScale = boardScaleVector
                 board!!.renderable = boardRenderable
-//                renderFreshBoard(anchorNode)
                 renderBoardState()
             }
 
@@ -438,245 +434,6 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
             }
             return true
         }
-    }
-
-    fun renderFreshBoard(anchorNode: AnchorNode) {
-        // Create the board and add it to the anchor.
-        board = Node()
-        board!!.setParent(anchorNode)
-        board!!.localScale = boardScaleVector
-        board!!.renderable = boardRenderable
-
-        // WHITE
-        // Create the pawn and add it to the anchor.
-        whitePawn1!!.setParent(anchorNode)
-        whitePawn1!!.localScale = pieceScaleVector
-        whitePawn1!!.localPosition = getPosition("pawn", 1, "white")
-        whitePawn1!!.renderable = whitePawnRenderable
-
-        // Create the pawn and add it to the anchor.
-        whitePawn2!!.setParent(anchorNode)
-        whitePawn2!!.localScale = pieceScaleVector
-        whitePawn2!!.localPosition = getPosition("pawn", 2, "white")
-        whitePawn2!!.renderable = whitePawnRenderable
-
-        // Create the pawn and add it to the anchor.
-        whitePawn3!!.setParent(anchorNode)
-        whitePawn3!!.localScale = pieceScaleVector
-        whitePawn3!!.localPosition = getPosition("pawn", 3, "white")
-        whitePawn3!!.renderable = whitePawnRenderable
-
-        // Create the pawn and add it to the anchor.
-        whitePawn4!!.setParent(anchorNode)
-        whitePawn4!!.localScale = pieceScaleVector
-        whitePawn4!!.localPosition = getPosition("pawn", 4, "white")
-        whitePawn4!!.renderable = whitePawnRenderable
-
-        // Create the pawn and add it to the anchor.
-        whitePawn5!!.setParent(anchorNode)
-        whitePawn5!!.localScale = pieceScaleVector
-        whitePawn5!!.localPosition = getPosition("pawn", 5, "white")
-        whitePawn5!!.renderable = whitePawnRenderable
-
-        // Create the pawn and add it to the anchor.
-        whitePawn6!!.setParent(anchorNode)
-        whitePawn6!!.localScale = pieceScaleVector
-        whitePawn6!!.localPosition = getPosition("pawn", 6, "white")
-        whitePawn6!!.renderable = whitePawnRenderable
-
-        // Create the pawn and add it to the anchor.
-        whitePawn7!!.setParent(anchorNode)
-        whitePawn7!!.localScale = pieceScaleVector
-        whitePawn7!!.localPosition = getPosition("pawn", 7, "white")
-        whitePawn7!!.renderable = whitePawnRenderable
-
-        // Create the pawn and add it to the anchor.
-        whitePawn8!!.setParent(anchorNode)
-        whitePawn8!!.localScale = pieceScaleVector
-        whitePawn8!!.localPosition = getPosition("pawn", 8, "white")
-        whitePawn8!!.renderable = whitePawnRenderable
-
-        // Create the rook and add it to the anchor.
-        whiteRook1!!.setParent(anchorNode)
-        whiteRook1!!.localScale = pieceScaleVector
-        whiteRook1!!.localPosition = getPosition("rook", 1, "white")
-        whiteRook1!!.renderable = whiteRookRenderable
-
-        // Create the rook and add it to the anchor.
-        whiteRook2!!.setParent(anchorNode)
-        whiteRook2!!.localScale = pieceScaleVector
-        whiteRook2!!.localPosition = getPosition("rook", 2, "white")
-        whiteRook2!!.renderable = whiteRookRenderable
-
-        // Create the knight and add it to the anchor.
-        whiteKnight1!!.setParent(anchorNode)
-        whiteKnight1!!.localScale = pieceScaleVector
-        whiteKnight1.setLocalRotation(Quaternion.axisAngle(Vector3(0f, 1f, 0f), 180f))
-        whiteKnight1!!.localPosition = getPosition("knight", 1, "white")
-        whiteKnight1!!.renderable = whiteKnightRenderable
-
-        // Create the knight and add it to the anchor.
-        whiteKnight2!!.setParent(anchorNode)
-        whiteKnight2!!.localScale = pieceScaleVector
-        whiteKnight2.setLocalRotation(Quaternion.axisAngle(Vector3(0f, 1f, 0f), 180f))
-        whiteKnight2!!.localPosition = getPosition("knight", 2, "white")
-        whiteKnight2!!.renderable = whiteKnightRenderable
-
-        // Create the bishop and add it to the anchor.
-        whiteBishop1!!.setParent(anchorNode)
-        whiteBishop1!!.localScale = pieceScaleVector
-        whiteBishop1.setLocalRotation(Quaternion.axisAngle(Vector3(0f, 1f, 0f), 180f))
-        whiteBishop1!!.localPosition = getPosition("bishop", 1, "white")
-        whiteBishop1!!.renderable = whiteBishopRenderable
-
-        // Create the bishop and add it to the anchor.
-        whiteBishop2!!.setParent(anchorNode)
-        whiteBishop2!!.localScale = pieceScaleVector
-        whiteBishop2.setLocalRotation(Quaternion.axisAngle(Vector3(0f, 1f, 0f), 180f))
-        whiteBishop2!!.localPosition = getPosition("bishop", 2, "white")
-        whiteBishop2!!.renderable = whiteBishopRenderable
-
-        // Create the bishop and add it to the anchor.
-        whiteQueen!!.setParent(anchorNode)
-        whiteQueen!!.localScale = pieceScaleVector
-        whiteQueen!!.localPosition = getPosition("queen", 1, "white")
-        whiteQueen!!.renderable = whiteQueenRenderable
-
-        // Create the bishop and add it to the anchor.
-        whiteKing!!.setParent(anchorNode)
-        whiteKing!!.localScale = pieceScaleVector
-        whiteKing!!.localPosition = getPosition("king", 1, "white")
-        whiteKing!!.renderable = whiteKingRenderable
-
-        // BLACK
-        // Create the pawn and add it to the anchor.
-        blackPawn1!!.setParent(anchorNode)
-        blackPawn1!!.localScale = pieceScaleVector
-        blackPawn1!!.localPosition = getPosition("pawn", 1, "black")
-        blackPawn1!!.renderable = blackPawnRenderable
-
-        // Create the pawn and add it to the anchor.
-        blackPawn2!!.setParent(anchorNode)
-        blackPawn2!!.localScale = pieceScaleVector
-        blackPawn2!!.localPosition = getPosition("pawn", 2, "black")
-        blackPawn2!!.renderable = blackPawnRenderable
-
-        // Create the pawn and add it to the anchor.
-        blackPawn3!!.setParent(anchorNode)
-        blackPawn3!!.localScale = pieceScaleVector
-        blackPawn3!!.localPosition = getPosition("pawn", 3, "black")
-        blackPawn3!!.renderable = blackPawnRenderable
-
-        // Create the pawn and add it to the anchor.
-        blackPawn4!!.setParent(anchorNode)
-        blackPawn4!!.localScale = pieceScaleVector
-        blackPawn4!!.localPosition = getPosition("pawn", 4, "black")
-        blackPawn4!!.renderable = blackPawnRenderable
-
-        // Create the pawn and add it to the anchor.
-        blackPawn5!!.setParent(anchorNode)
-        blackPawn5!!.localScale = pieceScaleVector
-        blackPawn5!!.localPosition = getPosition("pawn", 5, "black")
-        blackPawn5!!.renderable = blackPawnRenderable
-
-        // Create the pawn and add it to the anchor.
-        blackPawn6!!.setParent(anchorNode)
-        blackPawn6!!.localScale = pieceScaleVector
-        blackPawn6!!.localPosition = getPosition("pawn", 6, "black")
-        blackPawn6!!.renderable = blackPawnRenderable
-
-        // Create the pawn and add it to the anchor.
-        blackPawn7!!.setParent(anchorNode)
-        blackPawn7!!.localScale = pieceScaleVector
-        blackPawn7!!.localPosition = getPosition("pawn", 7, "black")
-        blackPawn7!!.renderable = blackPawnRenderable
-
-        // Create the pawn and add it to the anchor.
-        blackPawn8!!.setParent(anchorNode)
-        blackPawn8!!.localScale = pieceScaleVector
-        blackPawn8!!.localPosition = getPosition("pawn", 8, "black")
-        blackPawn8!!.renderable = blackPawnRenderable
-
-        // Create the rook and add it to the anchor.
-        blackRook1!!.setParent(anchorNode)
-        blackRook1!!.localScale = pieceScaleVector
-        blackRook1!!.localPosition = getPosition("rook", 1, "black")
-        blackRook1!!.renderable = blackRookRenderable
-
-        // Create the rook and add it to the anchor.
-        blackRook2!!.setParent(anchorNode)
-        blackRook2!!.localScale = pieceScaleVector
-        blackRook2!!.localPosition = getPosition("rook", 2, "black")
-        blackRook2!!.renderable = blackRookRenderable
-
-        // Create the knight and add it to the anchor.
-        blackKnight1!!.setParent(anchorNode)
-        blackKnight1!!.localScale = pieceScaleVector
-        blackKnight1!!.localPosition = getPosition("knight", 1, "black")
-        blackKnight1!!.renderable = blackKnightRenderable
-
-        // Create the knight and add it to the anchor.
-        blackKnight2!!.setParent(anchorNode)
-        blackKnight2!!.localScale = pieceScaleVector
-        blackKnight2!!.localPosition = getPosition("knight", 2, "black")
-        blackKnight2!!.renderable = blackKnightRenderable
-
-        // Create the bishop and add it to the anchor.
-        blackBishop1!!.setParent(anchorNode)
-        blackBishop1!!.localScale = pieceScaleVector
-        blackBishop1!!.localPosition = getPosition("bishop", 1, "black")
-        blackBishop1!!.renderable = blackBishopRenderable
-
-        // Create the bishop and add it to the anchor.
-        blackBishop2!!.setParent(anchorNode)
-        blackBishop2!!.localScale = pieceScaleVector
-        blackBishop2!!.localPosition = getPosition("bishop", 2, "black")
-        blackBishop2!!.renderable = blackBishopRenderable
-
-        // Create the bishop and add it to the anchor.
-        blackQueen!!.setParent(anchorNode)
-        blackQueen!!.localScale = pieceScaleVector
-        blackQueen!!.localPosition = getPosition("queen", 1, "black")
-        blackQueen!!.renderable = blackQueenRenderable
-
-        // Create the bishop and add it to the anchor.
-        blackKing!!.setParent(anchorNode)
-        blackKing!!.localScale = pieceScaleVector
-        blackKing!!.localPosition = getPosition("king", 1, "black")
-        blackKing!!.renderable = blackKingRenderable
-
-        nodeList.add(whitePawn1)
-        nodeList.add(whitePawn2)
-        nodeList.add(whitePawn3)
-        nodeList.add(whitePawn4)
-        nodeList.add(whitePawn5)
-        nodeList.add(whitePawn6)
-        nodeList.add(whitePawn7)
-        nodeList.add(whitePawn8)
-        nodeList.add(whiteRook1)
-        nodeList.add(whiteRook2)
-        nodeList.add(whiteKnight1)
-        nodeList.add(whiteKnight2)
-        nodeList.add(whiteBishop1)
-        nodeList.add(whiteBishop2)
-        nodeList.add(whiteQueen)
-        nodeList.add(whiteKing)
-        nodeList.add(blackPawn1)
-        nodeList.add(blackPawn2)
-        nodeList.add(blackPawn3)
-        nodeList.add(blackPawn4)
-        nodeList.add(blackPawn5)
-        nodeList.add(blackPawn6)
-        nodeList.add(blackPawn7)
-        nodeList.add(blackPawn8)
-        nodeList.add(blackRook1)
-        nodeList.add(blackRook2)
-        nodeList.add(blackKnight1)
-        nodeList.add(blackKnight2)
-        nodeList.add(blackBishop1)
-        nodeList.add(blackBishop2)
-        nodeList.add(blackQueen)
-        nodeList.add(blackKing)
     }
 
     fun getPosition(piece: String, position: Int, colour: String): Vector3 {
@@ -760,21 +517,6 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
         return Vector3(x, y, z)
     }
 
-//    fun movePiece(from:String, end: String) {
-//        Log.i(TAG, "moving piece...")
-//        val fromNode = getNodeAtPosition(from)
-//        val toNode = getNodeAtPosition(end)
-//        val durationInMilliseconds = 1000L
-//        val begin = fromNode.localPosition
-//        val end = convertToVector(end)
-//        val test = toNode == Node()
-//        Log.i(TAG, "Node equivalence test: $test")
-//        val objectAnimator = ObjectAnimator.ofObject(fromNode, "localPosition", Vector3Evaluator(), begin, end)
-//        objectAnimator.duration = durationInMilliseconds
-//        objectAnimator.start()
-//
-//    }
-
     private var voiceCommandButtonTouchListener = object : View.OnTouchListener {
         override fun onTouch(v: View?, event: MotionEvent?): Boolean {
             when (event?.action) {
@@ -834,7 +576,7 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 currentLegalMoves.clear()
                 currentLegalMoves.addAll(virtualBoard.legalMoves())
                 binding.voiceResultTextField.text = "Tap and hold to speak"
-//                afterMoveHandler()
+                afterMoveHandler()
             } else {
                 throw Error("Invalid Command")
             }
@@ -845,6 +587,195 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
         }
     }
 
+    private fun afterMoveHandler() {
+        val myDialog = Dialog(this)
+        myDialog.setContentView(R.layout.game_finish_popup)
+        myDialog.setCanceledOnTouchOutside(false)
+        myDialog.setCancelable(false)
+        myDialog.findViewById<Button>(R.id.returnBtn).setOnClickListener{
+            //remove firestore snapshot and success listener
+//            if (isOnlineGame) {
+//                snapshotListener.remove()
+//                deleteRoomDocument()
+//                roomLeft = true
+//            }
+            finish()
+        }
+        if (virtualBoard.isMated) {
+            myDialog.show()
+            val winner = virtualBoard.sideToMove.flip().toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)
+            val result = "$winner Wins"
+            if (!isOnlineGame) {
+                saveBoardHistory(winner)
+            }
+            myDialog.findViewById<TextView>(R.id.resultText).setText(result)
+            if(virtualBoard.sideToMove == Side.BLACK){
+                myDialog.findViewById<ShapeableImageView>(R.id.whiteAvatar).setBackgroundColor(ContextCompat.getColor(this, R.color.text_color_green))
+            } else {
+                myDialog.findViewById<ShapeableImageView>(R.id.blackAvatar).setBackgroundColor(ContextCompat.getColor(this, R.color.text_color_green))
+            }
+        } else if (virtualBoard.isDraw) {
+            if (virtualBoard.isRepetition) {
+                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
+                if (!isOnlineGame) {
+                    saveBoardHistory("")
+                }
+                myDialog.show()
+            } else if (virtualBoard.isInsufficientMaterial) {
+                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
+                if (!isOnlineGame) {
+                    saveBoardHistory("")
+                }
+                myDialog.show()
+            } else if (virtualBoard.halfMoveCounter >= 100) {
+                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
+                if (!isOnlineGame) {
+                    saveBoardHistory("")
+                }
+                myDialog.show()
+            }
+            else if (virtualBoard.isStaleMate){
+                myDialog.findViewById<TextView>(R.id.resultText).setText("Stale Mate")
+                if (!isOnlineGame) {
+                    saveBoardHistory("")
+                }
+                myDialog.show()
+            }
+        }
+    }
+
+    private fun saveBoardHistory(winner: String) {
+//
+//        val TAG = "cliffen"
+//        val roomRef = db.collection("rooms").document(roomId)
+//
+//        try {
+//            val fileOutputStream: FileOutputStream = openFileOutput("${localPlayerName}.txt", Context.MODE_APPEND)
+//            val outputWriter = OutputStreamWriter(fileOutputStream)
+//
+//            if (isOnlineGame) {
+//                roomRef.get()
+//                        .addOnSuccessListener { document ->
+//                            if (document != null && document.exists()) {
+//                                Log.d(TAG, "DocumentSnapshot data: ${document.data}")
+//                                boardHistory = document.data!!["boardHistory"]!! as ArrayList<String>
+//                                if (identity == "owner") {
+//                                    outputWriter.write("$localPlayerName vs $opponent  $boardHistory  $winner " + "\n")
+//                                } else {
+//                                    outputWriter.write("$opponent vs $localPlayerName  $boardHistory  $winner " + "\n")
+//                                }
+//                                boardSaved = true
+//                                outputWriter.close()
+//
+//                            } else {
+//                                Toast.makeText(this, "Failed to add match to history!", Toast.LENGTH_SHORT).show()
+//                                Log.d(TAG, "No such document")
+//                            }
+//                        }
+//                        .addOnFailureListener { exception ->
+//                            Toast.makeText(this, "Failed to add match to history!", Toast.LENGTH_SHORT).show()
+//                            Log.d(TAG, "get failed with ", exception)
+//                        }
+//            } else {
+//                outputWriter.write("Local game  $boardHistoryLocal  $winner " + "\n")
+//                boardSaved = true
+//                outputWriter.close()
+//            }
+//
+//        }
+//
+//        catch (e: Exception) {
+//            Toast.makeText(this, "Failed to add match to history!", Toast.LENGTH_SHORT).show()
+//            e.printStackTrace()
+//        }
+    }
+
+    private fun setupOnlineGame() {
+//        isOnlineGame = true
+//        val roomRef = db.collection("rooms").document(roomId)
+//        var turnData = HashMap<Any, Any>()
+//
+//        // Initialize turn variable
+//        if (identity == "owner") {
+//            val boardHistory = ArrayList<String>()
+//            boardHistory.add(board.fen)
+//            turnData = hashMapOf(
+//                    "currentTurn" to board.sideToMove.toString(),
+//                    "boardHistory" to boardHistory)
+//        } else {
+//            turnData = hashMapOf("currentTurn" to board.sideToMove.toString())
+//        }
+//
+//        roomRef.set(turnData, SetOptions.merge())
+//
+//        // Setup Headers
+//        roomRef.get().addOnSuccessListener { document ->
+//            if (document != null) {
+//
+//                snapshotListener = roomRef.addSnapshotListener { snapshot, e ->
+//                    if (e != null) {
+//                        return@addSnapshotListener
+//                    }
+//
+//                    if (snapshot != null && snapshot.exists()) {
+//                        // On Board State Change
+//                        val onlineBoardState = snapshot.data!!["boardState"].toString()
+//
+//                        if (onlineBoardState !== "null" && board.fen !== onlineBoardState) {
+//                            board.loadFromFen(onlineBoardState)
+//                            renderBoardState()
+//                            afterMoveHandler()
+//                            if (board.sideToMove == localPlayerColor) {
+//                                gameBinding.onlineGameTurnText.text = "Your (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
+//                            } else {
+//                                gameBinding.onlineGameTurnText.text = "${onlinePlayerName}'s (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
+//                            }
+//                            currentLegalMoves.clear()
+//                            currentLegalMoves.addAll(board.legalMoves())
+//                        }
+//
+//                        // save match history if mated
+//                        if (!boardSaved) {
+//                            if (board.isMated) {
+//                                val winner = board.sideToMove.flip().toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)
+//                                saveBoardHistory(winner)
+//                            } else if (board.isDraw) {
+//                                if (board.isRepetition) {
+//                                    saveBoardHistory("")
+//                                } else if (board.isInsufficientMaterial) {
+//                                    saveBoardHistory("")
+//                                } else if (board.halfMoveCounter >= 100) {
+//                                    saveBoardHistory("")
+//                                }
+//                                else if (board.isStaleMate){
+//                                    saveBoardHistory("")
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//
+//                val owner = document.data?.getValue("owner").toString()
+//                val player = document.data?.getValue("player").toString()
+//                if (owner == localPlayerName) {
+//                    opponent = player
+//                    localPlayerColor  = Side.WHITE
+//                    onlinePlayerName = player
+//                    gameBinding.onlineGameTitle.text = "Currently playing with $onlinePlayerName"
+//                    gameBinding.onlineGameTurnText.text = "Your (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
+//                } else {
+//                    opponent = owner
+//                    localPlayerColor  = Side.BLACK
+//                    onlinePlayerName = owner
+//                    gameBinding.onlineGameTitle.text = "Currently playing with $onlinePlayerName"
+//                    gameBinding.onlineGameTurnText.text = "${onlinePlayerName}'s (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
+//                }
+//            }
+//        }
+//
+//        isOnlineGameIntialized = true
+    }
+    
     private fun wordToNumber(word: String): Int {
         return when(word){
             "ONE" -> 1
@@ -858,260 +789,6 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
             else -> 0
         }
     }
-
-//    private fun positionToIndex(position: String): Int {
-//        var letterList = arrayListOf<Char>('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H')
-//        val debug1 = position[1].toString().toInt()
-//        Log.i(TAG, "debug1: $debug1")
-//        val result = 8 * position[1].toString().toInt() - (8 - letterList.indexOf(position[0]) )
-//        Log.i(TAG, "position: $position")
-//        Log.i(TAG, "result index: $result")
-//        return result
-//    }
-
-//    private fun afterMoveHandler() {
-//        val myDialog = Dialog(this)
-//        myDialog.setContentView(R.layout.game_finish_popup)
-//        myDialog.setCanceledOnTouchOutside(false)
-//        myDialog.setCancelable(false)
-//        myDialog.findViewById<Button>(R.id.returnBtn).setOnClickListener{
-//            //remove firestore snapshot and success listener
-//            if (isOnlineGame) {
-//                snapshotListener.remove()
-//                deleteRoomDocument()
-//                roomLeft = true
-//            }
-//            finish()
-//        }
-//        if (virtualBoard.isMated) {
-//            myDialog.show()
-//            val winner = virtualBoard.sideToMove.flip().toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)
-//            val result = "$winner Wins"
-//            if (!isOnlineGame) {
-//                savevirtualBoardHistory(winner)
-//            }
-//            myDialog.findViewById<TextView>(R.id.resultText).setText(result)
-//            if(virtualBoard.sideToMove == Side.BLACK){
-//                myDialog.findViewById<ShapeableImageView>(R.id.whiteAvatar).setBackgroundColor(ContextCompat.getColor(this, R.color.text_color_green))
-//            } else {
-//                myDialog.findViewById<ShapeableImageView>(R.id.blackAvatar).setBackgroundColor(ContextCompat.getColor(this, R.color.text_color_green))
-//            }
-//        } else if (virtualBoard.isDraw) {
-//            if (virtualBoard.isRepetition) {
-//                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
-//                if (!isOnlineGame) {
-//                    savevirtualBoardHistory("")
-//                }
-//                myDialog.show()
-//            } else if (virtualBoard.isInsufficientMaterial) {
-//                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
-//                if (!isOnlineGame) {
-//                    savevirtualBoardHistory("")
-//                }
-//                myDialog.show()
-//            } else if (virtualBoard.halfMoveCounter >= 100) {
-//                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
-//                if (!isOnlineGame) {
-//                    savevirtualBoardHistory("")
-//                }
-//                myDialog.show()
-//            }
-//            else if (virtualBoard.isStaleMate){
-//                myDialog.findViewById<TextView>(R.id.resultText).setText("Stale Mate")
-//                if (!isOnlineGame) {
-//                    savevirtualBoardHistory("")
-//                }
-//                myDialog.show()
-//            }
-//        }
-//    }
-
-
-//    private fun getNodeAtPosition(position: String): Node {
-//        val nodeName = referencesArray[positionToIndex(position)]
-//        when (nodeName) {
-//            "WHITE_ROOK1" -> {
-//                return whiteRook1
-//            }
-//
-//            "WHITE_ROOK2" -> {
-//                return whiteRook2
-//            }
-//
-//            "WHITE_KNIGHT1" -> {
-//                return whiteKnight1
-//            }
-//
-//            "WHITE_KNIGHT2" -> {
-//                return whiteKnight2
-//            }
-//
-//            "WHITE_BISHOP1" -> {
-//                return whiteBishop1
-//            }
-//
-//            "WHITE_BISHOP2" -> {
-//                return whiteBishop2
-//            }
-//
-//            "WHITE_QUEEN" -> {
-//                return whiteQueen
-//            }
-//
-//            "WHITE_KING" -> {
-//                return whiteKing
-//            }
-//            
-//            "WHITE_PAWN1" -> {
-//                return whitePawn1
-//            }
-//
-//            "WHITE_PAWN2" -> {
-//                return whitePawn2
-//            }
-//
-//            "WHITE_PAWN3" -> {
-//                return whitePawn3
-//            }
-//
-//            "WHITE_PAWN4" -> {
-//                return whitePawn4
-//            }
-//
-//            "WHITE_PAWN5" -> {
-//                return whitePawn5
-//            }
-//
-//            "WHITE_PAWN6" -> {
-//                return whitePawn6
-//            }
-//
-//            "WHITE_PAWN7" -> {
-//                return whitePawn7
-//            }
-//
-//            "WHITE_PAWN8" -> {
-//                return whitePawn8
-//            }
-//
-//            "BLACK_ROOK1" -> {
-//                return blackRook1
-//            }
-//
-//            "BLACK_ROOK2" -> {
-//                return blackRook2
-//            }
-//
-//            "BLACK_KNIGHT1" -> {
-//                return blackKnight1
-//            }
-//
-//            "BLACK_KNIGHT2" -> {
-//                return blackKnight2
-//            }
-//
-//            "BLACK_BISHOP1" -> {
-//                return blackBishop1
-//            }
-//
-//            "BLACK_BISHOP2" -> {
-//                return blackBishop2
-//            }
-//
-//            "BLACK_QUEEN" -> {
-//                return blackQueen
-//            }
-//
-//            "BLACK_KING" -> {
-//                return blackKing
-//            }
-//
-//            "BLACK_PAWN1" -> {
-//                return blackPawn1
-//            }
-//
-//            "BLACK_PAWN2" -> {
-//                return blackPawn2
-//            }
-//
-//            "BLACK_PAWN3" -> {
-//                return blackPawn3
-//            }
-//
-//            "BLACK_PAWN4" -> {
-//                return blackPawn4
-//            }
-//
-//            "BLACK_PAWN5" -> {
-//                return blackPawn5
-//            }
-//
-//            "BLACK_PAWN6" -> {
-//                return blackPawn6
-//            }
-//
-//            "BLACK_PAWN7" -> {
-//                return blackPawn7
-//            }
-//
-//            "BLACK_PAWN8" -> {
-//                return blackPawn8
-//            }
-//
-//            "None" -> {
-//                return Node()
-//            }
-//        }
-//        return Node()
-//    }
-//    
-//    private fun syncReferenceAndBoard() {
-//        val arrayBoard = virtualBoard.boardToArray()
-//        val tempReferencesArray = ArrayList<String>()
-//        // Create references array for AR translation
-//        var pawnCounter = 1
-//        var rookCounter = 1
-//        var knightCounter = 1
-//        var bishopCounter = 1
-//
-//        for (i in 0 until 64) {
-//            if (arrayBoard[i].value().contains("QUEEN") || arrayBoard[i].value().contains("KING")) {
-//                tempReferencesArray.add(arrayBoard[i].value())
-//            } else if (arrayBoard[i].value().contains("PAWN")) {
-//                tempReferencesArray.add(arrayBoard[i].value()+pawnCounter)
-//                if (pawnCounter == 8) {
-//                    pawnCounter = 1
-//                } else {
-//                    pawnCounter ++
-//                }
-//            } else if (arrayBoard[i].value().contains("ROOK")) {
-//                tempReferencesArray.add(arrayBoard[i].value()+rookCounter)
-//                if (rookCounter == 2) {
-//                    rookCounter = 1
-//                } else {
-//                    rookCounter ++
-//                }
-//            } else if (arrayBoard[i].value().contains("KNIGHT")) {
-//                tempReferencesArray.add(arrayBoard[i].value()+knightCounter)
-//                if (knightCounter == 2) {
-//                    knightCounter = 1
-//                } else {
-//                    knightCounter ++
-//                }
-//            } else if (arrayBoard[i].value().contains("BISHOP")) {
-//                tempReferencesArray.add(arrayBoard[i].value()+bishopCounter)
-//                if (bishopCounter == 2) {
-//                    bishopCounter = 1
-//                } else {
-//                    bishopCounter ++
-//                }
-//            } else {
-//                tempReferencesArray.add(arrayBoard[i].value())
-//            }
-//        }
-//
-//        referencesArray = tempReferencesArray
-//    }
 
     private fun renderBoardState () {
         Log.i("cliffen", "render 1")
@@ -1179,6 +856,30 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
         return convertToVector(position)
     }
 
+    private fun vectorToIndex (vector: Vector3): Int {
+        // transform vector to index
+        val x = vector.x
+        val z = vector.z
+        var result = 0
+//        val test1 = ( (abs(x) + halfBoard) / (2*halfBoard) ).toInt()
+//        val test2 = (abs(x) + halfBoard)
+//        Log.i(TAG, "test1: $test1, test2: $test2")
+        if (x < 0) {
+            result += 4 - round( (abs(x) + halfBoard) / (2*halfBoard) ).toInt()
+        } else {
+            result += 4 + round( (x + halfBoard) / (2*halfBoard) ).toInt() - 1
+        }
+//        Log.i(TAG, "result after x: $result")
+        if (z < 0) {
+            result += (3 + round( (abs(z) + halfBoard) / (2*halfBoard) ).toInt()) * 8
+        } else {
+            result += (4 - round( (z + halfBoard) / (2*halfBoard) ).toInt()) * 8
+        }
+        Log.i(TAG, "result after z: $result")
+
+        return result
+    }
+
     private fun renderNode(piece:String, index: Int) {
         when (piece) {
             "None" -> return
@@ -1187,6 +888,9 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 whiteRook!!.setParent(anchorNode)
                 whiteRook!!.localScale = pieceScaleVector
                 whiteRook!!.localPosition = getLocalPosition(index)
+                whiteRook!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
+                    selectTileAtIndex(hitTestResult.node!!, vectorToIndex(hitTestResult.node!!.localPosition))
+                }
                 whiteRook!!.renderable = whiteRookRenderable
                 nodeList.add(whiteRook)
             }
@@ -1196,6 +900,9 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 whiteKnight!!.localScale = pieceScaleVector
                 whiteKnight.setLocalRotation(Quaternion.axisAngle(Vector3(0f, 1f, 0f), 180f))
                 whiteKnight!!.localPosition = getLocalPosition(index)
+                whiteKnight!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
+                    selectTileAtIndex(hitTestResult.node!!, vectorToIndex(hitTestResult.node!!.localPosition))
+                }
                 whiteKnight!!.renderable = whiteKnightRenderable
                 nodeList.add(whiteKnight)
             }
@@ -1205,6 +912,9 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 whiteBishop!!.localScale = pieceScaleVector
                 whiteBishop.setLocalRotation(Quaternion.axisAngle(Vector3(0f, 1f, 0f), 180f))
                 whiteBishop!!.localPosition = getLocalPosition(index)
+                whiteBishop!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
+                    selectTileAtIndex(hitTestResult.node!!, vectorToIndex(hitTestResult.node!!.localPosition))
+                }
                 whiteBishop!!.renderable = whiteBishopRenderable
                 nodeList.add(whiteBishop)
             }
@@ -1213,6 +923,9 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 whiteQueen!!.setParent(anchorNode)
                 whiteQueen!!.localScale = pieceScaleVector
                 whiteQueen!!.localPosition = getLocalPosition(index)
+                whiteQueen!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
+                    selectTileAtIndex(hitTestResult.node!!, vectorToIndex(hitTestResult.node!!.localPosition))
+                }
                 whiteQueen!!.renderable = whiteQueenRenderable
                 nodeList.add(whiteQueen)
             }
@@ -1221,6 +934,9 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 whiteKing!!.setParent(anchorNode)
                 whiteKing!!.localScale = pieceScaleVector
                 whiteKing!!.localPosition = getLocalPosition(index)
+                whiteKing!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
+                    selectTileAtIndex(hitTestResult.node!!, vectorToIndex(hitTestResult.node!!.localPosition))
+                }
                 whiteKing!!.renderable = whiteKingRenderable
                 nodeList.add(whiteKing)
             }
@@ -1229,6 +945,9 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 whitePawn!!.setParent(anchorNode)
                 whitePawn!!.localScale = pieceScaleVector
                 whitePawn!!.localPosition = getLocalPosition(index)
+                whitePawn!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
+                    selectTileAtIndex(hitTestResult.node!!, vectorToIndex(hitTestResult.node!!.localPosition))
+                }
                 whitePawn!!.renderable = whitePawnRenderable
                 nodeList.add(whitePawn)
             }
@@ -1237,6 +956,9 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 blackPawn!!.setParent(anchorNode)
                 blackPawn!!.localScale = pieceScaleVector
                 blackPawn!!.localPosition = getLocalPosition(index)
+                blackPawn!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
+                    selectTileAtIndex(hitTestResult.node!!, vectorToIndex(hitTestResult.node!!.localPosition))
+                }
                 blackPawn!!.renderable = blackPawnRenderable
                 nodeList.add(blackPawn)
             }
@@ -1245,6 +967,9 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 blackRook!!.setParent(anchorNode)
                 blackRook!!.localScale = pieceScaleVector
                 blackRook!!.localPosition = getLocalPosition(index)
+                blackRook!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
+                    selectTileAtIndex(hitTestResult.node!!, vectorToIndex(hitTestResult.node!!.localPosition))
+                }
                 blackRook!!.renderable = blackRookRenderable
                 nodeList.add(blackRook)
             }
@@ -1253,6 +978,9 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 blackKnight!!.setParent(anchorNode)
                 blackKnight!!.localScale = pieceScaleVector
                 blackKnight!!.localPosition = getLocalPosition(index)
+                blackKnight!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
+                    selectTileAtIndex(hitTestResult.node!!, vectorToIndex(hitTestResult.node!!.localPosition))
+                }
                 blackKnight!!.renderable = blackKnightRenderable
                 nodeList.add(blackKnight)
             }
@@ -1261,6 +989,9 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 blackBishop!!.setParent(anchorNode)
                 blackBishop!!.localScale = pieceScaleVector
                 blackBishop!!.localPosition = getLocalPosition(index)
+                blackBishop!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
+                    selectTileAtIndex(hitTestResult.node!!, vectorToIndex(hitTestResult.node!!.localPosition))
+                }
                 blackBishop!!.renderable = blackBishopRenderable
                 nodeList.add(blackBishop)
             }
@@ -1269,6 +1000,9 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 blackQueen!!.setParent(anchorNode)
                 blackQueen!!.localScale = pieceScaleVector
                 blackQueen!!.localPosition = getLocalPosition(index)
+                blackQueen!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
+                    selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                }
                 blackQueen!!.renderable = blackQueenRenderable
                 nodeList.add(blackQueen)
             }
@@ -1277,6 +1011,9 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 blackKing!!.setParent(anchorNode)
                 blackKing!!.localScale = pieceScaleVector
                 blackKing!!.localPosition = getLocalPosition(index)
+                blackKing!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
+                    selectTileAtIndex(hitTestResult.node!!, vectorToIndex(hitTestResult.node!!.localPosition))
+                }
                 blackKing!!.renderable = blackKingRenderable
                 nodeList.add(blackKing)
             }
@@ -1289,5 +1026,168 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
         val number =  floorDiv + 1
         val letter = letterList.get(index - 8 * floorDiv)
         return "$letter$number"
+    }
+
+    private fun selectTileAtIndex (node:Node, tileIndex: Int) {
+        Log.i(TAG, "tile index: $tileIndex")
+        val sideToMove = virtualBoard.sideToMove
+//        if (isOnlineGame && localPlayerColor != sideToMove) {
+//            return
+//        }
+        val pieceAtIndex = virtualBoard.getPiece(Square.squareAt(tileIndex))
+
+        // Check if a Chess Piece was Previously Selected
+        if (tileSelectedIndex == -1) {
+            // Chess Piece not Previously Selected
+            // Check if Selected Tile has a Chess Piece Belonging to Current Side to Move
+            if (pieceAtIndex != Piece.NONE && pieceAtIndex.pieceSide == sideToMove) {
+                // render selected tile
+                val selected = Node()
+                selected!!.setParent(anchorNode)
+                selected!!.localScale = Vector3(0.005875f, 0.005875f, 0.005875f)
+                selected!!.localPosition = node.localPosition
+                selected!!.renderable = selectedRenderable
+                nodeList.add(selected)
+
+                // Save the Index of the Selected Tile
+                tileSelectedIndex = tileIndex
+                // Check for eligible moves
+                val allLegalMovesCurrent = virtualBoard.legalMoves()
+                // iterating through all the legal moves on the virtualBoard
+                currentLegalMoves.clear()
+                // add to list of piece's legal moves
+                currentLegalMoves.addAll(allLegalMovesCurrent)
+
+                for (eachMove in allLegalMovesCurrent) {
+                    // if legal move is relevant to selected piece
+                    if (Square.squareAt(tileSelectedIndex).toString().toLowerCase(Locale.ENGLISH) == eachMove.toString().substring(0,2)) {
+                        // change colour of legal moves
+//                        chessTiles[Square.values().indexOf(eachMove.to)].setBackgroundColor(Color.parseColor("#48D1CC"))
+                        // render available moves
+                        val tile = Node()
+                        tile!!.setParent(anchorNode)
+                        tile!!.localScale = Vector3(0.1175f, 0.1175f, 0.1175f)
+                        tile!!.localPosition = getLocalPosition(Square.values().indexOf(eachMove.to))
+                        tile!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
+                            selectTileAtIndex(hitTestResult.node!!, vectorToIndex(hitTestResult.node!!.localPosition))
+                        }
+                        tile!!.renderable = tileRenderable
+                        nodeList.add(tile)
+
+                    }
+                }
+            }
+
+        } else {
+            // Check if Selected tile is same as previous
+            if (tileIndex == tileSelectedIndex) {
+                tileSelectedIndex = -1
+                renderBoardState()
+                return
+            }
+            val squareSelectedIdx = Square.squareAt(tileSelectedIndex)
+            val squareIdx = Square.squareAt(tileIndex)
+
+            // Check New Move Object
+            var newMove = Move(Square.squareAt(tileSelectedIndex),Square.squareAt(tileIndex))
+            if (sideToMove == Side.WHITE && newMove.to.rank == Rank.RANK_8 && virtualBoard.getPiece(Square.squareAt(tileSelectedIndex)) == Piece.WHITE_PAWN) {
+                openPromotionDialog(sideToMove, newMove)
+            } else if (sideToMove == Side.BLACK && newMove.to.rank == Rank.RANK_1 && virtualBoard.getPiece(Square.squareAt(tileSelectedIndex)) == Piece.BLACK_PAWN) {
+                openPromotionDialog(sideToMove, newMove)
+            }
+            // Check if New Move is Legal
+            if(newMove in currentLegalMoves) {
+                virtualBoard.doMove(newMove)
+                tts!!.speak("$squareSelectedIdx to $squareIdx", TextToSpeech.QUEUE_FLUSH, null,"")
+                // Save virtualBoard state to virtualBoardHistoryLocal array if game is offline
+//                if (!isOnlineGame) {
+//                    virtualBoardHistoryLocal.add(virtualBoard.fen)
+//                    Log.i("cliffen", virtualBoardHistoryLocal.toString())
+//                }
+                renderBoardState()
+                tileSelectedIndex = -1
+
+                afterMoveHandler()
+
+//                if (isOnlineGame){
+//                    sendvirtualBoardStateOnline()
+//                }
+            }
+        }
+    }
+
+    private fun openPromotionDialog(side: Side, newMove: Move){
+        val myDialog = Dialog(this)
+        myDialog.setContentView(R.layout.pawn_promotion_popup)
+
+        val queenBtn = myDialog.findViewById<ImageButton>(R.id.queenBtn)
+        val knightBtn = myDialog.findViewById<ImageButton>(R.id.knightBtn)
+        val bishopBtn = myDialog.findViewById<ImageButton>(R.id.bishopBtn)
+        val rookBtn = myDialog.findViewById<ImageButton>(R.id.rookBtn)
+        if(side == Side.WHITE) {
+            queenBtn.setImageResource(R.drawable.w_queen_2x_ns)
+            knightBtn.setImageResource(R.drawable.w_knight_2x_ns)
+            bishopBtn.setImageResource(R.drawable.w_bishop_2x_ns)
+            rookBtn.setImageResource(R.drawable.w_rook_2x_ns)
+        } else {
+            queenBtn.setImageResource(R.drawable.b_queen_2x_ns)
+            knightBtn.setImageResource(R.drawable.b_knight_2x_ns)
+            bishopBtn.setImageResource(R.drawable.b_bishop_2x_ns)
+            rookBtn.setImageResource(R.drawable.b_rook_2x_ns)
+        }
+        queenBtn.setOnClickListener {
+            if(side == Side.WHITE) {
+                movePieceAndPromote(newMove, Piece.WHITE_QUEEN)
+            } else {
+                movePieceAndPromote(newMove, Piece.BLACK_QUEEN)
+            }
+            myDialog.dismiss()
+        }
+        knightBtn.setOnClickListener {
+            if(side == Side.WHITE) {
+                movePieceAndPromote(newMove, Piece.WHITE_KNIGHT)
+            } else {
+                movePieceAndPromote(newMove, Piece.BLACK_KNIGHT)
+            }
+            myDialog.dismiss()
+        }
+        bishopBtn.setOnClickListener {
+            if(side == Side.WHITE) {
+                movePieceAndPromote(newMove, Piece.WHITE_BISHOP)
+            } else {
+                movePieceAndPromote(newMove, Piece.BLACK_BISHOP)
+            }
+            myDialog.dismiss()
+        }
+        rookBtn.setOnClickListener {
+            if(side == Side.WHITE) {
+                movePieceAndPromote(newMove, Piece.WHITE_ROOK)
+            } else {
+                movePieceAndPromote(newMove, Piece.BLACK_ROOK)
+            }
+            myDialog.dismiss()
+        }
+        myDialog.show()
+    }
+
+    private fun movePieceAndPromote(move: Move, piece: Piece){
+        val newMove = Move(move.from, move.to, piece)
+        if(newMove in currentLegalMoves) {
+            virtualBoard.doMove(newMove)
+
+            // Save board state to boardHistoryLocal array if game is offline
+            if (!isOnlineGame) {
+                boardHistoryLocal.add(virtualBoard.fen)
+                Log.i("cliffen", boardHistoryLocal.toString())
+            }
+            renderBoardState()
+            tileSelectedIndex = -1
+
+            afterMoveHandler()
+
+//            if (isOnlineGame){
+//                sendBoardStateOnline()
+//            }
+        }
     }
 }
