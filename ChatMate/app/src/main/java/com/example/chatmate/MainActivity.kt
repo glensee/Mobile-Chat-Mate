@@ -33,18 +33,6 @@ class MainActivity : AppCompatActivity() {
 //        FirebaseFirestore.setLoggingEnabled(true)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-
-        // remove player from online players list in firebase
-        Log.i("cliffen",currentUUID)
-        db.collection("players").document(currentUUID)
-            .delete()
-            .addOnSuccessListener { Log.d("cliffen", "DocumentSnapshot successfully deleted!") }
-            .addOnFailureListener { e -> Log.w("cliffen", "Error deleting document", e) }
-
-        Log.i("cliffen", "past that stage")
-    }
 
     fun NavigateToAR(view: View) {
         Log.e("cliffen", "dev mode")
