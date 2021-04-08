@@ -3,6 +3,7 @@ package com.example.chatmate
 import android.app.Dialog
 import android.graphics.Color
 import android.os.Bundle
+import android.os.SystemClock
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
@@ -45,6 +46,8 @@ class GameActivity : AppCompatActivity() {
     // List of Legal Moves for Current Turn
     private val currentLegalMoves = ArrayList<Move>()
     private var moveSanList = ArrayList<String>()
+    // check if the game started with the first move
+    private var firstMove = true
 
     // Online Game Variables
     private lateinit var db: FirebaseFirestore
@@ -264,6 +267,14 @@ class GameActivity : AppCompatActivity() {
                 val moveListLocal = MoveListLocal()
                 val tempBoard = board.clone()
                 val san = moveListLocal.encodeSan(tempBoard, newMove)
+
+                if (firstMove) {
+                    gameBinding.timer.base = SystemClock.elapsedRealtime()
+                    gameBinding.timerBlack.base = SystemClock.elapsedRealtime()
+                    gameBinding.timer.start()
+                    gameBinding.timerBlack.start()
+                    firstMove = false
+                }
 
                 if (moveSanList.size == 6) {
                     moveSanList.clear()

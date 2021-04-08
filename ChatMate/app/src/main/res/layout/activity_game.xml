@@ -71,14 +71,14 @@
                     android:layout_marginEnd="260sp"
                     android:layout_marginBottom="20sp"
                     android:gravity="center"
-                    android:text="Time Left:"
+                    android:text="Time Elapsed:"
                     android:fontFamily="@font/ibm_plex_sans_regular"
                     android:rotation="180"
                     android:textColor="#FFFFFF"
                     app:layout_constraintVertical_bias="0.9"
                     android:visibility="visible"/>
 
-                <TextView
+                <Chronometer
                     android:id="@+id/timerBlack"
                     android:layout_width="50sp"
                     android:layout_height="50sp"
@@ -91,7 +91,6 @@
                     android:layout_marginEnd="260sp"
                     android:layout_marginBottom="50sp"
                     android:gravity="center"
-                    android:text="Timer"
                     android:fontFamily="@font/ibm_plex_sans_bold"
                     android:textSize="25sp"
                     android:rotation="180"
@@ -387,13 +386,14 @@
                     android:layout_marginEnd="40sp"
                     android:layout_marginBottom="90sp"
                     android:gravity="center"
-                    android:text="Time Left:"
+                    android:text="Time Elapsed:"
+                    android:fontFamily="@font/ibm_plex_sans_regular"
                     android:textColor="#FFFFFF"
                     app:layout_constraintVertical_bias="0.9"
                     tools:layout_editor_absoluteX="296dp"
                     tools:layout_editor_absoluteY="90dp" />
 
-                <TextView
+                <Chronometer
                     android:id="@+id/timer"
                     android:layout_width="50sp"
                     android:layout_height="50sp"
@@ -407,6 +407,7 @@
                     android:layout_marginBottom="60sp"
                     android:gravity="center"
                     android:text="Timer"
+                    android:fontFamily="@font/ibm_plex_sans_bold"
                     android:textSize="25sp"
                     android:textColor="#FFFFFF"
                     app:layout_constraintVertical_bias="0.9"
