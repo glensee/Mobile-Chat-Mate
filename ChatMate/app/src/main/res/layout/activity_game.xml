@@ -104,4 +104,25 @@
         </LinearLayout>
 
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/arMode">
+        <Button
+            android:id="@+id/arActivity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#EEECF1"
+            android:fontFamily="@font/redhattext_bold"
+            android:letterSpacing="0"
+            android:onClick="NavigateToAR"
+            android:paddingVertical="10dp"
+            android:text="AR Mode"
+            android:textAllCaps="false"
+            android:textColor="#383838"
+            android:textSize="18dp"
+            app:cornerRadius="7dp"
+            app:layout_constraintTop_toBottomOf="@id/online"
+            app:layout_constraintBottom_toTopOf="@id/help"/>
+    </LinearLayout>
 </LinearLayout>
