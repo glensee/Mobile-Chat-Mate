@@ -1,4 +1,5 @@
 package com.example.chatmate
+
 import android.app.Dialog
 import android.graphics.Color
 import android.os.Bundle
@@ -13,8 +14,8 @@ import com.github.bhlangonijr.chesslib.Board
 import com.github.bhlangonijr.chesslib.Piece
 import com.github.bhlangonijr.chesslib.Side
 import com.github.bhlangonijr.chesslib.Square
-import com.github.bhlangonijr.chesslib.move.MoveList
 import com.github.bhlangonijr.chesslib.move.Move
+import com.github.bhlangonijr.chesslib.move.MoveList
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -22,13 +23,15 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.speechly.client.slu.Segment
 import com.speechly.client.speech.Client
+//import com.sun.xml.internal.fastinfoset.util.StringArray
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.lang.Exception
+import java.security.KeyStore
 import java.util.*
 import kotlin.collections.ArrayList
+
 
 class GameActivity : AppCompatActivity() {
     private lateinit var gameBinding: ActivityGameBinding
@@ -111,7 +114,6 @@ class GameActivity : AppCompatActivity() {
                     speechlyClient.startContext()
                 }
                 MotionEvent.ACTION_UP -> {
-                    Log.i("eunice", "wonky shit")
                     speechlyClient.stopContext()
                     GlobalScope.launch(Dispatchers.Default) {
                         delay(500)
@@ -261,7 +263,73 @@ class GameActivity : AppCompatActivity() {
                 val moveListLocal = MoveListLocal()
                 val tempBoard = board.clone()
                 val san = moveListLocal.encodeSan(tempBoard, newMove)
-                moveSanList.add(san)
+
+                if (moveSanList.size == 6) {
+                    moveSanList.clear()
+                    moveSanList.add(san)
+                    //moveSanList.reverse()
+                } else {
+                    moveSanList.add(san)
+                    //moveSanList.reverse()
+                }
+                val move1 = findViewById<TextView>(R.id.move1)
+                val move2 = findViewById<TextView>(R.id.move2)
+                val move3 = findViewById<TextView>(R.id.move3)
+                val move4 = findViewById<TextView>(R.id.move4)
+                val move5 = findViewById<TextView>(R.id.move5)
+                val move6 = findViewById<TextView>(R.id.move6)
+                val movesWhiteCol = mutableListOf(move1, move3, move5)
+                val movesBlackCol = mutableListOf(move2, move4, move6)
+                val move1Black = findViewById<TextView>(R.id.move1Black)
+                val move2Black = findViewById<TextView>(R.id.move2Black)
+                val move3Black = findViewById<TextView>(R.id.move3Black)
+                val move4Black = findViewById<TextView>(R.id.move4Black)
+                val move5Black = findViewById<TextView>(R.id.move5Black)
+                val move6Black = findViewById<TextView>(R.id.move6Black)
+                val movesBlackWhiteCol = mutableListOf(move1Black, move3Black, move5Black)
+                val movesBlackBlackCol = mutableListOf(move2Black, move4Black, move6Black)
+                var flag = true
+                var whiteMoves = ArrayList<String>()
+                var blackMoves = ArrayList<String>()
+                for (move in 0 until moveSanList.size) {
+                    if (flag) {
+                        // add to white
+                        whiteMoves.add(moveSanList[move])
+                        flag = false
+                    } else {
+                        // add to black
+                        blackMoves.add(moveSanList[move])
+                        flag = true
+                    }
+                }
+                // change white moves text
+                for (text in 0 until whiteMoves.size) {
+                    movesWhiteCol[whiteMoves.size-text-1].text = whiteMoves[text]
+                    movesBlackWhiteCol[whiteMoves.size-text-1].text = whiteMoves[text]
+                }
+                if (moveSanList.size%2 != 0) {
+                    // white > black
+                    for (text in 0 until blackMoves.size) {
+                        movesBlackCol[blackMoves.size-text].text = blackMoves[text]
+                        movesBlackCol[0].text = ""
+                        movesBlackBlackCol[blackMoves.size-text].text = blackMoves[text]
+                        movesBlackBlackCol[0].text = ""
+                    }
+                } else {
+                    // white == black
+                    for (text in 0 until blackMoves.size) {
+                        movesBlackCol[blackMoves.size-text-1].text = blackMoves[text]
+                        movesBlackBlackCol[blackMoves.size-text-1].text = blackMoves[text]
+                    }
+                }
+                if (moveSanList.size == 1) {
+                    movesBlackCol[2].text = movesBlackCol[1].text
+                    movesBlackCol[1].text = movesBlackCol[0].text
+                    movesBlackCol[0].text = ""
+                    movesBlackBlackCol[2].text = movesBlackBlackCol[1].text
+                    movesBlackBlackCol[1].text = movesBlackBlackCol[0].text
+                    movesBlackBlackCol[0].text = ""
+                }
                 board.doMove(newMove)
                 renderBoardState()
                 tileSelectedIndex = -1
@@ -276,7 +344,6 @@ class GameActivity : AppCompatActivity() {
 
     private fun movePieceWithVoiceCommand(command: String){
         val sideToMove = board.sideToMove
-        Log.d("eunice", "eunice")
         if (isOnlineGame && localPlayerColor != sideToMove) {
             return
         }
@@ -338,6 +405,7 @@ class GameActivity : AppCompatActivity() {
             val result = "${board.sideToMove.flip().toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)} Wins"
             myDialog.findViewById<TextView>(R.id.resultText).setText(result)
             // TODO clear movelist
+            moveSanList.clear()
             if(board.sideToMove == Side.BLACK){
                 myDialog.findViewById<ShapeableImageView>(R.id.whiteAvatar).setBackgroundColor(ContextCompat.getColor(this, R.color.text_color_green))
             } else {
@@ -346,19 +414,23 @@ class GameActivity : AppCompatActivity() {
         } else if (board.isDraw) {
             if (board.isRepetition) {
                 // TODO clear movelist
+                moveSanList.clear()
                 myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
                 myDialog.show()
             } else if (board.isInsufficientMaterial) {
                 // TODO clear movelist
+                moveSanList.clear()
                 myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
                 myDialog.show()
             } else if (board.halfMoveCounter >= 100) {
                 // TODO clear movelist
+                moveSanList.clear()
                 myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
                 myDialog.show()
             }
             else if (board.isStaleMate){
                 // TODO clear movelist
+                moveSanList.clear()
                 myDialog.findViewById<TextView>(R.id.resultText).setText("Stale Mate")
                 myDialog.show()
             }
