@@ -379,7 +379,9 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         val newMove = Move(move.from, move.to, piece)
         if(newMove in currentLegalMoves) {
             board.doMove(newMove)
-
+            val squareSelectedIdx = newMove.from
+            val squareIdx = newMove.to
+            tts!!.speak("$squareSelectedIdx to $squareIdx", TextToSpeech.QUEUE_FLUSH, null,"")
             // Save board state to boardHistoryLocal array if game is offline
             if (!isOnlineGame) {
                 boardHistoryLocal.add(board.fen)
