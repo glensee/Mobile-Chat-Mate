@@ -86,11 +86,12 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         db = Firebase.firestore
         this.supportActionBar!!.hide()
 
-        //
-        gameBinding.hideBoardToggleBtn.setOnClickListener{
-            isBoardHidden = !isBoardHidden
-            renderBoardState()
-        }
+        // Button to hide the board
+//        gameBinding.hideBoardToggleBtn.setOnClickListener{
+//            isBoardHidden = !isBoardHidden
+//            renderBoardState()
+//        }
+        
         // Get Local Player Name
         localPlayerName = intent.getStringExtra("name").toString()
 
@@ -601,8 +602,6 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
         if (board.isMated) {
             myDialog.show()
-            val result = "${board.sideToMove.flip().toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)} Wins"
-            myDialog.findViewById<TextView>(R.id.resultText).setText(result)
             // TODO clear movelist
             moveSanList.clear()
             val winner = board.sideToMove.flip().toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)
