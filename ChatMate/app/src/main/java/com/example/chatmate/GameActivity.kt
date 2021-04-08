@@ -291,12 +291,18 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             val squareSelectedIdx = Square.squareAt(tileSelectedIndex)
             val squareIdx = Square.squareAt(tileIndex)
 
-            // Check New Move Object
+            // Check New Move Object is a promotion
             var newMove = Move(Square.squareAt(tileSelectedIndex),Square.squareAt(tileIndex))
             if (sideToMove == Side.WHITE && newMove.to.rank == Rank.RANK_8 && board.getPiece(Square.squareAt(tileSelectedIndex)) == Piece.WHITE_PAWN) {
-                openPromotionDialog(sideToMove, newMove)
+                val testPromotionMove = Move(Square.squareAt(tileSelectedIndex),Square.squareAt(tileIndex), Piece.WHITE_QUEEN)
+                if(testPromotionMove in currentLegalMoves) {
+                    openPromotionDialog(sideToMove, newMove)
+                }
             } else if (sideToMove == Side.BLACK && newMove.to.rank == Rank.RANK_1 && board.getPiece(Square.squareAt(tileSelectedIndex)) == Piece.BLACK_PAWN) {
-                openPromotionDialog(sideToMove, newMove)
+                val testPromotionMove = Move(Square.squareAt(tileSelectedIndex),Square.squareAt(tileIndex), Piece.BLACK_QUEEN)
+                if(testPromotionMove in currentLegalMoves) {
+                    openPromotionDialog(sideToMove, newMove)
+                }
             }
             // Check if New Move is Legal
             if(newMove in currentLegalMoves) {
