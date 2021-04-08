@@ -469,39 +469,23 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             if (!isOnlineGame) {
                 saveBoardHistory(winner)
             }
-            myDialog.findViewById<TextView>(R.id.resultText).setText(result)
+            myDialog.findViewById<TextView>(R.id.resultText).text = result
             if(board.sideToMove == Side.BLACK){
                 myDialog.findViewById<ShapeableImageView>(R.id.whiteAvatar).setBackgroundColor(ContextCompat.getColor(this, R.color.text_color_green))
             } else {
                 myDialog.findViewById<ShapeableImageView>(R.id.blackAvatar).setBackgroundColor(ContextCompat.getColor(this, R.color.text_color_green))
             }
         } else if (board.isDraw) {
-            if (board.isRepetition) {
-                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
-                if (!isOnlineGame) {
-                    saveBoardHistory("")
-                }
-                myDialog.show()
-            } else if (board.isInsufficientMaterial) {
-                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
-                if (!isOnlineGame) {
-                    saveBoardHistory("")
-                }
-                myDialog.show()
-            } else if (board.halfMoveCounter >= 100) {
-                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
-                if (!isOnlineGame) {
-                    saveBoardHistory("")
-                }
-                myDialog.show()
+            var result = "Match Draw"
+
+            if (board.isStaleMate) {
+                result = "Stale Mate"
             }
-            else if (board.isStaleMate){
-                myDialog.findViewById<TextView>(R.id.resultText).setText("Stale Mate")
-                if (!isOnlineGame) {
-                    saveBoardHistory("")
-                }
-                myDialog.show()
+            myDialog.findViewById<TextView>(R.id.resultText).text = result
+            if (!isOnlineGame) {
+                saveBoardHistory("")
             }
+            myDialog.show()
         }
     }
 
@@ -603,13 +587,33 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         // Setup Headers
         roomRef.get().addOnSuccessListener { document ->
             if (document != null) {
-
                 snapshotListener = roomRef.addSnapshotListener { snapshot, e ->
                     if (e != null) {
                         return@addSnapshotListener
                     }
 
                     if (snapshot != null && snapshot.exists()) {
+
+                        // Disconnect players from game when someone disconnects
+                        if (snapshot.get("roomClosed") !== null) {
+                            val myDialog = Dialog(this)
+                            myDialog.setContentView(R.layout.game_finish_popup)
+                            myDialog.setCanceledOnTouchOutside(false)
+                            myDialog.setCancelable(false)
+                            myDialog.findViewById<Button>(R.id.returnBtn).setOnClickListener{
+                                //remove firestore snapshot and success listener
+                                if (!roomLeft) {
+                                    snapshotListener.remove()
+                                    deleteRoomDocument()
+                                    roomLeft = true
+                                }
+                                val it = Intent()
+                                setResult(RESULT_OK, it)
+                                finish()
+                            }
+                            myDialog.findViewById<TextView>(R.id.resultText).text = ("Game disconnected")
+                            myDialog.show()
+                        }
                         // On Board State Change
                         val onlineBoardState = snapshot.data!!["boardState"].toString()
 
@@ -695,7 +699,8 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     override fun onStop() {
         super.onStop()
-        if (!roomLeft) {
+        if (isOnlineGame && !roomLeft) {
+            snapshotListener.remove()
             deleteRoomDocument()
         }
     }
