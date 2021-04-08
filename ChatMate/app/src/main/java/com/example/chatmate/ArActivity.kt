@@ -5,6 +5,7 @@ import android.app.Activity
 import android.app.ActivityManager
 import android.app.Dialog
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Build.VERSION_CODES
@@ -1237,8 +1238,10 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
         }
     }
 
-    override fun onStop() {
-        super.onStop()
-        
+    override fun onBackPressed() {
+        val it = Intent()
+        it.putExtra("board", virtualBoard.fen)
+        setResult(RESULT_OK, it)
+        super.onBackPressed()
     }
 }

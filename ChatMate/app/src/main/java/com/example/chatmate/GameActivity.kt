@@ -730,4 +730,15 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         it.putExtra("board", board.fen)
         startActivityForResult(it, 1001)
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 1001) {
+            Log.i("cliffen", "returned from AR")
+            val boardFen = data!!.getStringExtra("board")
+            Log.i("cliffen", "fen data: $boardFen")
+            board.loadFromFen(data!!.getStringExtra("board"))
+            renderBoardState()
+        }
+    }
 }
