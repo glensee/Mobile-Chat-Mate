@@ -727,6 +727,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         it.putExtra("roomId", roomId)
         it.putExtra("name", localPlayerName)
         it.putExtra("identity", identity)
-        startActivity(it)
+        it.putExtra("board", board.fen)
+        startActivityForResult(it, 1001)
     }
 }

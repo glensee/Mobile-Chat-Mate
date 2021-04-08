@@ -104,6 +104,9 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
     private val currentLegalMoves = ArrayList<Move>()
     private var isOnlineGame = false
     private var tileSelectedIndex = -1
+    private lateinit var name: String
+    private lateinit var roomId: String
+    private lateinit var identity: String
 
     // boolean to disable plane tap listener
     private var boardRendered = false
@@ -154,10 +157,14 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
         //tts
         tts = TextToSpeech(this, this)
 
-        // Generate virtual board and history
+        // Get intent values
+        name = intent.getStringExtra("name").toString()
+        identity = intent.getStringExtra("identity").toString()
+        roomId = intent.getStringExtra("name").toString()
         virtualBoard = Board()
-        
-        // sync reference array with virtual board
+        virtualBoard.loadFromFen(intent.getStringExtra("board").toString())
+
+        // add local board history
         boardHistoryLocal.add(virtualBoard.fen)
 
 //        //Check for Online Game
@@ -1228,5 +1235,10 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
 //                sendBoardStateOnline()
 //            }
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        
     }
 }
