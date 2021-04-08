@@ -1,14 +1,47 @@
-<LinearLayout
+<LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:orientation="vertical"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    tools:context=".ArActivity"
     xmlns:tools="http://schemas.android.com/tools">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/bg_main"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/back"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:fontFamily="@font/redhattext_bold"
+            android:letterSpacing="0"
+            android:onClick="returnToVirtualBoard"
+            android:text="&lt;"
+            android:textAllCaps="false"
+            android:textColor="#CDC9D6"
+            android:textSize="18dp"/>
+        <TextView
+            android:id="@+id/onlineGameTurnText"
+            android:padding="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Mury's (Black) Turn"
+            android:fontFamily="@font/ibm_plex_sans_bold"
+            android:textColor="@color/text_color_gray_5"
+            android:textSize="20sp"
+            android:gravity="start"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:layout_gravity="center"/>
+
+
+    </LinearLayout>
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="0.2"
-        tools:context=".ArActivity">
+        android:layout_weight="0.2">
 
         <fragment android:name="com.google.ar.sceneform.ux.ArFragment"
             android:id="@+id/ux_fragment"
@@ -19,15 +52,14 @@
     <LinearLayout
         android:id="@+id/voiceCommandBtn"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="2"
+        android:layout_height="wrap_content"
         android:background="@color/bg_main"
         android:orientation="vertical">
         <TextView
             android:id="@+id/voiceResultTextField"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="10dp"
+            android:padding="20dp"
             android:layout_gravity="center"
             android:text="Tap and hold to speak"
             android:gravity="center"

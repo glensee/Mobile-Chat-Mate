@@ -24,6 +24,7 @@ import androidx.core.content.ContextCompat
 import com.example.chatmate.databinding.ActivityArBinding
 import com.github.bhlangonijr.chesslib.*
 import com.github.bhlangonijr.chesslib.move.Move
+import com.google.android.gms.tasks.Task
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.ar.core.HitResult
 import com.google.ar.core.Plane
@@ -35,7 +36,12 @@ import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.math.Vector3Evaluator
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.ux.ArFragment
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.speechly.client.slu.Segment
 import com.speechly.client.speech.Client
 import kotlinx.coroutines.Dispatchers
@@ -105,9 +111,18 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
     private val currentLegalMoves = ArrayList<Move>()
     private var isOnlineGame = false
     private var tileSelectedIndex = -1
-    private lateinit var name: String
     private lateinit var roomId: String
     private lateinit var identity: String
+    private lateinit var localPlayerColor:Side
+    private lateinit var onlinePlayerName: String
+    private lateinit var successListener: Task<DocumentSnapshot>
+    private lateinit var snapshotListener: ListenerRegistration
+    private var roomLeft = false
+    private var boardSaved = false
+    private  var isOnlineGameIntialized = false
+    private lateinit var db: FirebaseFirestore
+    private lateinit var localPlayerName: String
+    private lateinit var opponent: String
 
     // boolean to disable plane tap listener
     private var boardRendered = false
@@ -143,6 +158,7 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
         binding = ActivityArBinding.inflate(layoutInflater)
         setContentView(binding.root)
         this.supportActionBar!!.hide()
+        db = Firebase.firestore
         arFragment = getSupportFragmentManager().findFragmentById(R.id.ux_fragment) as ArFragment
 
         // Assign Voice Command Listener to Button
@@ -159,7 +175,7 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
         tts = TextToSpeech(this, this)
 
         // Get intent values
-        name = intent.getStringExtra("name").toString()
+        localPlayerName = intent.getStringExtra("name").toString()
         identity = intent.getStringExtra("identity").toString()
         roomId = intent.getStringExtra("name").toString()
         virtualBoard = Board()
@@ -168,12 +184,11 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
         // add local board history
         boardHistoryLocal.add(virtualBoard.fen)
 
-//        //Check for Online Game
-//        roomId = intent.getStringExtra("roomId").toString()
-//        if(roomId != "null" && !isOnlineGameIntialized) {
-//            gameBinding.onlineGameHeader.visibility = View.VISIBLE
-//            setupOnlineGame()
-//        }
+        //Check for Online Game
+        roomId = intent.getStringExtra("roomId").toString()
+        if(roomId != "null" && !isOnlineGameIntialized) {
+            setupOnlineGame()
+        }
 
         // Set All Current Legal Moves
         currentLegalMoves.addAll(virtualBoard.legalMoves())
@@ -696,89 +711,87 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
     }
 
     private fun setupOnlineGame() {
-//        isOnlineGame = true
-//        val roomRef = db.collection("rooms").document(roomId)
-//        var turnData = HashMap<Any, Any>()
-//
-//        // Initialize turn variable
-//        if (identity == "owner") {
-//            val boardHistory = ArrayList<String>()
-//            boardHistory.add(virtualBoard.fen)
-//            turnData = hashMapOf(
-//                    "currentTurn" to virtualBoard.sideToMove.toString(),
-//                    "boardHistory" to boardHistory)
-//        } else {
-//            turnData = hashMapOf("currentTurn" to virtualBoard.sideToMove.toString())
-//        }
-//
-//        roomRef.set(turnData, SetOptions.merge())
-//
-//        // Setup Headers
-//        roomRef.get().addOnSuccessListener { document ->
-//            if (document != null) {
-//
-//                snapshotListener = roomRef.addSnapshotListener { snapshot, e ->
-//                    if (e != null) {
-//                        return@addSnapshotListener
-//                    }
-//
-//                    if (snapshot != null && snapshot.exists()) {
-//                        // On Board State Change
-//                        val onlineBoardState = snapshot.data!!["boardState"].toString()
-//
-//                        if (onlineBoardState !== "null" && virtualBoard.fen !== onlineBoardState) {
-//                            virtualBoard.loadFromFen(onlineBoardState)
-//                            renderBoardState()
-//                            afterMoveHandler()
-//                            if (virtualBoard.sideToMove == localPlayerColor) {
-//                                binding.onlineGameTurnText.text = "Your (${virtualBoard.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
-//                            } else {
-//                                binding.onlineGameTurnText.text = "${onlinePlayerName}'s (${virtualBoard.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
-//                            }
-//                            currentLegalMoves.clear()
-//                            currentLegalMoves.addAll(virtualBoard.legalMoves())
-//                        }
-//
-//                        // save match history if mated
-//                        if (!boardSaved) {
-//                            if (virtualBoard.isMated) {
-//                                val winner = virtualBoard.sideToMove.flip().toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)
-//                                saveBoardHistory(winner)
-//                            } else if (virtualBoard.isDraw) {
-//                                if (virtualBoard.isRepetition) {
-//                                    saveBoardHistory("")
-//                                } else if (virtualBoard.isInsufficientMaterial) {
-//                                    saveBoardHistory("")
-//                                } else if (virtualBoard.halfMoveCounter >= 100) {
-//                                    saveBoardHistory("")
-//                                }
-//                                else if (virtualBoard.isStaleMate){
-//                                    saveBoardHistory("")
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//
-//                val owner = document.data?.getValue("owner").toString()
-//                val player = document.data?.getValue("player").toString()
-//                if (owner == localPlayerName) {
-//                    opponent = player
-//                    localPlayerColor  = Side.WHITE
-//                    onlinePlayerName = player
-//                    binding.onlineGameTitle.text = "Currently playing with $onlinePlayerName"
-//                    binding.onlineGameTurnText.text = "Your (${virtualBoard.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
-//                } else {
-//                    opponent = owner
-//                    localPlayerColor  = Side.BLACK
-//                    onlinePlayerName = owner
-//                    binding.onlineGameTitle.text = "Currently playing with $onlinePlayerName"
-//                    binding.onlineGameTurnText.text = "${onlinePlayerName}'s (${virtualBoard.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
-//                }
-//            }
-//        }
-//
-//        isOnlineGameIntialized = true
+        isOnlineGame = true
+        val roomRef = db.collection("rooms").document(roomId)
+        var turnData = HashMap<Any, Any>()
+
+        // Initialize turn variable
+        if (identity == "owner") {
+            val boardHistory = ArrayList<String>()
+            boardHistory.add(virtualBoard.fen)
+            turnData = hashMapOf(
+                    "currentTurn" to virtualBoard.sideToMove.toString(),
+                    "boardHistory" to boardHistory)
+        } else {
+            turnData = hashMapOf("currentTurn" to virtualBoard.sideToMove.toString())
+        }
+
+        roomRef.set(turnData, SetOptions.merge())
+
+        // Setup Headers
+        roomRef.get().addOnSuccessListener { document ->
+            if (document != null) {
+
+                snapshotListener = roomRef.addSnapshotListener { snapshot, e ->
+                    if (e != null) {
+                        return@addSnapshotListener
+                    }
+
+                    if (snapshot != null && snapshot.exists()) {
+                        // On Board State Change
+                        val onlineBoardState = snapshot.data!!["boardState"].toString()
+
+                        if (onlineBoardState !== "null" && virtualBoard.fen !== onlineBoardState) {
+                            virtualBoard.loadFromFen(onlineBoardState)
+                            renderBoardState()
+                            afterMoveHandler()
+                            if (virtualBoard.sideToMove == localPlayerColor) {
+                                binding.onlineGameTurnText.text = "Your (${virtualBoard.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
+                            } else {
+                                binding.onlineGameTurnText.text = "${onlinePlayerName}'s (${virtualBoard.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
+                            }
+                            currentLegalMoves.clear()
+                            currentLegalMoves.addAll(virtualBoard.legalMoves())
+                        }
+
+                        // save match history if mated
+                        if (!boardSaved) {
+                            if (virtualBoard.isMated) {
+                                val winner = virtualBoard.sideToMove.flip().toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)
+                                saveBoardHistory(winner)
+                            } else if (virtualBoard.isDraw) {
+                                if (virtualBoard.isRepetition) {
+                                    saveBoardHistory("")
+                                } else if (virtualBoard.isInsufficientMaterial) {
+                                    saveBoardHistory("")
+                                } else if (virtualBoard.halfMoveCounter >= 100) {
+                                    saveBoardHistory("")
+                                }
+                                else if (virtualBoard.isStaleMate){
+                                    saveBoardHistory("")
+                                }
+                            }
+                        }
+                    }
+                }
+
+                val owner = document.data?.getValue("owner").toString()
+                val player = document.data?.getValue("player").toString()
+                if (owner == localPlayerName) {
+                    opponent = player
+                    localPlayerColor  = Side.WHITE
+                    onlinePlayerName = player
+                    binding.onlineGameTurnText.text = "Your (${virtualBoard.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
+                } else {
+                    opponent = owner
+                    localPlayerColor  = Side.BLACK
+                    onlinePlayerName = owner
+                    binding.onlineGameTurnText.text = "${onlinePlayerName}'s (${virtualBoard.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
+                }
+            }
+        }
+
+        isOnlineGameIntialized = true
     }
     
     private fun wordToNumber(word: String): Int {
@@ -853,6 +866,11 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
             z = halfBoard + (2 * halfBoard * (4 - number))
         }
         return Vector3(x,y,z)
+    }
+
+    // mirror Vector positioning for black side
+    private fun mirrorVector(vector: Vector3): Vector3 {
+        return Vector3(-vector.x, vector.y, -vector.z)
     }
 
     private fun getLocalPosition (index: Int): Vector3 {
@@ -1244,4 +1262,9 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
         setResult(RESULT_OK, it)
         super.onBackPressed()
     }
+
+    fun returnToVirtualBoard(view:View) {
+        onBackPressed()
+    }
+
 }
