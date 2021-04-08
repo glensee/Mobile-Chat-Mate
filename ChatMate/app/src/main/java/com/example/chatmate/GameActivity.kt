@@ -386,6 +386,8 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
             if (isOnlineGame){
                 sendBoardStateOnline()
+            } else {
+                boardHistoryLocal.add(board.fen)
             }
         }
     }
