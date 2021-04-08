@@ -99,6 +99,7 @@ class GameActivity : AppCompatActivity() {
         roomId = intent.getStringExtra("roomId").toString()
         if(roomId != "null" && !isOnlineGameIntialized) {
             gameBinding.onlineGameHeader.visibility = View.VISIBLE
+            gameBinding.wholething.visibility = View.INVISIBLE
             setupOnlineGame()
         }
 
@@ -267,10 +268,8 @@ class GameActivity : AppCompatActivity() {
                 if (moveSanList.size == 6) {
                     moveSanList.clear()
                     moveSanList.add(san)
-                    //moveSanList.reverse()
                 } else {
                     moveSanList.add(san)
-                    //moveSanList.reverse()
                 }
                 val move1 = findViewById<TextView>(R.id.move1)
                 val move2 = findViewById<TextView>(R.id.move2)
