@@ -721,4 +721,12 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
         super.onDestroy()
     }
+
+    fun NavigateToAR(view:View) {
+        val it = Intent(this, ArActivity::class.java)
+        it.putExtra("roomId", roomId)
+        it.putExtra("name", localPlayerName)
+        it.putExtra("identity", identity)
+        startActivity(it)
+    }
 }

@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".GameActivity"
     android:gravity="center"
+    android:background="@color/bg_main"
     android:orientation="vertical">
 
     <LinearLayout
@@ -102,27 +103,21 @@
                     />
             </LinearLayout>
         </LinearLayout>
-
     </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/arMode">
         <Button
-            android:id="@+id/arActivity"
+            android:id="@+id/ar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="0dp"
             android:backgroundTint="#EEECF1"
             android:fontFamily="@font/redhattext_bold"
             android:letterSpacing="0"
             android:onClick="NavigateToAR"
             android:paddingVertical="10dp"
-            android:text="AR Mode"
+            android:text="AR mode"
             android:textAllCaps="false"
             android:textColor="#383838"
             android:textSize="18dp"
-            app:cornerRadius="7dp"
-            app:layout_constraintTop_toBottomOf="@id/online"
-            app:layout_constraintBottom_toTopOf="@id/help"/>
-    </LinearLayout>
+            app:cornerRadius="7dp"/>
+
 </LinearLayout>
