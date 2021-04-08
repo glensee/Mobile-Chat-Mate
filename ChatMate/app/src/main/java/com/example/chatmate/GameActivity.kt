@@ -68,7 +68,6 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var onlinePlayerName: String
     private var isOnlineGameIntialized = false
     private var seg = String()
-    private  var isOnlineGameIntialized = false
     private lateinit var finalSegment: Segment
     private lateinit var successListener: Task<DocumentSnapshot>
     private lateinit var snapshotListener: ListenerRegistration
