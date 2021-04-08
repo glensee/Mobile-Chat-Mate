@@ -223,45 +223,48 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
 
-                <Button
+                <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/hideShowBoardBlack"
                     android:layout_width="80sp"
                     android:layout_height="80sp"
                     android:background="@drawable/circle"
-                    android:text="hide/show board"
-                    android:textSize="10sp"
+                    android:backgroundTint="@color/chess_border"
                     android:fontFamily="@font/ibm_plex_sans_bold"
                     android:rotation="180"
+                    android:text="hide/show board"
+                    android:textSize="13sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.891"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <Button
+                <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/ARBlack"
                     android:layout_width="80sp"
                     android:layout_height="80sp"
                     android:background="@drawable/circle"
-                    android:text="AR Mode"
-                    android:textSize="10sp"
+                    android:backgroundTint="@color/chess_border"
                     android:fontFamily="@font/ibm_plex_sans_bold"
                     android:rotation="180"
+                    android:text="AR Mode"
+                    android:textSize="13sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.129"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <Button
+                <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/muteBlack"
                     android:layout_width="80sp"
                     android:layout_height="80sp"
                     android:background="@drawable/circle"
-                    android:text="Mute/ Unmute"
-                    android:textSize="10sp"
+                    android:backgroundTint="@color/chess_border"
                     android:fontFamily="@font/ibm_plex_sans_bold"
                     android:rotation="180"
+                    android:text="Mute/ Unmute"
+                    android:textSize="13sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -533,44 +536,44 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
 
-                <Button
+                <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/hideShowBoard"
                     android:layout_width="80sp"
                     android:layout_height="80sp"
                     android:background="@drawable/circle"
-                    android:text="hide/show board"
-                    android:textSize="10sp"
+                    android:backgroundTint="@color/chess_border"
                     android:fontFamily="@font/ibm_plex_sans_bold"
+                    android:text="hide/ show board"
+                    android:textSize="13sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.129"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <Button
+                <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/mute"
                     android:layout_width="80sp"
                     android:layout_height="80sp"
                     android:background="@drawable/circle"
-                    android:text="mute/ unmute"
-                    android:textSize="10sp"
+                    android:backgroundTint="@color/chess_border"
                     android:fontFamily="@font/ibm_plex_sans_bold"
+                    android:text="mute/ unmute"
+                    android:textSize="13sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <Button
+                <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/AR"
                     android:layout_width="80sp"
                     android:layout_height="80sp"
                     android:background="@drawable/circle"
-                    android:backgroundTint="#FFFFFF"
-                    android:backgroundTintMode="multiply"
-                    android:drawableTintMode="src_in"
+                    android:backgroundTint="@color/chess_border"
                     android:fontFamily="@font/ibm_plex_sans_bold"
                     android:text="AR mode"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.864"
