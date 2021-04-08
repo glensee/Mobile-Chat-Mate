@@ -416,6 +416,22 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             // Check if New Move is Legal
             currentLegalMoves.clear()
             currentLegalMoves.addAll(board.legalMoves())
+
+            // Check New Move Object is a promotion
+            if (sideToMove == Side.WHITE && newMove.to.rank == Rank.RANK_8 && board.getPiece(from) == Piece.WHITE_PAWN) {
+                val testPromotionMove = Move(from, to, Piece.WHITE_QUEEN)
+                if(testPromotionMove in currentLegalMoves) {
+                    openPromotionDialog(sideToMove, newMove)
+                    return
+                }
+            } else if (sideToMove == Side.BLACK && newMove.to.rank == Rank.RANK_1 && board.getPiece(from) == Piece.BLACK_PAWN) {
+                val testPromotionMove = Move(from, to, Piece.BLACK_QUEEN)
+                if(testPromotionMove in currentLegalMoves) {
+                    openPromotionDialog(sideToMove, newMove)
+                    return
+                }
+            }
+
             if(newMove in currentLegalMoves) {
                 board.doMove(newMove)
                 tts!!.speak("$from to $to", TextToSpeech.QUEUE_FLUSH, null,"")
