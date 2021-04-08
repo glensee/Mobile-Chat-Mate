@@ -304,7 +304,14 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 tts!!.speak("$squareSelectedIdx to $squareIdx", TextToSpeech.QUEUE_FLUSH, null,"")
                 // Save board state to boardHistoryLocal array if game is offline
                 renderBoardState()
+                tileSelectedIndex = -1
                 afterMoveHandler()
+
+                if (isOnlineGame){
+                    sendBoardStateOnline()
+                } else {
+                    boardHistoryLocal.add(board.fen)
+                }
             }
         }
     }
@@ -366,8 +373,20 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         val newMove = Move(move.from, move.to, piece)
         if(newMove in currentLegalMoves) {
             board.doMove(newMove)
+
+            // Save board state to boardHistoryLocal array if game is offline
+            if (!isOnlineGame) {
+                boardHistoryLocal.add(board.fen)
+                Log.i("cliffen", boardHistoryLocal.toString())
+            }
             renderBoardState()
+            tileSelectedIndex = -1
+
             afterMoveHandler()
+
+            if (isOnlineGame){
+                sendBoardStateOnline()
+            }
         }
     }
 
@@ -397,6 +416,11 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 currentLegalMoves.addAll(board.legalMoves())
                 gameBinding.voiceResultTextField.text = "Tap and hold on this side of the screen to speak"
                 afterMoveHandler()
+                if (isOnlineGame){
+                    sendBoardStateOnline()
+                } else {
+                    boardHistoryLocal.add(board.fen)
+                }
             } else {
                 throw Error("Invalid Command")
             }
@@ -423,12 +447,6 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun afterMoveHandler() {
-        if (isOnlineGame){
-            sendBoardStateOnline()
-        } else {
-            boardHistoryLocal.add(board.fen)
-        }
-        tileSelectedIndex = -1
         val myDialog = Dialog(this)
         myDialog.setContentView(R.layout.game_finish_popup)
         myDialog.setCanceledOnTouchOutside(false)
