@@ -22,7 +22,9 @@
         <meta-data
             android:name="com.google.ar.core"
             android:value="required" />
-
+        <activity
+            android:name=".ArActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ReplayActivity"
             android:screenOrientation="portrait" />
