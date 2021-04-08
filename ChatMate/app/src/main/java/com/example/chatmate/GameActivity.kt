@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
 import java.io.FileOutputStream
 import java.io.OutputStreamWriter
 import java.lang.Exception
+import java.time.LocalDate
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
@@ -76,7 +77,6 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         setContentView(gameBinding.root)
         db = Firebase.firestore
         this.supportActionBar!!.hide()
-
         //
         gameBinding.hideBoardToggleBtn.setOnClickListener{
             isBoardHidden = !isBoardHidden
@@ -548,9 +548,9 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                                     Log.d(TAG, "DocumentSnapshot data: ${document.data}")
                                     boardHistory = document.data!!["boardHistory"]!! as ArrayList<String>
                                     if (identity == "owner") {
-                                        outputWriter.write("$localPlayerName vs $opponent  $boardHistory  $winner " + "\n")
+                                        outputWriter.write("$localPlayerName vs $opponent  $boardHistory  $winner  ${LocalDate.now()}" + "\n")
                                     } else {
-                                        outputWriter.write("$opponent vs $localPlayerName  $boardHistory  $winner " + "\n")
+                                        outputWriter.write("$opponent vs $localPlayerName  $boardHistory  $winner  ${LocalDate.now()}" + "\n")
                                     }
                                     boardSaved = true
                                     outputWriter.close()
@@ -565,7 +565,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                                 Log.d(TAG, "get failed with ", exception)
                             }
                 } else {
-                    outputWriter.write("Local game  $boardHistoryLocal  $winner " + "\n")
+                    outputWriter.write("Local game  $boardHistoryLocal  $winner  ${LocalDate.now()}" + "\n")
                     boardSaved = true
                     outputWriter.close()
                 }
