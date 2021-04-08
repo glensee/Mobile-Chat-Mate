@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.example.chatmate.databinding.ActivityMainBinding
 import android.content.Intent
+import android.media.MediaPlayer
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -92,6 +93,7 @@ class MainActivity : AppCompatActivity() {
                     Log.d("cliffen", "Error adding document", e)
                 }
 
+            MediaPlayer.create(this, R.raw.ui_click).start()
             val it = Intent(this, LandingActivity::class.java)
             it.putExtra("name", currentUser)
             it.putExtra("uuid", currentUUID)

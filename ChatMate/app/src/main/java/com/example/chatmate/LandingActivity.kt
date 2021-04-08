@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.content.Intent
 import android.util.Log
+import android.media.MediaPlayer
 import android.view.View
 import com.example.chatmate.databinding.ActivityLandingBinding
 import java.lang.Exception
@@ -20,6 +21,7 @@ class LandingActivity : AppCompatActivity() {
     private lateinit var binding:ActivityLandingBinding
     var name = ""
     var uuid = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         // set data binding
         super.onCreate(savedInstanceState)
@@ -91,6 +93,7 @@ class LandingActivity : AppCompatActivity() {
     }
 
     fun NavigateToGame(view: View) {
+        MediaPlayer.create(this, R.raw.ui_click).start()
         val it = Intent(this, GameActivity::class.java)
         it.putExtra("name", name)
         it.putExtra("uuid", uuid)
@@ -98,6 +101,7 @@ class LandingActivity : AppCompatActivity() {
     }
 
     fun NavigateToLobby(view: View) {
+        MediaPlayer.create(this, R.raw.ui_click).start()
         val it = Intent(this, LobbyActivity::class.java)
         it.putExtra("name", name)
         it.putExtra("uuid", uuid)
@@ -105,10 +109,12 @@ class LandingActivity : AppCompatActivity() {
     }
 
     fun NavigateToHome(view: View) {
+        MediaPlayer.create(this, R.raw.ui_click).start()
         finish()
     }
 
     fun NavigateToHistory(view: View) {
+        MediaPlayer.create(this, R.raw.ui_click).start()
         val it = Intent(this, HistoryActivity::class.java)
         it.putExtra("name", name)
         startActivity(it)

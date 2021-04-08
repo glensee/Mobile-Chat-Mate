@@ -3,6 +3,7 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.util.Log
@@ -208,7 +209,6 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun renderBoardState () {
-        Log.i("cliffen", "render 1")
         // Get the Current State of the Chess Board in an Array Sequence
         // Each Index Represents a Tile on the Board and The Item Represents the Piece Type
         val currentBoardStateArray = board.boardToArray()
@@ -291,30 +291,32 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             val squareSelectedIdx = Square.squareAt(tileSelectedIndex)
             val squareIdx = Square.squareAt(tileIndex)
 
-            // Check New Move Object
+            // Check New Move Object is a promotion
             var newMove = Move(Square.squareAt(tileSelectedIndex),Square.squareAt(tileIndex))
             if (sideToMove == Side.WHITE && newMove.to.rank == Rank.RANK_8 && board.getPiece(Square.squareAt(tileSelectedIndex)) == Piece.WHITE_PAWN) {
-                openPromotionDialog(sideToMove, newMove)
+                val testPromotionMove = Move(Square.squareAt(tileSelectedIndex),Square.squareAt(tileIndex), Piece.WHITE_QUEEN)
+                if(testPromotionMove in currentLegalMoves) {
+                    openPromotionDialog(sideToMove, newMove)
+                }
             } else if (sideToMove == Side.BLACK && newMove.to.rank == Rank.RANK_1 && board.getPiece(Square.squareAt(tileSelectedIndex)) == Piece.BLACK_PAWN) {
-                openPromotionDialog(sideToMove, newMove)
+                val testPromotionMove = Move(Square.squareAt(tileSelectedIndex),Square.squareAt(tileIndex), Piece.BLACK_QUEEN)
+                if(testPromotionMove in currentLegalMoves) {
+                    openPromotionDialog(sideToMove, newMove)
+                }
             }
             // Check if New Move is Legal
             if(newMove in currentLegalMoves) {
                 board.doMove(newMove)
                 tts!!.speak("$squareSelectedIdx to $squareIdx", TextToSpeech.QUEUE_FLUSH, null,"")
                 // Save board state to boardHistoryLocal array if game is offline
-                if (!isOnlineGame) {
-                    boardHistoryLocal.add(board.fen)
-                    Log.i("cliffen", boardHistoryLocal.toString())
-                }
                 renderBoardState()
                 tileSelectedIndex = -1
-
-                afterMoveHandler()
-
                 if (isOnlineGame){
                     sendBoardStateOnline()
+                } else {
+                    boardHistoryLocal.add(board.fen)
                 }
+                afterMoveHandler()
             }
         }
     }
@@ -376,20 +378,19 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         val newMove = Move(move.from, move.to, piece)
         if(newMove in currentLegalMoves) {
             board.doMove(newMove)
-
+            val squareSelectedIdx = newMove.from
+            val squareIdx = newMove.to
+            tts!!.speak("$squareSelectedIdx to $squareIdx", TextToSpeech.QUEUE_FLUSH, null,"")
             // Save board state to boardHistoryLocal array if game is offline
-            if (!isOnlineGame) {
-                boardHistoryLocal.add(board.fen)
-                Log.i("cliffen", boardHistoryLocal.toString())
-            }
             renderBoardState()
             tileSelectedIndex = -1
-
-            afterMoveHandler()
-
             if (isOnlineGame){
                 sendBoardStateOnline()
+            } else {
+                boardHistoryLocal.add(board.fen)
             }
+            afterMoveHandler()
+
         }
     }
 
@@ -409,17 +410,36 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
             val newMove = Move(from, to)
             // Check if New Move is Legal
-            if(newMove in currentLegalMoves) {
-                if (isOnlineGame){
-                    sendBoardStateOnline()
+            currentLegalMoves.clear()
+            currentLegalMoves.addAll(board.legalMoves())
+
+            // Check New Move Object is a promotion
+            if (sideToMove == Side.WHITE && newMove.to.rank == Rank.RANK_8 && board.getPiece(from) == Piece.WHITE_PAWN) {
+                val testPromotionMove = Move(from, to, Piece.WHITE_QUEEN)
+                if(testPromotionMove in currentLegalMoves) {
+                    openPromotionDialog(sideToMove, newMove)
+                    return
                 }
+            } else if (sideToMove == Side.BLACK && newMove.to.rank == Rank.RANK_1 && board.getPiece(from) == Piece.BLACK_PAWN) {
+                val testPromotionMove = Move(from, to, Piece.BLACK_QUEEN)
+                if(testPromotionMove in currentLegalMoves) {
+                    openPromotionDialog(sideToMove, newMove)
+                    return
+                }
+            }
+
+            if(newMove in currentLegalMoves) {
                 board.doMove(newMove)
                 tts!!.speak("$from to $to", TextToSpeech.QUEUE_FLUSH, null,"")
                 renderBoardState()
-                currentLegalMoves.clear()
-                currentLegalMoves.addAll(board.legalMoves())
+                if (isOnlineGame){
+                    sendBoardStateOnline()
+                } else {
+                    boardHistoryLocal.add(board.fen)
+                }
                 gameBinding.voiceResultTextField.text = "Tap and hold on this side of the screen to speak"
                 afterMoveHandler()
+
             } else {
                 throw Error("Invalid Command")
             }
@@ -457,6 +477,8 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 deleteRoomDocument()
                 roomLeft = true
             }
+            val it = Intent()
+            setResult(RESULT_OK, it)
             finish()
         }
         if (board.isMated) {
@@ -466,39 +488,23 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             if (!isOnlineGame) {
                 saveBoardHistory(winner)
             }
-            myDialog.findViewById<TextView>(R.id.resultText).setText(result)
+            myDialog.findViewById<TextView>(R.id.resultText).text = result
             if(board.sideToMove == Side.BLACK){
                 myDialog.findViewById<ShapeableImageView>(R.id.whiteAvatar).setBackgroundColor(ContextCompat.getColor(this, R.color.text_color_green))
             } else {
                 myDialog.findViewById<ShapeableImageView>(R.id.blackAvatar).setBackgroundColor(ContextCompat.getColor(this, R.color.text_color_green))
             }
         } else if (board.isDraw) {
-            if (board.isRepetition) {
-                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
-                if (!isOnlineGame) {
-                    saveBoardHistory("")
-                }
-                myDialog.show()
-            } else if (board.isInsufficientMaterial) {
-                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
-                if (!isOnlineGame) {
-                    saveBoardHistory("")
-                }
-                myDialog.show()
-            } else if (board.halfMoveCounter >= 100) {
-                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
-                if (!isOnlineGame) {
-                    saveBoardHistory("")
-                }
-                myDialog.show()
+            var result = "Match Draw"
+
+            if (board.isStaleMate) {
+                result = "Stale Mate"
             }
-            else if (board.isStaleMate){
-                myDialog.findViewById<TextView>(R.id.resultText).setText("Stale Mate")
-                if (!isOnlineGame) {
-                    saveBoardHistory("")
-                }
-                myDialog.show()
+            myDialog.findViewById<TextView>(R.id.resultText).text = result
+            if (!isOnlineGame) {
+                saveBoardHistory("")
             }
+            myDialog.show()
         }
     }
 
@@ -600,13 +606,33 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         // Setup Headers
         roomRef.get().addOnSuccessListener { document ->
             if (document != null) {
-
                 snapshotListener = roomRef.addSnapshotListener { snapshot, e ->
                     if (e != null) {
                         return@addSnapshotListener
                     }
 
                     if (snapshot != null && snapshot.exists()) {
+
+                        // Disconnect players from game when someone disconnects
+                        if (snapshot.get("roomClosed") !== null) {
+                            val myDialog = Dialog(this)
+                            myDialog.setContentView(R.layout.game_finish_popup)
+                            myDialog.setCanceledOnTouchOutside(false)
+                            myDialog.setCancelable(false)
+                            myDialog.findViewById<Button>(R.id.returnBtn).setOnClickListener{
+                                //remove firestore snapshot and success listener
+                                if (!roomLeft) {
+                                    snapshotListener.remove()
+                                    deleteRoomDocument()
+                                    roomLeft = true
+                                }
+                                val it = Intent()
+                                setResult(RESULT_OK, it)
+                                finish()
+                            }
+                            myDialog.findViewById<TextView>(R.id.resultText).text = ("Game disconnected")
+                            myDialog.show()
+                        }
                         // On Board State Change
                         val onlineBoardState = snapshot.data!!["boardState"].toString()
 
@@ -692,7 +718,8 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     override fun onStop() {
         super.onStop()
-        if (!roomLeft) {
+        if (isOnlineGame && !roomLeft) {
+            snapshotListener.remove()
             deleteRoomDocument()
         }
     }

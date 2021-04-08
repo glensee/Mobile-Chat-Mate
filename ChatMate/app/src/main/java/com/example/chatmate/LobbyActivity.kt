@@ -2,6 +2,7 @@ package com.example.chatmate
 
 import android.R
 import android.content.Intent
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -104,7 +105,8 @@ class LobbyActivity : AppCompatActivity() {
                     .set(data, SetOptions.merge())
 
                 // enter room
-                val it = Intent(this, RoomActivity::class.java)
+                    MediaPlayer.create(this, com.example.chatmate.R.raw.ui_click).start()
+                    val it = Intent(this, RoomActivity::class.java)
                 it.putExtra("roomId", roomId)
                 it.putExtra("identity", "player")
                 it.putExtra("name", playerName)
@@ -136,6 +138,7 @@ class LobbyActivity : AppCompatActivity() {
             .addOnSuccessListener { Log.i("cliffen", "DocumentSnapshot successfully written!") }
             .addOnFailureListener { e -> Log.i("cliffen", "Error writing document", e) }
 
+        MediaPlayer.create(this, com.example.chatmate.R.raw.ui_click).start()
         val it = Intent(this, RoomActivity::class.java)
         it.putExtra("roomId", uuid)
         it.putExtra("identity", "owner")

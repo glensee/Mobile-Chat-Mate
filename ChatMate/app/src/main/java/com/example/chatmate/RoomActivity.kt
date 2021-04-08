@@ -3,6 +3,7 @@ package com.example.chatmate
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
+import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -29,6 +30,7 @@ class RoomActivity : AppCompatActivity() {
     private var matchStarted = false
     private var name = ""
     private var uuid = ""
+    private val REQ_CODE = 1111
     private lateinit var snapshotListener: ListenerRegistration
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -188,7 +190,7 @@ class RoomActivity : AppCompatActivity() {
                     it.putExtra("roomId", roomId)
                     it.putExtra("name", name)
                     it.putExtra("identity", identity)
-                    startActivity(it)
+                    startActivityForResult(it, REQ_CODE)
                 }
 
 
@@ -239,7 +241,7 @@ class RoomActivity : AppCompatActivity() {
             val updates = hashMapOf<String, Any>(
                 "player" to FieldValue.delete()
             )
-
+            MediaPlayer.create(this, R.raw.ui_click).start()
             docRef.update(updates).addOnCompleteListener { }
             snapshotListener.remove()
             finish()
@@ -266,7 +268,7 @@ class RoomActivity : AppCompatActivity() {
             val updates = hashMapOf<String, Any>(
                 "player" to FieldValue.delete()
             )
-
+            MediaPlayer.create(this, R.raw.ui_click).start()
             docRef.update(updates).addOnCompleteListener { }
             snapshotListener.remove()
             finish()
@@ -296,4 +298,11 @@ class RoomActivity : AppCompatActivity() {
 
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if(requestCode == REQ_CODE) {
+            finish()
+        }
+    }
 }
