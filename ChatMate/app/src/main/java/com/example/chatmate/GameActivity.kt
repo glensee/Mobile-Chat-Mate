@@ -86,11 +86,10 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         db = Firebase.firestore
         this.supportActionBar!!.hide()
 
-        // Button to hide the board
-//        gameBinding.hideBoardToggleBtn.setOnClickListener{
-//            isBoardHidden = !isBoardHidden
-//            renderBoardState()
-//        }
+        gameBinding.hideShowBoard.setOnClickListener{
+            isBoardHidden = !isBoardHidden
+            renderBoardState()
+        }
         
         // Get Local Player Name
         localPlayerName = intent.getStringExtra("name").toString()

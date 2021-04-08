@@ -224,46 +224,46 @@
                 app:layout_constraintEnd_toEndOf="parent">
 
                 <Button
-                    android:id="@+id/bottomrightBlack"
+                    android:id="@+id/hideShowBoardBlack"
                     android:layout_width="80sp"
                     android:layout_height="80sp"
                     android:background="@drawable/circle"
+                    android:text="hide/show board"
+                    android:textSize="10sp"
+                    android:fontFamily="@font/ibm_plex_sans_bold"
+                    android:rotation="180"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.906"
+                    app:layout_constraintHorizontal_bias="0.891"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <Button
-                    android:id="@+id/topleftBlack"
+                    android:id="@+id/ARBlack"
                     android:layout_width="80sp"
                     android:layout_height="80sp"
                     android:background="@drawable/circle"
+                    android:text="AR Mode"
+                    android:textSize="10sp"
+                    android:fontFamily="@font/ibm_plex_sans_bold"
+                    android:rotation="180"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.093"
+                    app:layout_constraintHorizontal_bias="0.129"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <Button
-                    android:id="@+id/bottomleftBlack"
+                    android:id="@+id/muteBlack"
                     android:layout_width="80sp"
                     android:layout_height="80sp"
                     android:background="@drawable/circle"
+                    android:text="Mute/ Unmute"
+                    android:textSize="10sp"
+                    android:fontFamily="@font/ibm_plex_sans_bold"
+                    android:rotation="180"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.364"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <Button
-                    android:id="@+id/toprightBlack"
-                    android:layout_width="80sp"
-                    android:layout_height="80sp"
-                    android:background="@drawable/circle"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.635"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -534,46 +534,46 @@
                 app:layout_constraintEnd_toEndOf="parent">
 
                 <Button
-                    android:id="@+id/bottomright"
+                    android:id="@+id/hideShowBoard"
                     android:layout_width="80sp"
                     android:layout_height="80sp"
                     android:background="@drawable/circle"
+                    android:text="hide/show board"
+                    android:textSize="10sp"
+                    android:fontFamily="@font/ibm_plex_sans_bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.906"
+                    app:layout_constraintHorizontal_bias="0.129"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <Button
-                    android:id="@+id/topleft"
+                    android:id="@+id/mute"
                     android:layout_width="80sp"
                     android:layout_height="80sp"
                     android:background="@drawable/circle"
+                    android:text="mute/ unmute"
+                    android:textSize="10sp"
+                    android:fontFamily="@font/ibm_plex_sans_bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.093"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <Button
-                    android:id="@+id/bottomleft"
+                    android:id="@+id/AR"
                     android:layout_width="80sp"
                     android:layout_height="80sp"
                     android:background="@drawable/circle"
+                    android:backgroundTint="#FFFFFF"
+                    android:backgroundTintMode="multiply"
+                    android:drawableTintMode="src_in"
+                    android:fontFamily="@font/ibm_plex_sans_bold"
+                    android:text="AR mode"
+                    android:textSize="10sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.364"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <Button
-                    android:id="@+id/topright"
-                    android:layout_width="80sp"
-                    android:layout_height="80sp"
-                    android:background="@drawable/circle"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.635"
+                    app:layout_constraintHorizontal_bias="0.864"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
