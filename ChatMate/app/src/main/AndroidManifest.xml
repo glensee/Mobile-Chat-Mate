@@ -17,7 +17,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ChatMate">
-        <activity android:name=".ArActivity"></activity>
 
         <meta-data
             android:name="com.google.ar.core"

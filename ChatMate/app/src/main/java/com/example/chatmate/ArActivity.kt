@@ -105,8 +105,8 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
     private var isOnlineGame = false
     private var tileSelectedIndex = -1
 
-    // board array to store node references
-    private var referencesArray = ArrayList<String>()
+    // boolean to disable plane tap listener
+    private var boardRendered = false
 
     // scaling and movement vectors
     private val halfBoard = 0.02937f
@@ -158,10 +158,6 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
         virtualBoard = Board()
         
         // sync reference array with virtual board
-//        syncReferenceAndBoard()
-
-        Log.i(TAG, "references array: $referencesArray")
-        // Initialize local boardHistoryArray for local multiplayer
         boardHistoryLocal.add(virtualBoard.fen)
 
 //        //Check for Online Game
@@ -372,26 +368,28 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 }
 
         arFragment!!.setOnTapArPlaneListener { hitResult: HitResult, plane: Plane?, motionEvent: MotionEvent? ->
-            if (boardRenderable == null) return@setOnTapArPlaneListener
+            if (!boardRendered) {
+                if (boardRenderable == null) return@setOnTapArPlaneListener
 
-            // Create the Anchor.
-            val anchor = hitResult.createAnchor()
-            anchorNode =
-                AnchorNode(anchor)
-            anchorNode.setParent(arFragment!!.arSceneView.scene)
-            if (board != null) return@setOnTapArPlaneListener
+                // Create the Anchor.
+                val anchor = hitResult.createAnchor()
+                anchorNode =
+                    AnchorNode(anchor)
+                anchorNode.setParent(arFragment!!.arSceneView.scene)
+                if (board != null) return@setOnTapArPlaneListener
 
-            // for online multiplayer
-            if (gameStarted) {
-                // render on board according to current board state
-            } else {
-                board = Node()
-                board!!.setParent(anchorNode)
-                board!!.localScale = boardScaleVector
-                board!!.renderable = boardRenderable
-                renderBoardState()
+                // for online multiplayer
+                if (gameStarted) {
+                    // render on board according to current board state
+                } else {
+                    board = Node()
+                    board!!.setParent(anchorNode)
+                    board!!.localScale = boardScaleVector
+                    board!!.renderable = boardRenderable
+                    renderBoardState()
+                }
+                boardRendered = true
             }
-
         }
     }
 
@@ -513,7 +511,6 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 }
             }
         }
-        Log.i("cliffen", "$colour $piece $position $x $y $z")
         return Vector3(x, y, z)
     }
 
@@ -791,13 +788,13 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
     }
 
     private fun renderBoardState () {
-        Log.i("cliffen", "render 1")
         // Get the Current State of the Chess Board in an Array Sequence
         // Each Index Represents a Tile on the virtualBoard and The Item Represents the Piece Type
         val currentvirtualBoardStateArray = virtualBoard.boardToArray()
 
         // remove all nodes on board
         for (node: Node in nodeList) {
+            node.renderable = null
             node.setParent(null)
         }
 
@@ -847,7 +844,6 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
             // z is negative
             z = halfBoard + (2 * halfBoard * (4 - number))
         }
-        Log.i(TAG, "Position: $position X: $x Y: $y Z: $z")
         return Vector3(x,y,z)
     }
 
@@ -861,21 +857,17 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
         val x = vector.x
         val z = vector.z
         var result = 0
-//        val test1 = ( (abs(x) + halfBoard) / (2*halfBoard) ).toInt()
-//        val test2 = (abs(x) + halfBoard)
-//        Log.i(TAG, "test1: $test1, test2: $test2")
+
         if (x < 0) {
             result += 4 - round( (abs(x) + halfBoard) / (2*halfBoard) ).toInt()
         } else {
             result += 4 + round( (x + halfBoard) / (2*halfBoard) ).toInt() - 1
         }
-//        Log.i(TAG, "result after x: $result")
         if (z < 0) {
             result += (3 + round( (abs(z) + halfBoard) / (2*halfBoard) ).toInt()) * 8
         } else {
             result += (4 - round( (z + halfBoard) / (2*halfBoard) ).toInt()) * 8
         }
-        Log.i(TAG, "result after z: $result")
 
         return result
     }
@@ -889,7 +881,11 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 whiteRook!!.localScale = pieceScaleVector
                 whiteRook!!.localPosition = getLocalPosition(index)
                 whiteRook!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
-                    selectTileAtIndex(hitTestResult.node!!, vectorToIndex(hitTestResult.node!!.localPosition))
+                    try {
+                        selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                    } catch (exception: Exception) {
+                        Log.i(TAG, "on tap exception for piece node")
+                    }
                 }
                 whiteRook!!.renderable = whiteRookRenderable
                 nodeList.add(whiteRook)
@@ -901,7 +897,11 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 whiteKnight.setLocalRotation(Quaternion.axisAngle(Vector3(0f, 1f, 0f), 180f))
                 whiteKnight!!.localPosition = getLocalPosition(index)
                 whiteKnight!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
-                    selectTileAtIndex(hitTestResult.node!!, vectorToIndex(hitTestResult.node!!.localPosition))
+                    try {
+                        selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                    } catch (exception: Exception) {
+                        Log.i(TAG, "on tap exception for piece node")
+                    }
                 }
                 whiteKnight!!.renderable = whiteKnightRenderable
                 nodeList.add(whiteKnight)
@@ -913,7 +913,11 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 whiteBishop.setLocalRotation(Quaternion.axisAngle(Vector3(0f, 1f, 0f), 180f))
                 whiteBishop!!.localPosition = getLocalPosition(index)
                 whiteBishop!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
-                    selectTileAtIndex(hitTestResult.node!!, vectorToIndex(hitTestResult.node!!.localPosition))
+                    try {
+                        selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                    } catch (exception: Exception) {
+                        Log.i(TAG, "on tap exception for piece node")
+                    }
                 }
                 whiteBishop!!.renderable = whiteBishopRenderable
                 nodeList.add(whiteBishop)
@@ -924,7 +928,11 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 whiteQueen!!.localScale = pieceScaleVector
                 whiteQueen!!.localPosition = getLocalPosition(index)
                 whiteQueen!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
-                    selectTileAtIndex(hitTestResult.node!!, vectorToIndex(hitTestResult.node!!.localPosition))
+                    try {
+                        selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                    } catch (exception: Exception) {
+                        Log.i(TAG, "on tap exception for piece node")
+                    }
                 }
                 whiteQueen!!.renderable = whiteQueenRenderable
                 nodeList.add(whiteQueen)
@@ -935,7 +943,11 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 whiteKing!!.localScale = pieceScaleVector
                 whiteKing!!.localPosition = getLocalPosition(index)
                 whiteKing!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
-                    selectTileAtIndex(hitTestResult.node!!, vectorToIndex(hitTestResult.node!!.localPosition))
+                    try {
+                        selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                    } catch (exception: Exception) {
+                        Log.i(TAG, "on tap exception for piece node")
+                    }
                 }
                 whiteKing!!.renderable = whiteKingRenderable
                 nodeList.add(whiteKing)
@@ -946,7 +958,11 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 whitePawn!!.localScale = pieceScaleVector
                 whitePawn!!.localPosition = getLocalPosition(index)
                 whitePawn!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
-                    selectTileAtIndex(hitTestResult.node!!, vectorToIndex(hitTestResult.node!!.localPosition))
+                    try {
+                        selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                    } catch (exception: Exception) {
+                        Log.i(TAG, "on tap exception for piece node")
+                    }
                 }
                 whitePawn!!.renderable = whitePawnRenderable
                 nodeList.add(whitePawn)
@@ -957,7 +973,11 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 blackPawn!!.localScale = pieceScaleVector
                 blackPawn!!.localPosition = getLocalPosition(index)
                 blackPawn!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
-                    selectTileAtIndex(hitTestResult.node!!, vectorToIndex(hitTestResult.node!!.localPosition))
+                    try {
+                        selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                    } catch (exception: Exception) {
+                        Log.i(TAG, "on tap exception for piece node")
+                    }
                 }
                 blackPawn!!.renderable = blackPawnRenderable
                 nodeList.add(blackPawn)
@@ -968,7 +988,11 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 blackRook!!.localScale = pieceScaleVector
                 blackRook!!.localPosition = getLocalPosition(index)
                 blackRook!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
-                    selectTileAtIndex(hitTestResult.node!!, vectorToIndex(hitTestResult.node!!.localPosition))
+                    try {
+                        selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                    } catch (exception: Exception) {
+                        Log.i(TAG, "on tap exception for piece node")
+                    }
                 }
                 blackRook!!.renderable = blackRookRenderable
                 nodeList.add(blackRook)
@@ -979,7 +1003,11 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 blackKnight!!.localScale = pieceScaleVector
                 blackKnight!!.localPosition = getLocalPosition(index)
                 blackKnight!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
-                    selectTileAtIndex(hitTestResult.node!!, vectorToIndex(hitTestResult.node!!.localPosition))
+                    try {
+                        selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                    } catch (exception: Exception) {
+                        Log.i(TAG, "on tap exception for piece node")
+                    }
                 }
                 blackKnight!!.renderable = blackKnightRenderable
                 nodeList.add(blackKnight)
@@ -990,7 +1018,11 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 blackBishop!!.localScale = pieceScaleVector
                 blackBishop!!.localPosition = getLocalPosition(index)
                 blackBishop!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
-                    selectTileAtIndex(hitTestResult.node!!, vectorToIndex(hitTestResult.node!!.localPosition))
+                    try {
+                        selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                    } catch (exception: Exception) {
+                        Log.i(TAG, "on tap exception for piece node")
+                    }
                 }
                 blackBishop!!.renderable = blackBishopRenderable
                 nodeList.add(blackBishop)
@@ -1001,7 +1033,11 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 blackQueen!!.localScale = pieceScaleVector
                 blackQueen!!.localPosition = getLocalPosition(index)
                 blackQueen!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
-                    selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                    try {
+                        selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                    } catch (exception: Exception) {
+                        Log.i(TAG, "on tap exception for piece node")
+                    }
                 }
                 blackQueen!!.renderable = blackQueenRenderable
                 nodeList.add(blackQueen)
@@ -1012,7 +1048,11 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 blackKing!!.localScale = pieceScaleVector
                 blackKing!!.localPosition = getLocalPosition(index)
                 blackKing!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
-                    selectTileAtIndex(hitTestResult.node!!, vectorToIndex(hitTestResult.node!!.localPosition))
+                    try {
+                        selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                    } catch (exception: Exception) {
+                        Log.i(TAG, "on tap exception for piece node")
+                    }
                 }
                 blackKing!!.renderable = blackKingRenderable
                 nodeList.add(blackKing)
@@ -1029,7 +1069,6 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
     }
 
     private fun selectTileAtIndex (node:Node, tileIndex: Int) {
-        Log.i(TAG, "tile index: $tileIndex")
         val sideToMove = virtualBoard.sideToMove
 //        if (isOnlineGame && localPlayerColor != sideToMove) {
 //            return
