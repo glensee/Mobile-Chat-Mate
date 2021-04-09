@@ -420,13 +420,12 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 // Save board state to boardHistoryLocal array if game is offline
                 renderBoardState()
                 tileSelectedIndex = -1
-                afterMoveHandler()
-
                 if (isOnlineGame){
                     sendBoardStateOnline()
                 } else {
                     boardHistoryLocal.add(board.fen)
                 }
+                afterMoveHandler()
             }
         }
     }
@@ -488,22 +487,19 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         val newMove = Move(move.from, move.to, piece)
         if(newMove in currentLegalMoves) {
             board.doMove(newMove)
-
+            val squareSelectedIdx = newMove.from
+            val squareIdx = newMove.to
+            tts!!.speak("$squareSelectedIdx to $squareIdx", TextToSpeech.QUEUE_FLUSH, null,"")
             // Save board state to boardHistoryLocal array if game is offline
-            if (!isOnlineGame) {
-                boardHistoryLocal.add(board.fen)
-                Log.i("cliffen", boardHistoryLocal.toString())
-            }
             renderBoardState()
             tileSelectedIndex = -1
-
-            afterMoveHandler()
-
             if (isOnlineGame){
                 sendBoardStateOnline()
             } else {
                 boardHistoryLocal.add(board.fen)
             }
+            afterMoveHandler()
+
         }
     }
 
@@ -550,15 +546,14 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 board.doMove(newMove)
                 if (ttsToggle) tts!!.speak("$from to $to", TextToSpeech.QUEUE_FLUSH, null,"")
                 renderBoardState()
-                currentLegalMoves.clear()
-                currentLegalMoves.addAll(board.legalMoves())
-                gameBinding.voiceResultTextField.text = "Tap and hold on this side of the screen to speak"
-                afterMoveHandler()
                 if (isOnlineGame){
                     sendBoardStateOnline()
                 } else {
                     boardHistoryLocal.add(board.fen)
                 }
+                gameBinding.voiceResultTextField.text = "Tap and hold on this side of the screen to speak"
+                afterMoveHandler()
+
             } else {
                 throw Error("Invalid Command")
             }
