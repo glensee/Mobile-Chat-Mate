@@ -78,6 +78,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var boardSaved = false
     // Text to speech
     private var tts: TextToSpeech? = null
+    private var ttsToggle = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -415,7 +416,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     movesBlackBlackCol[0].text = ""
                 }
                 board.doMove(newMove)
-                tts!!.speak("$squareSelectedIdx to $squareIdx", TextToSpeech.QUEUE_FLUSH, null,"")
+                if (ttsToggle) tts!!.speak("$squareSelectedIdx to $squareIdx", TextToSpeech.QUEUE_FLUSH, null,"")
                 // Save board state to boardHistoryLocal array if game is offline
                 renderBoardState()
                 tileSelectedIndex = -1
@@ -547,7 +548,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 val san = moveListLocal.encodeSan(tempBoard, newMove)
                 moveSanList.add(san)
                 board.doMove(newMove)
-                tts!!.speak("$from to $to", TextToSpeech.QUEUE_FLUSH, null,"")
+                if (ttsToggle) tts!!.speak("$from to $to", TextToSpeech.QUEUE_FLUSH, null,"")
                 renderBoardState()
                 currentLegalMoves.clear()
                 currentLegalMoves.addAll(board.legalMoves())
@@ -902,4 +903,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         flipper.showNext()
     }
 
+    fun toggleTTS(view: View) {
+        ttsToggle = !ttsToggle
+    }
 }
