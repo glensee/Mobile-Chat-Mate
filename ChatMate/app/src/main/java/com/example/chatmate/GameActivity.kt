@@ -36,6 +36,7 @@ import java.security.KeyStore
 import java.io.FileOutputStream
 import java.io.OutputStreamWriter
 import java.lang.Exception
+import java.time.LocalDate
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
@@ -78,6 +79,9 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var boardSaved = false
     private var boardMoves = ArrayList<String>()
     private var boardMovesLocal = ArrayList<String>()
+    private var movedToAR = false
+    private var dialogShown = false
+
     // Text to speech
     private var tts: TextToSpeech? = null
     private var ttsToggle = true
@@ -160,6 +164,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     speechlyClient.startContext()
                 }
                 MotionEvent.ACTION_UP -> {
+
                     speechlyClient.stopContext()
                     GlobalScope.launch(Dispatchers.Default) {
                         delay(1500)
@@ -418,6 +423,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
         myDialog.show()
     }
+    
     private fun movePieceAndPromote(move: Move, piece: Piece){
         val newMove = Move(move.from, move.to, piece)
         if(newMove in currentLegalMoves) {
@@ -531,9 +537,11 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             finish()
         }
         if (board.isMated) {
-            myDialog.show()
-            // TODO clear movelist
             moveSanList.clear()
+            if (!dialogShown) {
+                myDialog.show()
+                dialogShown = true
+            }
             val winner = board.sideToMove.flip().toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)
             val result = "$winner Wins"
             if (!isOnlineGame) {
@@ -577,7 +585,10 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             if (!isOnlineGame) {
                 saveBoardHistory("")
             }
-            myDialog.show()
+            if (!dialogShown) {
+                myDialog.show()
+                dialogShown = true
+            }
         }
     }
 
@@ -628,9 +639,9 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                                     boardHistory = document.data!!["boardHistory"]!! as ArrayList<String>
                                     boardMoves = document.data!!["boardMoves"]!! as ArrayList<String>
                                     if (identity == "owner") {
-                                        outputWriter.write("$localPlayerName vs $opponent  $boardHistory  $boardMoves  $winner " + "\n")
+                                        outputWriter.write("$localPlayerName vs $opponent  $boardHistory  $boardMoves  $winner  ${LocalDate.now()}" + "\n")
                                     } else {
-                                        outputWriter.write("$opponent vs $localPlayerName  $boardHistory  $boardMoves  $winner " + "\n")
+                                        outputWriter.write("$opponent vs $localPlayerName  $boardHistory  $boardMoves  $winner  ${LocalDate.now()}" + "\n")
                                     }
                                     boardSaved = true
                                     outputWriter.close()
@@ -645,7 +656,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                                 Log.d(TAG, "get failed with ", exception)
                             }
                 } else {
-                    outputWriter.write("Local game  $boardHistoryLocal  $boardMovesLocal  $winner " + "\n")
+                    outputWriter.write("Local game  $boardHistoryLocal  $boardMovesLocal  $winner  ${LocalDate.now()}" + "\n")
                     boardSaved = true
                     outputWriter.close()
                 }
@@ -662,22 +673,23 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         isOnlineGame = true
         val roomRef = db.collection("rooms").document(roomId)
-        var turnData = HashMap<Any, Any>()
 
         // Initialize turn variable
+        var turnData = hashMapOf("currentTurn" to board.sideToMove.toString())
+        roomRef.set(turnData, SetOptions.merge())
+
+        // set board history if owner
         if (identity == "owner") {
             val boardHistory = ArrayList<String>()
             boardHistory.add(board.fen)
             boardMoves.add("Start")
-            turnData = hashMapOf(
+            val historyData = hashMapOf(
                     "currentTurn" to board.sideToMove.toString(),
                     "boardHistory" to boardHistory,
                     "boardMoves" to boardMoves)
-        } else {
-            turnData = hashMapOf("currentTurn" to board.sideToMove.toString())
+            roomRef.set(historyData, SetOptions.merge())
         }
 
-        roomRef.set(turnData, SetOptions.merge())
 
         // Setup Headers
         roomRef.get().addOnSuccessListener { document ->
@@ -690,7 +702,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     if (snapshot != null && snapshot.exists()) {
 
                         // Disconnect players from game when someone disconnects
-                        if (snapshot.get("roomClosed") !== null) {
+                        if (snapshot.get("roomClosed") !== null && !board.isMated) {
                             val myDialog = Dialog(this)
                             myDialog.setContentView(R.layout.game_finish_popup)
                             myDialog.setCanceledOnTouchOutside(false)
@@ -800,7 +812,8 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     override fun onStop() {
         super.onStop()
-        if (isOnlineGame && !roomLeft) {
+        Log.i("cliffen", "game on stop launched")
+        if (isOnlineGame && !roomLeft && !movedToAR) {
             snapshotListener.remove()
             deleteRoomDocument()
         }
@@ -922,5 +935,33 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             movesBlackBlackCol[1].text = movesBlackBlackCol[0].text
             movesBlackBlackCol[0].text = ""
         }
+    fun NavigateToAR(view:View) {
+        movedToAR = true
+        val it = Intent(this, ArActivity::class.java)
+        it.putExtra("roomId", roomId)
+        it.putExtra("name", localPlayerName)
+        it.putExtra("identity", identity)
+        it.putExtra("board", board.fen)
+        startActivityForResult(it, 1001)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        movedToAR = false
+        if (requestCode == 1001) {
+            if (resultCode == 1500) {
+                Log.i("cliffen", "returned from AR")
+                val boardFen = data!!.getStringExtra("board")
+                Log.i("cliffen", "fen data: $boardFen")
+                board.loadFromFen(data!!.getStringExtra("board"))
+                renderBoardState()
+            } else {
+                val it = Intent()
+                setResult(RESULT_OK, it)
+                finish()
+            }
+
+        }
+
     }
 }
