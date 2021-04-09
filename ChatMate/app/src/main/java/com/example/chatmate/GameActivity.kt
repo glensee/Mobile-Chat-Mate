@@ -93,7 +93,12 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             isBoardHidden = !isBoardHidden
             renderBoardState()
         }
-        
+
+        gameBinding.hideShowBoardBlack.setOnClickListener{
+            isBoardHidden = !isBoardHidden
+            renderBoardState()
+        }
+
         // Get Local Player Name
         localPlayerName = intent.getStringExtra("name").toString()
 

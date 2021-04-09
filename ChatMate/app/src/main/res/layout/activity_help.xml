@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#2A2731"
+    android:orientation="vertical"
+    tools:context=".helpActivity"
+    tools:deviceIds="wear">
+
+    <ViewFlipper
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/viewFlipperHelp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+                <ImageView
+                    android:id="@+id/chatMateLogo"
+                    android:layout_width="90dp"
+                    android:layout_height="90dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.155"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/chatmate_logo"
+                    android:layout_marginTop="50dp"/>
+
+            <TextView
+                android:id="@+id/howToPlayTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="50dp"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:ellipsize="end"
+                android:fontFamily="@font/ibm_plex_sans_semibold"
+                android:gravity="start"
+                android:letterSpacing="0.02"
+                android:maxLines="3"
+                android:text="How to check-mate with ChatMate"
+                android:textColor="#EEECF1"
+                android:textSize="40dp"
+                app:layout_constraintTop_toBottomOf="@id/chatMateLogo"
+                android:layout_marginTop="20dp"
+                tools:layout_editor_absoluteX="50dp" />
+
+            <TextView
+                android:id="@+id/howToPlayDesc2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="50dp"
+                android:layout_marginTop="20dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/ibm_plex_sans_regular"
+                android:gravity="start"
+                android:letterSpacing="0.02"
+                android:text="By default, the chess board will be shown to you and your partner. If any of you would like to make the game more challenging, you could hide the chess board (and show it) at any point in the game."
+                android:textColor="#EEECF1"
+                android:textSize="15sp"
+                app:layout_constraintHorizontal_bias="0.505"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/howToPlayDesc" />
+
+            <TextView
+                android:id="@+id/howToPlayDesc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="50dp"
+                android:layout_marginTop="20dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/ibm_plex_sans_regular"
+                android:gravity="start"
+                android:letterSpacing="0.02"
+                android:text="To make a move, you could use the touch controls on the chess board, or hold down on your side of the screen to verbalise a move. If you would like a chess piece to move from position E4 to D4, say 'E4 to D4'."
+                android:textColor="#EEECF1"
+                android:textSize="15sp"
+                app:layout_constraintHorizontal_bias="0.494"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/howToPlayTitle" />
+
+            <TextView
+                android:id="@+id/howToPlayDesc4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="50dp"
+                android:layout_marginTop="20dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/ibm_plex_sans_regular"
+                android:gravity="start"
+                android:letterSpacing="0.02"
+                android:text="If you would like a more immersive chess experience, check out our 'AR mode', where you can 'place' a chess board on any surface, and move pieces using voice or touch."
+                android:textColor="#EEECF1"
+                android:textSize="15sp"
+                app:layout_constraintHorizontal_bias="0.494"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/howToPlayDesc2" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button"
+                android:layout_width="47dp"
+                android:layout_height="31dp"
+                android:background="@drawable/abc_vector_test"
+                android:backgroundTint="#FFFFFF"
+                android:onClick="flipView"
+                android:rotation="180"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.956"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.027"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.155"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/chatmate_logo"
+                android:layout_marginTop="50dp"/>
+
+            <TextView
+                android:id="@+id/visualImpairmentTitle"
+                android:layout_width="312dp"
+                android:layout_height="215dp"
+                android:layout_marginHorizontal="50dp"
+                android:layout_marginTop="20dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/ibm_plex_sans_semibold"
+                android:gravity="start"
+                android:letterSpacing="0.02"
+                android:maxLines="4"
+                android:text="If you have visual impairments, fret not"
+                android:textColor="#EEECF1"
+                android:textSize="40dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/imageView" />
+
+            <TextView
+                android:id="@+id/visualImpairmentDesc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="50dp"
+                android:layout_marginTop="44dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/ibm_plex_sans_regular"
+                android:gravity="start"
+                android:letterSpacing="0.02"
+                android:text="The move made by your partner will be narrated to you, so you don't have to worry about not knowing the current state of the board. You can make your move by using our voice function, which will convert your speech to a move!"
+                android:textColor="#EEECF1"
+                android:textSize="18sp"
+                app:layout_constraintHorizontal_bias="0.383"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/visualImpairmentTitle" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ViewFlipper>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
