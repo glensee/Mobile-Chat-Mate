@@ -76,6 +76,8 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var identity: String
     private var roomLeft = false
     private var boardSaved = false
+    private var boardMoves = ArrayList<String>()
+    private var boardMovesLocal = ArrayList<String>()
     // Text to speech
     private var tts: TextToSpeech? = null
     private var ttsToggle = true
@@ -126,6 +128,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         // Initialize local boardHistoryArray for local multiplayer
         boardHistoryLocal.add(board.fen)
+        boardMovesLocal.add("Start")
 
         //Check for Online Game
         roomId = intent.getStringExtra("roomId").toString()
@@ -421,9 +424,10 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 renderBoardState()
                 tileSelectedIndex = -1
                 if (isOnlineGame){
-                    sendBoardStateOnline()
+                    sendBoardStateOnline("$squareSelectedIdx to $squareIdx")
                 } else {
                     boardHistoryLocal.add(board.fen)
+                    boardMovesLocal.add("$squareSelectedIdx to $squareIdx")
                 }
                 afterMoveHandler()
             }
@@ -494,9 +498,10 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             renderBoardState()
             tileSelectedIndex = -1
             if (isOnlineGame){
-                sendBoardStateOnline()
+                sendBoardStateOnline("$squareSelectedIdx to $squareIdx")
             } else {
                 boardHistoryLocal.add(board.fen)
+                boardMovesLocal.add("$squareSelectedIdx to $squareIdx")
             }
             afterMoveHandler()
 
@@ -547,9 +552,10 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 if (ttsToggle) tts!!.speak("$from to $to", TextToSpeech.QUEUE_FLUSH, null,"")
                 renderBoardState()
                 if (isOnlineGame){
-                    sendBoardStateOnline()
+                    sendBoardStateOnline("$from to $to")
                 } else {
                     boardHistoryLocal.add(board.fen)
+                    boardMovesLocal.add("$from to $to")
                 }
                 gameBinding.voiceResultTextField.text = "Tap and hold on this side of the screen to speak"
                 afterMoveHandler()
@@ -691,10 +697,11 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                                 if (document != null && document.exists()) {
                                     Log.d(TAG, "DocumentSnapshot data: ${document.data}")
                                     boardHistory = document.data!!["boardHistory"]!! as ArrayList<String>
+                                    boardMoves = document.data!!["boardMoves"]!! as ArrayList<String>
                                     if (identity == "owner") {
-                                        outputWriter.write("$localPlayerName vs $opponent  $boardHistory  $winner " + "\n")
+                                        outputWriter.write("$localPlayerName vs $opponent  $boardHistory  $boardMoves  $winner " + "\n")
                                     } else {
-                                        outputWriter.write("$opponent vs $localPlayerName  $boardHistory  $winner " + "\n")
+                                        outputWriter.write("$opponent vs $localPlayerName  $boardHistory  $boardMoves  $winner " + "\n")
                                     }
                                     boardSaved = true
                                     outputWriter.close()
@@ -709,7 +716,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                                 Log.d(TAG, "get failed with ", exception)
                             }
                 } else {
-                    outputWriter.write("Local game  $boardHistoryLocal  $winner " + "\n")
+                    outputWriter.write("Local game  $boardHistoryLocal  $boardMovesLocal  $winner " + "\n")
                     boardSaved = true
                     outputWriter.close()
                 }
@@ -732,9 +739,11 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         if (identity == "owner") {
             val boardHistory = ArrayList<String>()
             boardHistory.add(board.fen)
+            boardMoves.add("Start")
             turnData = hashMapOf(
                     "currentTurn" to board.sideToMove.toString(),
-                    "boardHistory" to boardHistory)
+                    "boardHistory" to boardHistory,
+                    "boardMoves" to boardMoves)
         } else {
             turnData = hashMapOf("currentTurn" to board.sideToMove.toString())
         }
@@ -830,7 +839,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     }
 
-    private fun sendBoardStateOnline() {
+    private fun sendBoardStateOnline(move: String) {
         val TAG = "cliffen"
         val roomRef = db.collection("rooms").document(roomId)
 
@@ -842,9 +851,14 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                         Log.i("cliffen before", boardHistory.toString())
                         boardHistory.add(board.fen)
                         Log.i("cliffen after", boardHistory.toString())
+
+                        // Get board moves
+                        boardMoves = document.data!!["boardMoves"] as ArrayList<String>
+                        boardMoves.add(move)
                         val boardData = hashMapOf(
                                 "boardState" to board.fen,
-                                "boardHistory" to boardHistory)
+                                "boardHistory" to boardHistory,
+                                "boardMoves" to boardMoves)
                         roomRef.set(boardData, SetOptions.merge())
                     } else {
                         Log.d(TAG, "No such document")
