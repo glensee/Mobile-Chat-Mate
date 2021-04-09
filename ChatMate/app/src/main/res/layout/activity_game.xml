@@ -28,21 +28,35 @@
             android:onClick="flipViewBlack"
             android:paddingHorizontal="20sp"
             android:rotation="180"
+            android:lines="1"
+            android:ellipsize="end"
             android:text="Tap and hold on this side of the screen to speak"
             android:textColor="@color/text_color_gray_40"
-            android:textSize="16sp"
+            android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/settingsblack"
             app:layout_constraintVertical_bias="0.992" />
+
+        <ImageButton
+            android:id="@+id/settingsblack"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_weight="1"
+            android:onClick="flipViewBlack"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/viewFlipperBlack"
+            android:background="@drawable/settings"
+            android:rotation="180"/>
 
         <ViewFlipper
             android:id="@+id/viewFlipperBlack"
             android:layout_width="412sp"
             android:layout_height="140sp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/voiceResultTextFieldBlack"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -213,6 +227,7 @@
                     android:layout_height="293dp"
                     android:orientation="horizontal" />
 
+
             </RelativeLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -220,64 +235,45 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@color/bg_main"
-                android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
+                android:orientation="vertical">
 
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/hideShowBoardBlack"
-                    android:layout_width="80sp"
-                    android:layout_height="80sp"
-                    android:background="@drawable/circle"
-                    android:backgroundTint="@color/chess_border"
-                    android:fontFamily="@font/ibm_plex_sans_bold"
-                    android:rotation="180"
-                    android:text="hide/show board"
-                    android:textSize="13sp"
+                <ImageButton
+                    android:id="@+id/ar2"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:layout_weight="1"
+                    android:onClick="NavigateToAR"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toLeftOf="@id/sound2"
+                    app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.891"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    android:background="@drawable/ar"
+                    android:rotation="180"/>
 
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/ARBlack"
-                    android:layout_width="80sp"
-                    android:layout_height="80sp"
-                    android:background="@drawable/circle"
-                    android:backgroundTint="@color/chess_border"
-                    android:fontFamily="@font/ibm_plex_sans_bold"
-                    android:rotation="180"
-                    android:text="AR Mode"
-                    android:textSize="13sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.129"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/muteBlack"
-                    android:layout_width="80sp"
-                    android:layout_height="80sp"
-                    android:background="@drawable/circle"
-                    android:backgroundTint="@color/chess_border"
-                    android:fontFamily="@font/ibm_plex_sans_bold"
+                <ImageButton
+                    android:id="@+id/sound2"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:layout_weight="1"
                     android:onClick="toggleTTS"
-                    android:rotation="180"
-                    android:text="Mute/ Unmute"
-                    android:textSize="13sp"
+                    app:layout_constraintLeft_toRightOf="@id/ar2"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintRight_toLeftOf="@id/hideShowBoardBlack"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    android:background="@drawable/sound_off"
+                    android:rotation="180"/>
 
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/guideline3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_begin="411dp" />
+                <ImageButton
+                    android:id="@+id/hideShowBoardBlack"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:layout_weight="1"
+                    app:layout_constraintLeft_toRightOf="@id/sound2"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:background="@drawable/hidden"
+                    android:rotation="180"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -349,11 +345,11 @@
             android:paddingHorizontal="20sp"
             android:text="Tap and hold on this side of the screen to speak"
             android:textColor="@color/text_color_gray_40"
-            android:textSize="16sp"
-            android:onClick="flipView"
+            android:textSize="14sp"
+            android:lines="1"
+            android:ellipsize="end"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0" />
@@ -364,10 +360,8 @@
             android:layout_height="140sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="1.0">
+            app:layout_constraintTop_toBottomOf="@id/voiceResultTextField">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -526,7 +520,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="293dp"
                     android:orientation="horizontal"/>
-
             </RelativeLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -540,8 +533,8 @@
 
                 <ImageButton
                     android:id="@+id/hideShowBoard"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
                     android:layout_weight="1"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -551,8 +544,8 @@
 
                 <ImageButton
                     android:id="@+id/sound"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
                     android:layout_weight="1"
                     android:onClick="toggleTTS"
                     app:layout_constraintLeft_toRightOf="@id/hideShowBoard"
@@ -563,8 +556,8 @@
 
                 <ImageButton
                     android:id="@+id/ar"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
                     android:layout_weight="1"
                     android:onClick="NavigateToAR"
                     app:layout_constraintLeft_toRightOf="@id/sound"
@@ -574,8 +567,17 @@
                     android:background="@drawable/ar"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-
         </ViewFlipper>
-
+        <ImageButton
+            android:id="@+id/settings"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_weight="1"
+            android:onClick="flipView"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/viewFlipper"
+            android:background="@drawable/settings"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>
