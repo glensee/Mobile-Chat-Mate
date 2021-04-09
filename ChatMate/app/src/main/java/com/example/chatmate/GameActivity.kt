@@ -876,6 +876,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             gameBinding.sound.background = getDrawable(R.drawable.sound_off)
         } else {
             gameBinding.sound.background = getDrawable(R.drawable.sound_on)
+            tts?.stop()
         }
     }
 
