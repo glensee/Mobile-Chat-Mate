@@ -213,6 +213,7 @@
             android:letterSpacing="0"
             android:paddingVertical="10dp"
             android:text="Need help?"
+            android:onClick="goToHelp"
             android:textAllCaps="false"
             android:textColor="#383838"
             android:textSize="18dp"
