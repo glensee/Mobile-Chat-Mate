@@ -148,8 +148,6 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
 
     }
 
-    // CompletableFuture requires api level 24
-    // FutureReturnValueIgnored is not valid
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (!checkIsSupportedDeviceOrFinish(this)) {
@@ -495,9 +493,9 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
 
     private fun movePieceWithVoiceCommand(command: String){
         val sideToMove = virtualBoard.sideToMove
-//        if (isOnlineGame && localPlayerColor != sideToMove) {
-//            return
-//        }
+        if (isOnlineGame && localPlayerColor != sideToMove) {
+            return
+        }
         try {
             // Convert Command to a Move
             val commandSegments  = command.split(" TO ")
@@ -514,8 +512,7 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                     sendvirtualBoardStateOnline()
                 }
                 virtualBoard.doMove(newMove)
-//                movePiece(from.toString(), to.toString())
-                
+
                 tts!!.speak("$from to $to", TextToSpeech.QUEUE_FLUSH, null,"")
                 renderBoardState()
                 currentLegalMoves.clear()
@@ -528,7 +525,7 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
         } catch (error: Error) {
             Toast.makeText(this, "Invalid Command. Please Try Again", Toast.LENGTH_SHORT).show()
         } catch (error: Exception) {
-            // Toast.makeText(this, "Invalid Command. Please Try Again", Toast.LENGTH_SHORT).show()
+             Toast.makeText(this, "Invalid Command. Please Try Again", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -582,49 +579,48 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
     }
 
     private fun saveBoardHistory(winner: String) {
-//
-//        val TAG = "cliffen"
-//        val roomRef = db.collection("rooms").document(roomId)
-//
-//        try {
-//            val fileOutputStream: FileOutputStream = openFileOutput("${localPlayerName}.txt", Context.MODE_APPEND)
-//            val outputWriter = OutputStreamWriter(fileOutputStream)
-//
-//            if (isOnlineGame) {
-//                roomRef.get()
-//                        .addOnSuccessListener { document ->
-//                            if (document != null && document.exists()) {
-//                                Log.d(TAG, "DocumentSnapshot data: ${document.data}")
-//                                boardHistory = document.data!!["boardHistory"]!! as ArrayList<String>
-//                                if (identity == "owner") {
-//                                    outputWriter.write("$localPlayerName vs $opponent  $boardHistory  $winner " + "\n")
-//                                } else {
-//                                    outputWriter.write("$opponent vs $localPlayerName  $boardHistory  $winner " + "\n")
-//                                }
-//                                boardSaved = true
-//                                outputWriter.close()
-//
-//                            } else {
-//                                Toast.makeText(this, "Failed to add match to history!", Toast.LENGTH_SHORT).show()
-//                                Log.d(TAG, "No such document")
-//                            }
-//                        }
-//                        .addOnFailureListener { exception ->
-//                            Toast.makeText(this, "Failed to add match to history!", Toast.LENGTH_SHORT).show()
-//                            Log.d(TAG, "get failed with ", exception)
-//                        }
-//            } else {
-//                outputWriter.write("Local game  $boardHistoryLocal  $winner " + "\n")
-//                boardSaved = true
-//                outputWriter.close()
-//            }
-//
-//        }
-//
-//        catch (e: Exception) {
-//            Toast.makeText(this, "Failed to add match to history!", Toast.LENGTH_SHORT).show()
-//            e.printStackTrace()
-//        }
+        val TAG = "cliffen"
+        val roomRef = db.collection("rooms").document(roomId)
+
+        try {
+            val fileOutputStream: FileOutputStream = openFileOutput("${localPlayerName}.txt", Context.MODE_APPEND)
+            val outputWriter = OutputStreamWriter(fileOutputStream)
+
+            if (isOnlineGame) {
+                roomRef.get()
+                        .addOnSuccessListener { document ->
+                            if (document != null && document.exists()) {
+                                Log.d(TAG, "DocumentSnapshot data: ${document.data}")
+                                boardHistory = document.data!!["boardHistory"]!! as ArrayList<String>
+                                if (identity == "owner") {
+                                    outputWriter.write("$localPlayerName vs $opponent  $boardHistory  $winner " + "\n")
+                                } else {
+                                    outputWriter.write("$opponent vs $localPlayerName  $boardHistory  $winner " + "\n")
+                                }
+                                boardSaved = true
+                                outputWriter.close()
+
+                            } else {
+                                Toast.makeText(this, "Failed to add match to history!", Toast.LENGTH_SHORT).show()
+                                Log.d(TAG, "No such document")
+                            }
+                        }
+                        .addOnFailureListener { exception ->
+                            Toast.makeText(this, "Failed to add match to history!", Toast.LENGTH_SHORT).show()
+                            Log.d(TAG, "get failed with ", exception)
+                        }
+            } else {
+                outputWriter.write("Local game  $boardHistoryLocal  $winner " + "\n")
+                boardSaved = true
+                outputWriter.close()
+            }
+
+        }
+
+        catch (e: Exception) {
+            Toast.makeText(this, "Failed to add match to history!", Toast.LENGTH_SHORT).show()
+            e.printStackTrace()
+        }
     }
 
     private fun setupOnlineGame() {
@@ -1149,9 +1145,9 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
 
     private fun selectTileAtIndex (node:Node, tileIndex: Int) {
         val sideToMove = virtualBoard.sideToMove
-//        if (isOnlineGame && localPlayerColor != sideToMove) {
-//            return
-//        }
+        if (isOnlineGame && localPlayerColor != sideToMove) {
+            return
+        }
         val pieceAtIndex = virtualBoard.getPiece(Square.squareAt(tileIndex))
 
         // Check if a Chess Piece was Previously Selected
@@ -1227,10 +1223,10 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 virtualBoard.doMove(newMove)
                 tts!!.speak("$squareSelectedIdx to $squareIdx", TextToSpeech.QUEUE_FLUSH, null,"")
                 // Save virtualBoard state to virtualBoardHistoryLocal array if game is offline
-//                if (!isOnlineGame) {
-//                    virtualBoardHistoryLocal.add(virtualBoard.fen)
-//                    Log.i("cliffen", virtualBoardHistoryLocal.toString())
-//                }
+                if (!isOnlineGame) {
+                    boardHistoryLocal.add(virtualBoard.fen)
+                    Log.i("cliffen", boardHistoryLocal.toString())
+                }
                 renderBoardState()
                 tileSelectedIndex = -1
 

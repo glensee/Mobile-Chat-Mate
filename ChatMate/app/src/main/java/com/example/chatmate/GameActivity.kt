@@ -132,6 +132,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     speechlyClient.startContext()
                 }
                 MotionEvent.ACTION_UP -> {
+
                     speechlyClient.stopContext()
                     GlobalScope.launch(Dispatchers.Default) {
                         delay(1500)
