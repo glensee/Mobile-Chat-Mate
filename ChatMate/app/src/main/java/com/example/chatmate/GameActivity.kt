@@ -3,7 +3,6 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.SystemClock
 import android.speech.tts.TextToSpeech
@@ -909,22 +908,22 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
         // change white moves text
         for (text in 0 until whiteMoves.size) {
-            movesWhiteCol[whiteMoves.size-text-1].text = whiteMoves[text]
-            movesBlackWhiteCol[whiteMoves.size-text-1].text = whiteMoves[text]
+            movesWhiteCol[whiteMoves.size - text - 1].text = whiteMoves[text]
+            movesBlackWhiteCol[whiteMoves.size - text - 1].text = whiteMoves[text]
         }
-        if (moveSanList.size%2 != 0) {
+        if (moveSanList.size % 2 != 0) {
             // white > black
             for (text in 0 until blackMoves.size) {
-                movesBlackCol[blackMoves.size-text].text = blackMoves[text]
+                movesBlackCol[blackMoves.size - text].text = blackMoves[text]
                 movesBlackCol[0].text = ""
-                movesBlackBlackCol[blackMoves.size-text].text = blackMoves[text]
+                movesBlackBlackCol[blackMoves.size - text].text = blackMoves[text]
                 movesBlackBlackCol[0].text = ""
             }
         } else {
             // white == black
             for (text in 0 until blackMoves.size) {
-                movesBlackCol[blackMoves.size-text-1].text = blackMoves[text]
-                movesBlackBlackCol[blackMoves.size-text-1].text = blackMoves[text]
+                movesBlackCol[blackMoves.size - text - 1].text = blackMoves[text]
+                movesBlackBlackCol[blackMoves.size - text - 1].text = blackMoves[text]
             }
         }
         if (moveSanList.size == 1) {
@@ -935,7 +934,9 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             movesBlackBlackCol[1].text = movesBlackBlackCol[0].text
             movesBlackBlackCol[0].text = ""
         }
-    fun NavigateToAR(view:View) {
+    }
+
+    public fun NavigateToAR(view:View) {
         movedToAR = true
         val it = Intent(this, ArActivity::class.java)
         it.putExtra("roomId", roomId)
