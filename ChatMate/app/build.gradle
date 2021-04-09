@@ -65,4 +65,15 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:26.7.0')
     implementation 'com.google.firebase:firebase-firestore-ktx'
     implementation 'com.google.firebase:firebase-analytics-ktx'
+
+    // Google sceneform dependencies
+    implementation "com.google.ar.sceneform:core:1.15.0"
+    implementation "com.google.ar.sceneform.ux:sceneform-ux:1.15.0"
+    implementation 'com.google.ar.sceneform:assets:1.15.0'
 }
+
+apply plugin: 'com.google.ar.sceneform.plugin'
+sceneform.asset('sampledata/models/chessboardsample.fbx',
+        'default',
+        'sampledata/models/chessboardsample.sfa',
+        'sampledata/models/pawn.obj')
