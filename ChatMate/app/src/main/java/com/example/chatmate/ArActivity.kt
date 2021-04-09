@@ -67,7 +67,6 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
 
     private lateinit var binding: ActivityArBinding
     private var arFragment: ArFragment? = null
-    private var gameStarted = false
 
     // speechly variables
     private lateinit var finalSegment: Segment
@@ -119,10 +118,11 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
     private lateinit var snapshotListener: ListenerRegistration
     private var roomLeft = false
     private var boardSaved = false
-    private  var isOnlineGameIntialized = false
+    private var isOnlineGameIntialized = false
     private lateinit var db: FirebaseFirestore
     private lateinit var localPlayerName: String
     private lateinit var opponent: String
+    private var dialogShown = false
 
     // boolean to disable plane tap listener
     private var boardRendered = false
@@ -396,14 +396,19 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
 
                 // Create the Anchor.
                 val anchor = hitResult.createAnchor()
-                anchorNode =
-                    AnchorNode(anchor)
+                anchorNode = AnchorNode(anchor)
                 anchorNode.setParent(arFragment!!.arSceneView.scene)
                 if (board != null) return@setOnTapArPlaneListener
 
                 // for online multiplayer
-                if (gameStarted) {
+                if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
                     // render on board according to current board state
+                    board = Node()
+                    board!!.setParent(anchorNode)
+                    board!!.localScale = boardScaleVector
+                    board!!.setLocalRotation(Quaternion.axisAngle(Vector3(0f, 1f, 0f), 180f))
+                    board!!.renderable = boardRenderable
+                    renderBoardState()
                 } else {
                     board = Node()
                     board!!.setParent(anchorNode)
@@ -457,86 +462,6 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
         }
     }
 
-    fun getPosition(piece: String, position: Int, colour: String): Vector3 {
-        val y = 0.020f
-        var x = 0f
-        var z = 0f
-        when (colour) {
-            "white" -> {
-                when (piece) {
-                    "pawn" -> {
-                        z = 5 * halfBoard
-                        x = (-7 + (position - 1) * 2) * halfBoard
-                    }
-
-                    "rook" -> {
-                        z = 7 * halfBoard
-                        x = (-7 + (position - 1) * 14) * halfBoard
-                    }
-
-                    "knight" -> {
-                        z = 7 * halfBoard
-                        x = (-5 + (position - 1) * 10) * halfBoard
-
-                    }
-
-                    "bishop" -> {
-                        z = 7 * halfBoard
-                        x = (-3 + (position - 1) * 6) * halfBoard
-
-                    }
-
-                    "queen" -> {
-                        z = 7 * halfBoard
-                        x = -halfBoard
-                    }
-
-                    "king" -> {
-                        z = halfBoard * 7
-                        x = halfBoard
-                    }
-                }
-            }
-
-            "black" -> {
-                when (piece) {
-                    "pawn" -> {
-                        z = -5 * halfBoard
-                        x = (-7 + (position - 1) * 2) * halfBoard
-                    }
-
-                    "rook" -> {
-                        z = -7 * halfBoard
-                        x = (-7 + (position - 1) * 14) * halfBoard
-                    }
-
-                    "knight" -> {
-                        z = -7 * halfBoard
-                        x = (-5 + (position - 1) * 10) * halfBoard
-
-                    }
-
-                    "bishop" -> {
-                        z = -7 * halfBoard
-                        x = (-3 + (position - 1) * 6) * halfBoard
-
-                    }
-
-                    "queen" -> {
-                        z = -7 * halfBoard
-                        x = -halfBoard
-                    }
-
-                    "king" -> {
-                        z = -7 * halfBoard
-                        x = halfBoard
-                    }
-                }
-            }
-        }
-        return Vector3(x, y, z)
-    }
-
     private var voiceCommandButtonTouchListener = object : View.OnTouchListener {
         override fun onTouch(v: View?, event: MotionEvent?): Boolean {
             when (event?.action) {
@@ -585,9 +510,9 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
             val newMove = Move(from, to)
             // Check if New Move is Legal
             if(newMove in currentLegalMoves) {
-//                if (isOnlineGame){
-//                    sendvirtualBoardStateOnline()
-//                }
+                if (isOnlineGame){
+                    sendvirtualBoardStateOnline()
+                }
                 virtualBoard.doMove(newMove)
 //                movePiece(from.toString(), to.toString())
                 
@@ -614,15 +539,16 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
         myDialog.setCancelable(false)
         myDialog.findViewById<Button>(R.id.returnBtn).setOnClickListener{
             //remove firestore snapshot and success listener
-//            if (isOnlineGame) {
-//                snapshotListener.remove()
-//                deleteRoomDocument()
-//                roomLeft = true
-//            }
+            if (isOnlineGame) {
+                snapshotListener.remove()
+                deleteRoomDocument()
+                roomLeft = true
+            }
             finish()
         }
         if (virtualBoard.isMated) {
             myDialog.show()
+            dialogShown = true
             val winner = virtualBoard.sideToMove.flip().toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)
             val result = "$winner Wins"
             if (!isOnlineGame) {
@@ -641,18 +567,21 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                     saveBoardHistory("")
                 }
                 myDialog.show()
+            dialogShown = true
             } else if (virtualBoard.isInsufficientMaterial) {
                 myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
                 if (!isOnlineGame) {
                     saveBoardHistory("")
                 }
                 myDialog.show()
+            dialogShown = true
             } else if (virtualBoard.halfMoveCounter >= 100) {
                 myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
                 if (!isOnlineGame) {
                     saveBoardHistory("")
                 }
                 myDialog.show()
+            dialogShown = true
             }
             else if (virtualBoard.isStaleMate){
                 myDialog.findViewById<TextView>(R.id.resultText).setText("Stale Mate")
@@ -660,6 +589,7 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                     saveBoardHistory("")
                 }
                 myDialog.show()
+            dialogShown = true
             }
         }
     }
@@ -713,17 +643,15 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
     private fun setupOnlineGame() {
         isOnlineGame = true
         val roomRef = db.collection("rooms").document(roomId)
-        var turnData = HashMap<Any, Any>()
+
+        // Initialize turn variable
+        var turnData = hashMapOf("currentTurn" to virtualBoard.sideToMove.toString())
 
         // Initialize turn variable
         if (identity == "owner") {
             val boardHistory = ArrayList<String>()
             boardHistory.add(virtualBoard.fen)
-            turnData = hashMapOf(
-                    "currentTurn" to virtualBoard.sideToMove.toString(),
-                    "boardHistory" to boardHistory)
-        } else {
-            turnData = hashMapOf("currentTurn" to virtualBoard.sideToMove.toString())
+            turnData["boardHistory"] = boardHistory.toString()
         }
 
         roomRef.set(turnData, SetOptions.merge())
@@ -738,12 +666,38 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                     }
 
                     if (snapshot != null && snapshot.exists()) {
+
+                        // Disconnect players from game when someone disconnects
+                        if (snapshot.get("roomClosed") !== null) {
+                            val myDialog = Dialog(this)
+                            myDialog.setContentView(R.layout.game_finish_popup)
+                            myDialog.setCanceledOnTouchOutside(false)
+                            myDialog.setCancelable(false)
+                            myDialog.findViewById<Button>(R.id.returnBtn).setOnClickListener{
+                                //remove firestore snapshot and success listener
+                                if (!roomLeft) {
+                                    snapshotListener.remove()
+                                    deleteRoomDocument()
+                                    roomLeft = true
+                                }
+                                val it = Intent()
+                                setResult(1001, it)
+                                finish()
+                            }
+                            myDialog.findViewById<TextView>(R.id.resultText).text = ("Game disconnected")
+                            myDialog.show()
+                            dialogShown = true
+                        }
+
                         // On Board State Change
                         val onlineBoardState = snapshot.data!!["boardState"].toString()
 
+
                         if (onlineBoardState !== "null" && virtualBoard.fen !== onlineBoardState) {
                             virtualBoard.loadFromFen(onlineBoardState)
-                            renderBoardState()
+                            if (boardRendered) {
+                                renderBoardState()
+                            }
                             afterMoveHandler()
                             if (virtualBoard.sideToMove == localPlayerColor) {
                                 binding.onlineGameTurnText.text = "Your (${virtualBoard.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
@@ -905,10 +859,19 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 val whiteRook = Node()
                 whiteRook!!.setParent(anchorNode)
                 whiteRook!!.localScale = pieceScaleVector
-                whiteRook!!.localPosition = getLocalPosition(index)
+                if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
+                    whiteRook!!.localPosition = mirrorVector(getLocalPosition(index))
+                } else {
+                    whiteRook!!.localPosition = getLocalPosition(index)
+                }
                 whiteRook!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
                     try {
-                        selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                        if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
+                            selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(mirrorVector(hitTestResult!!.node!!.localPosition)))
+
+                        } else {
+                            selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                        }
                     } catch (exception: Exception) {
                         Log.i(TAG, "on tap exception for piece node")
                     }
@@ -920,11 +883,20 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 val whiteKnight = Node()
                 whiteKnight!!.setParent(anchorNode)
                 whiteKnight!!.localScale = pieceScaleVector
-                whiteKnight.setLocalRotation(Quaternion.axisAngle(Vector3(0f, 1f, 0f), 180f))
-                whiteKnight!!.localPosition = getLocalPosition(index)
+                if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
+                    whiteKnight!!.localPosition = mirrorVector(getLocalPosition(index))
+                } else {
+                    whiteKnight.setLocalRotation(Quaternion.axisAngle(Vector3(0f, 1f, 0f), 180f))
+                    whiteKnight!!.localPosition = getLocalPosition(index)
+                }
                 whiteKnight!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
                     try {
-                        selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                        if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
+                            selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(mirrorVector(hitTestResult!!.node!!.localPosition)))
+
+                        } else {
+                            selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                        }
                     } catch (exception: Exception) {
                         Log.i(TAG, "on tap exception for piece node")
                     }
@@ -936,11 +908,20 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 val whiteBishop = Node()
                 whiteBishop!!.setParent(anchorNode)
                 whiteBishop!!.localScale = pieceScaleVector
-                whiteBishop.setLocalRotation(Quaternion.axisAngle(Vector3(0f, 1f, 0f), 180f))
-                whiteBishop!!.localPosition = getLocalPosition(index)
+                if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
+                    whiteBishop!!.localPosition = mirrorVector(getLocalPosition(index))
+                } else {
+                    whiteBishop.setLocalRotation(Quaternion.axisAngle(Vector3(0f, 1f, 0f), 180f))
+                    whiteBishop!!.localPosition = getLocalPosition(index)
+                }
                 whiteBishop!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
                     try {
-                        selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                        if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
+                            selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(mirrorVector(hitTestResult!!.node!!.localPosition)))
+
+                        } else {
+                            selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                        }
                     } catch (exception: Exception) {
                         Log.i(TAG, "on tap exception for piece node")
                     }
@@ -952,10 +933,19 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 val whiteQueen = Node()
                 whiteQueen!!.setParent(anchorNode)
                 whiteQueen!!.localScale = pieceScaleVector
-                whiteQueen!!.localPosition = getLocalPosition(index)
+                if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
+                    whiteQueen!!.localPosition = mirrorVector(getLocalPosition(index))
+                } else {
+                    whiteQueen!!.localPosition = getLocalPosition(index)
+                }
                 whiteQueen!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
                     try {
-                        selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                        if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
+                            selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(mirrorVector(hitTestResult!!.node!!.localPosition)))
+
+                        } else {
+                            selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                        }
                     } catch (exception: Exception) {
                         Log.i(TAG, "on tap exception for piece node")
                     }
@@ -967,10 +957,19 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 val whiteKing = Node()
                 whiteKing!!.setParent(anchorNode)
                 whiteKing!!.localScale = pieceScaleVector
-                whiteKing!!.localPosition = getLocalPosition(index)
+                if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
+                    whiteKing!!.localPosition = mirrorVector(getLocalPosition(index))
+                } else {
+                    whiteKing!!.localPosition = getLocalPosition(index)
+                }
                 whiteKing!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
                     try {
-                        selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                        if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
+                            selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(mirrorVector(hitTestResult!!.node!!.localPosition)))
+
+                        } else {
+                            selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                        }
                     } catch (exception: Exception) {
                         Log.i(TAG, "on tap exception for piece node")
                     }
@@ -982,10 +981,19 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 val whitePawn = Node()
                 whitePawn!!.setParent(anchorNode)
                 whitePawn!!.localScale = pieceScaleVector
-                whitePawn!!.localPosition = getLocalPosition(index)
+                if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
+                    whitePawn!!.localPosition = mirrorVector(getLocalPosition(index))
+                } else {
+                    whitePawn!!.localPosition = getLocalPosition(index)
+                }
                 whitePawn!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
                     try {
-                        selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                        if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
+                            selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(mirrorVector(hitTestResult!!.node!!.localPosition)))
+
+                        } else {
+                            selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                        }
                     } catch (exception: Exception) {
                         Log.i(TAG, "on tap exception for piece node")
                     }
@@ -997,10 +1005,19 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 val blackPawn = Node()
                 blackPawn!!.setParent(anchorNode)
                 blackPawn!!.localScale = pieceScaleVector
-                blackPawn!!.localPosition = getLocalPosition(index)
+                if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
+                    blackPawn!!.localPosition = mirrorVector(getLocalPosition(index))
+                } else {
+                    blackPawn!!.localPosition = getLocalPosition(index)
+                }
                 blackPawn!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
                     try {
-                        selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                        if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
+                            selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(mirrorVector(hitTestResult!!.node!!.localPosition)))
+
+                        } else {
+                            selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                        }
                     } catch (exception: Exception) {
                         Log.i(TAG, "on tap exception for piece node")
                     }
@@ -1012,10 +1029,19 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 val blackRook = Node()
                 blackRook!!.setParent(anchorNode)
                 blackRook!!.localScale = pieceScaleVector
-                blackRook!!.localPosition = getLocalPosition(index)
+                if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
+                    blackRook!!.localPosition = mirrorVector(getLocalPosition(index))
+                } else {
+                    blackRook!!.localPosition = getLocalPosition(index)
+                }
                 blackRook!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
                     try {
-                        selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                        if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
+                            selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(mirrorVector(hitTestResult!!.node!!.localPosition)))
+
+                        } else {
+                            selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                        }
                     } catch (exception: Exception) {
                         Log.i(TAG, "on tap exception for piece node")
                     }
@@ -1027,10 +1053,20 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 val blackKnight = Node()
                 blackKnight!!.setParent(anchorNode)
                 blackKnight!!.localScale = pieceScaleVector
-                blackKnight!!.localPosition = getLocalPosition(index)
+                if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
+                    blackKnight.setLocalRotation(Quaternion.axisAngle(Vector3(0f, 1f, 0f), 180f))
+                    blackKnight!!.localPosition = mirrorVector(getLocalPosition(index))
+                } else {
+                    blackKnight!!.localPosition = getLocalPosition(index)
+                }
                 blackKnight!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
                     try {
-                        selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                        if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
+                            selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(mirrorVector(hitTestResult!!.node!!.localPosition)))
+
+                        } else {
+                            selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                        }
                     } catch (exception: Exception) {
                         Log.i(TAG, "on tap exception for piece node")
                     }
@@ -1042,10 +1078,20 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 val blackBishop = Node()
                 blackBishop!!.setParent(anchorNode)
                 blackBishop!!.localScale = pieceScaleVector
-                blackBishop!!.localPosition = getLocalPosition(index)
+                if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
+                    blackBishop.setLocalRotation(Quaternion.axisAngle(Vector3(0f, 1f, 0f), 180f))
+                    blackBishop!!.localPosition = mirrorVector(getLocalPosition(index))
+                } else {
+                    blackBishop!!.localPosition = getLocalPosition(index)
+                }
                 blackBishop!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
                     try {
-                        selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                        if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
+                            selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(mirrorVector(hitTestResult!!.node!!.localPosition)))
+
+                        } else {
+                            selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                        }
                     } catch (exception: Exception) {
                         Log.i(TAG, "on tap exception for piece node")
                     }
@@ -1057,10 +1103,19 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 val blackQueen = Node()
                 blackQueen!!.setParent(anchorNode)
                 blackQueen!!.localScale = pieceScaleVector
-                blackQueen!!.localPosition = getLocalPosition(index)
+                if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
+                    blackQueen!!.localPosition = mirrorVector(getLocalPosition(index))
+                } else {
+                    blackQueen!!.localPosition = getLocalPosition(index)
+                }
                 blackQueen!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
                     try {
-                        selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                        if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
+                            selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(mirrorVector(hitTestResult!!.node!!.localPosition)))
+
+                        } else {
+                            selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                        }
                     } catch (exception: Exception) {
                         Log.i(TAG, "on tap exception for piece node")
                     }
@@ -1072,10 +1127,19 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 val blackKing = Node()
                 blackKing!!.setParent(anchorNode)
                 blackKing!!.localScale = pieceScaleVector
-                blackKing!!.localPosition = getLocalPosition(index)
+                if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
+                    blackKing!!.localPosition = mirrorVector(getLocalPosition(index))
+                } else {
+                    blackKing!!.localPosition = getLocalPosition(index)
+                }
                 blackKing!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
                     try {
-                        selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                        if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
+                            selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(mirrorVector(hitTestResult!!.node!!.localPosition)))
+
+                        } else {
+                            selectTileAtIndex(hitTestResult!!.node!!, vectorToIndex(hitTestResult!!.node!!.localPosition))
+                        }
                     } catch (exception: Exception) {
                         Log.i(TAG, "on tap exception for piece node")
                     }
@@ -1132,9 +1196,18 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                         val tile = Node()
                         tile!!.setParent(anchorNode)
                         tile!!.localScale = Vector3(0.1175f, 0.1175f, 0.1175f)
-                        tile!!.localPosition = getLocalPosition(Square.values().indexOf(eachMove.to))
+                        if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
+                            tile!!.localPosition = mirrorVector(getLocalPosition(Square.values().indexOf(eachMove.to)))
+                        } else {
+                            tile!!.localPosition = getLocalPosition(Square.values().indexOf(eachMove.to))
+                        }
                         tile!!.setOnTapListener{ hitTestResult: HitTestResult, motionEvent: MotionEvent? ->
-                            selectTileAtIndex(hitTestResult.node!!, vectorToIndex(hitTestResult.node!!.localPosition))
+                            if (isOnlineGameIntialized && localPlayerColor == Side.BLACK) {
+                                selectTileAtIndex(hitTestResult.node!!, vectorToIndex(mirrorVector(hitTestResult.node!!.localPosition)))
+
+                            } else {
+                                selectTileAtIndex(hitTestResult.node!!, vectorToIndex(hitTestResult.node!!.localPosition))
+                            }
                         }
                         tile!!.renderable = tileRenderable
                         nodeList.add(tile)
@@ -1174,13 +1247,38 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
 
                 afterMoveHandler()
 
-//                if (isOnlineGame){
-//                    sendvirtualBoardStateOnline()
-//                }
+                if (isOnlineGame){
+                    sendvirtualBoardStateOnline()
+                }
             }
         }
     }
 
+    private fun sendvirtualBoardStateOnline() {
+        val TAG = "cliffen"
+        val roomRef = db.collection("rooms").document(roomId)
+
+        roomRef.get()
+            .addOnSuccessListener { document ->
+                if (document != null) {
+                    Log.d(TAG, "DocumentSnapshot data: ${document.data}")
+                    boardHistory = document.data!!["boardHistory"] as ArrayList<String>
+                    Log.i("cliffen before", boardHistory.toString())
+                    boardHistory.add(virtualBoard.fen)
+                    Log.i("cliffen after", boardHistory.toString())
+                    val boardData = hashMapOf(
+                        "boardState" to virtualBoard.fen,
+                        "boardHistory" to boardHistory)
+                    roomRef.set(boardData, SetOptions.merge())
+                } else {
+                    Log.d(TAG, "No such document")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.d(TAG, "get failed with ", exception)
+            }
+    }
+    
     private fun openPromotionDialog(side: Side, newMove: Move){
         val myDialog = Dialog(this)
         myDialog.setContentView(R.layout.pawn_promotion_popup)
@@ -1233,6 +1331,7 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
             myDialog.dismiss()
         }
         myDialog.show()
+            dialogShown = true
     }
 
     private fun movePieceAndPromote(move: Move, piece: Piece){
@@ -1250,21 +1349,58 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
 
             afterMoveHandler()
 
-//            if (isOnlineGame){
-//                sendBoardStateOnline()
-//            }
+            if (isOnlineGame){
+                sendvirtualBoardStateOnline()
+            }
         }
     }
 
     override fun onBackPressed() {
-        val it = Intent()
-        it.putExtra("board", virtualBoard.fen)
-        setResult(RESULT_OK, it)
-        super.onBackPressed()
+        if (dialogShown) {
+            val it = Intent()
+            it.putExtra("board", virtualBoard.fen)
+            setResult(1001, it)
+            super.onBackPressed()
+        } else {
+            val it = Intent()
+            it.putExtra("board", virtualBoard.fen)
+            setResult(1500, it)
+            super.onBackPressed()
+        }
     }
 
     fun returnToVirtualBoard(view:View) {
         onBackPressed()
+    }
+
+    private fun deleteRoomDocument() {
+        val TAG = "cliffen"
+        val roomRef = db.collection("rooms").document(roomId)
+
+        roomRef.get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    Log.d(TAG, "DocumentSnapshot data: ${document.data}")
+                    val roomClosed = document.data!!["roomClosed"]
+
+                    if (document.get("roomClosed") !== null) {
+                        // delete room from firestore
+                        db.collection("rooms").document(roomId)
+                            .delete()
+                            .addOnSuccessListener { Log.d("cliffen", "DocumentSnapshot successfully deleted!") }
+                            .addOnFailureListener { e -> Log.w("cliffen", "Error deleting document", e) }
+                    } else {
+                        val roomClosed = hashMapOf("roomClosed" to 1)
+                        roomRef.set(roomClosed, SetOptions.merge())
+                    }
+
+                } else {
+                    Log.d(TAG, "Failed to delete document")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.d(TAG, "get failed with ", exception)
+            }
     }
 
 }

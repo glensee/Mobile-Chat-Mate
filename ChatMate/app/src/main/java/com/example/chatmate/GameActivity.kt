@@ -69,6 +69,8 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var identity: String
     private var roomLeft = false
     private var boardSaved = false
+    private var movedToAR = false
+
     // Text to speech
     private var tts: TextToSpeech? = null
 
@@ -588,17 +590,14 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         isOnlineGame = true
         val roomRef = db.collection("rooms").document(roomId)
-        var turnData = HashMap<Any, Any>()
+
+        var turnData = hashMapOf("currentTurn" to board.sideToMove.toString())
 
         // Initialize turn variable
         if (identity == "owner") {
             val boardHistory = ArrayList<String>()
             boardHistory.add(board.fen)
-            turnData = hashMapOf(
-                    "currentTurn" to board.sideToMove.toString(),
-                    "boardHistory" to boardHistory)
-        } else {
-            turnData = hashMapOf("currentTurn" to board.sideToMove.toString())
+            turnData["boardHistory"] = boardHistory.toString()
         }
 
         roomRef.set(turnData, SetOptions.merge())
@@ -718,7 +717,8 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     override fun onStop() {
         super.onStop()
-        if (isOnlineGame && !roomLeft) {
+        Log.i("cliffen", "game on stop launched")
+        if (isOnlineGame && !roomLeft && !movedToAR) {
             snapshotListener.remove()
             deleteRoomDocument()
         }
@@ -750,6 +750,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     fun NavigateToAR(view:View) {
+        movedToAR = true
         val it = Intent(this, ArActivity::class.java)
         it.putExtra("roomId", roomId)
         it.putExtra("name", localPlayerName)
@@ -760,12 +761,21 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        movedToAR = false
         if (requestCode == 1001) {
-            Log.i("cliffen", "returned from AR")
-            val boardFen = data!!.getStringExtra("board")
-            Log.i("cliffen", "fen data: $boardFen")
-            board.loadFromFen(data!!.getStringExtra("board"))
-            renderBoardState()
+            if (resultCode == 1500) {
+                Log.i("cliffen", "returned from AR")
+                val boardFen = data!!.getStringExtra("board")
+                Log.i("cliffen", "fen data: $boardFen")
+                board.loadFromFen(data!!.getStringExtra("board"))
+                renderBoardState()
+            } else {
+                val it = Intent()
+                setResult(RESULT_OK, it)
+                finish()
+            }
+
         }
+
     }
 }
