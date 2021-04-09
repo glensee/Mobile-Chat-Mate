@@ -3,6 +3,7 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.SystemClock
 import android.speech.tts.TextToSpeech
@@ -95,6 +96,11 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         gameBinding.hideShowBoard.setOnClickListener{
             isBoardHidden = !isBoardHidden
+            if (isBoardHidden) {
+                gameBinding.hideShowBoard.background = getDrawable(R.drawable.shown)
+            } else {
+                gameBinding.hideShowBoard.background = getDrawable(R.drawable.hidden)
+            }
             renderBoardState()
         }
         
@@ -861,6 +867,11 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     fun toggleTTS(view: View) {
         ttsToggle = !ttsToggle
+        if (ttsToggle) {
+            gameBinding.sound.background = getDrawable(R.drawable.sound_off)
+        } else {
+            gameBinding.sound.background = getDrawable(R.drawable.sound_on)
+        }
     }
 
     private fun saveMoveIntoMoveList(newMove: Move) {
