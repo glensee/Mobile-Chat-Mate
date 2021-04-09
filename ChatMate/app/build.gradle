@@ -73,7 +73,3 @@ dependencies {
 }
 
 apply plugin: 'com.google.ar.sceneform.plugin'
-sceneform.asset('sampledata/models/chessboardsample.fbx',
-        'default',
-        'sampledata/models/chessboardsample.sfa',
-        'sampledata/models/pawn.obj')
