@@ -538,50 +538,40 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
 
-                <androidx.appcompat.widget.AppCompatButton
+                <ImageButton
                     android:id="@+id/hideShowBoard"
-                    android:layout_width="80sp"
-                    android:layout_height="80sp"
-                    android:background="@drawable/circle"
-                    android:backgroundTint="@color/chess_border"
-                    android:fontFamily="@font/ibm_plex_sans_bold"
-                    android:text="hide/ show board"
-                    android:textSize="13sp"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="1"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintRight_toLeftOf="@id/sound"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.129"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    android:background="@drawable/hidden"/>
 
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/mute"
-                    android:layout_width="80sp"
-                    android:layout_height="80sp"
-                    android:background="@drawable/circle"
-                    android:backgroundTint="@color/chess_border"
-                    android:fontFamily="@font/ibm_plex_sans_bold"
+                <ImageButton
+                    android:id="@+id/sound"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="1"
                     android:onClick="toggleTTS"
-                    android:text="Mute"
-                    android:textSize="13sp"
+                    app:layout_constraintLeft_toRightOf="@id/hideShowBoard"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintRight_toLeftOf="@id/ar"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    android:background="@drawable/sound_off"/>
 
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/AR"
-                    android:layout_width="80sp"
-                    android:layout_height="80sp"
-                    android:background="@drawable/circle"
-                    android:backgroundTint="@color/chess_border"
-                    android:fontFamily="@font/ibm_plex_sans_bold"
-                    android:text="AR mode"
-                    android:textSize="12sp"
+                <ImageButton
+                    android:id="@+id/ar"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="1"
+                    android:onClick="NavigateToAR"
+                    app:layout_constraintLeft_toRightOf="@id/sound"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.864"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    android:background="@drawable/ar"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
