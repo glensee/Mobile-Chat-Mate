@@ -76,8 +76,11 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var identity: String
     private var roomLeft = false
     private var boardSaved = false
+    private var boardMoves = ArrayList<String>()
+    private var boardMovesLocal = ArrayList<String>()
     // Text to speech
     private var tts: TextToSpeech? = null
+    private var ttsToggle = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,12 +102,14 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         // Assign Voice Command Listener to Button
         gameBinding.voiceCommandBtn.setOnTouchListener(voiceCommandButtonTouchListener)
+        gameBinding.voiceCommandBtnBlack.setOnTouchListener(voiceCommandButtonTouchListener)
         GlobalScope.launch(Dispatchers.Default) {
             speechlyClient.onSegmentChange { segment: Segment ->
                 finalSegment = segment
                 val transcript = segment.words.values.map{it.value}.joinToString(" ")
                 GlobalScope.launch(Dispatchers.Main) {
                     gameBinding.voiceResultTextField.text = transcript
+                    gameBinding.voiceResultTextFieldBlack.text = transcript
                     Log.d("DEBUG", transcript)
                     try {
                         if (transcript.contains("TO") && segment.words.values.size >= 5 && seg != transcript) {
@@ -125,11 +130,13 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         // Initialize local boardHistoryArray for local multiplayer
         boardHistoryLocal.add(board.fen)
+        boardMovesLocal.add("Start")
 
         //Check for Online Game
         roomId = intent.getStringExtra("roomId").toString()
         if(roomId != "null" && !isOnlineGameIntialized) {
             gameBinding.onlineGameHeader.visibility = View.VISIBLE
+            gameBinding.wholething.visibility = View.INVISIBLE
             setupOnlineGame()
         }
 
@@ -140,14 +147,6 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         // Set All Current Legal Moves
         currentLegalMoves.addAll(board.legalMoves())
 
-        //Check for Online Game
-        roomId = intent.getStringExtra("roomId").toString()
-        if(roomId != "null" && !isOnlineGameIntialized) {
-            gameBinding.onlineGameHeader.visibility = View.VISIBLE
-            gameBinding.wholething.visibility = View.INVISIBLE
-            setupOnlineGame()
-        }
-
         // Generate a movelist
         moveList = MoveList()
     }
@@ -157,6 +156,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             when (event?.action) {
                 MotionEvent.ACTION_DOWN -> {
                     gameBinding.voiceResultTextField.text = ""
+                    gameBinding.voiceResultTextFieldBlack.text = ""
                     speechlyClient.startContext()
                 }
                 MotionEvent.ACTION_UP -> {
@@ -167,6 +167,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                         Log.i("cliffen final segment", transcript)
                         GlobalScope.launch(Dispatchers.Main) {
                             gameBinding.voiceResultTextField.text = transcript
+                            gameBinding.voiceResultTextFieldBlack.text = transcript
                             Log.d("DEBUG", transcript)
                             try {
                                 if (finalSegment.words.values.size >= 5) {
@@ -227,13 +228,22 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             var index = i
             if (isOnlineGame && identity != "owner") {
                 index = boardArrayList.size - 1 - i
-            }
-            for (tile in boardArrayList[index]) {
-                tile.tag = chessTiles.size
-                chessTiles.add(tile)
-                tile.setOnClickListener {
-                    val tileIndex = it.tag.toString().toInt()
-                    selectTileAtIndex(tileIndex)
+                for (tile in boardArrayList[index].reversed()) {
+                    tile.tag = chessTiles.size
+                    chessTiles.add(tile)
+                    tile.setOnClickListener {
+                        val tileIndex = it.tag.toString().toInt()
+                        selectTileAtIndex(tileIndex)
+                    }
+                }
+            } else {
+                for (tile in boardArrayList[index]) {
+                    tile.tag = chessTiles.size
+                    chessTiles.add(tile)
+                    tile.setOnClickListener {
+                        val tileIndex = it.tag.toString().toInt()
+                        selectTileAtIndex(tileIndex)
+                    }
                 }
             }
         }
@@ -338,94 +348,19 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             // Check if New Move is Legal
             if(newMove in currentLegalMoves) {
                 // TODO: save move to a array before making the move (ARIX DO TMR)
-                val moveListLocal = MoveListLocal()
-                val tempBoard = board.clone()
-                val san = moveListLocal.encodeSan(tempBoard, newMove)
-
-                if (firstMove) {
-                    gameBinding.timer.base = SystemClock.elapsedRealtime()
-                    gameBinding.timerBlack.base = SystemClock.elapsedRealtime()
-                    gameBinding.timer.start()
-                    gameBinding.timerBlack.start()
-                    firstMove = false
-                }
-
-                if (moveSanList.size == 6) {
-                    moveSanList.clear()
-                    moveSanList.add(san)
-                } else {
-                    moveSanList.add(san)
-                }
-                val move1 = findViewById<TextView>(R.id.move1)
-                val move2 = findViewById<TextView>(R.id.move2)
-                val move3 = findViewById<TextView>(R.id.move3)
-                val move4 = findViewById<TextView>(R.id.move4)
-                val move5 = findViewById<TextView>(R.id.move5)
-                val move6 = findViewById<TextView>(R.id.move6)
-                val movesWhiteCol = mutableListOf(move1, move3, move5)
-                val movesBlackCol = mutableListOf(move2, move4, move6)
-                val move1Black = findViewById<TextView>(R.id.move1Black)
-                val move2Black = findViewById<TextView>(R.id.move2Black)
-                val move3Black = findViewById<TextView>(R.id.move3Black)
-                val move4Black = findViewById<TextView>(R.id.move4Black)
-                val move5Black = findViewById<TextView>(R.id.move5Black)
-                val move6Black = findViewById<TextView>(R.id.move6Black)
-                val movesBlackWhiteCol = mutableListOf(move1Black, move3Black, move5Black)
-                val movesBlackBlackCol = mutableListOf(move2Black, move4Black, move6Black)
-                var flag = true
-                var whiteMoves = ArrayList<String>()
-                var blackMoves = ArrayList<String>()
-                for (move in 0 until moveSanList.size) {
-                    if (flag) {
-                        // add to white
-                        whiteMoves.add(moveSanList[move])
-                        flag = false
-                    } else {
-                        // add to black
-                        blackMoves.add(moveSanList[move])
-                        flag = true
-                    }
-                }
-                // change white moves text
-                for (text in 0 until whiteMoves.size) {
-                    movesWhiteCol[whiteMoves.size-text-1].text = whiteMoves[text]
-                    movesBlackWhiteCol[whiteMoves.size-text-1].text = whiteMoves[text]
-                }
-                if (moveSanList.size%2 != 0) {
-                    // white > black
-                    for (text in 0 until blackMoves.size) {
-                        movesBlackCol[blackMoves.size-text].text = blackMoves[text]
-                        movesBlackCol[0].text = ""
-                        movesBlackBlackCol[blackMoves.size-text].text = blackMoves[text]
-                        movesBlackBlackCol[0].text = ""
-                    }
-                } else {
-                    // white == black
-                    for (text in 0 until blackMoves.size) {
-                        movesBlackCol[blackMoves.size-text-1].text = blackMoves[text]
-                        movesBlackBlackCol[blackMoves.size-text-1].text = blackMoves[text]
-                    }
-                }
-                if (moveSanList.size == 1) {
-                    movesBlackCol[2].text = movesBlackCol[1].text
-                    movesBlackCol[1].text = movesBlackCol[0].text
-                    movesBlackCol[0].text = ""
-                    movesBlackBlackCol[2].text = movesBlackBlackCol[1].text
-                    movesBlackBlackCol[1].text = movesBlackBlackCol[0].text
-                    movesBlackBlackCol[0].text = ""
-                }
+                saveMoveIntoMoveList(newMove)
                 board.doMove(newMove)
-                tts!!.speak("$squareSelectedIdx to $squareIdx", TextToSpeech.QUEUE_FLUSH, null,"")
+                if (ttsToggle) tts!!.speak("$squareSelectedIdx to $squareIdx", TextToSpeech.QUEUE_FLUSH, null,"")
                 // Save board state to boardHistoryLocal array if game is offline
                 renderBoardState()
                 tileSelectedIndex = -1
-                afterMoveHandler()
-
                 if (isOnlineGame){
-                    sendBoardStateOnline()
+                    sendBoardStateOnline("$squareSelectedIdx to $squareIdx")
                 } else {
                     boardHistoryLocal.add(board.fen)
+                    boardMovesLocal.add("$squareSelectedIdx to $squareIdx")
                 }
+                afterMoveHandler()
             }
         }
     }
@@ -486,23 +421,22 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private fun movePieceAndPromote(move: Move, piece: Piece){
         val newMove = Move(move.from, move.to, piece)
         if(newMove in currentLegalMoves) {
+            saveMoveIntoMoveList(newMove)
             board.doMove(newMove)
-
+            val squareSelectedIdx = newMove.from
+            val squareIdx = newMove.to
+            tts!!.speak("$squareSelectedIdx to $squareIdx", TextToSpeech.QUEUE_FLUSH, null,"")
             // Save board state to boardHistoryLocal array if game is offline
-            if (!isOnlineGame) {
-                boardHistoryLocal.add(board.fen)
-                Log.i("cliffen", boardHistoryLocal.toString())
-            }
             renderBoardState()
             tileSelectedIndex = -1
-
-            afterMoveHandler()
-
             if (isOnlineGame){
-                sendBoardStateOnline()
+                sendBoardStateOnline("$squareSelectedIdx to $squareIdx")
             } else {
                 boardHistoryLocal.add(board.fen)
+                boardMovesLocal.add("$squareSelectedIdx to $squareIdx")
             }
+            afterMoveHandler()
+
         }
     }
 
@@ -542,22 +476,19 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
             if(newMove in currentLegalMoves) {
                 // TODO: save move to a array before making the move (ARIX DO TMR)
-                val moveListLocal = MoveListLocal()
-                val tempBoard = board.clone()
-                val san = moveListLocal.encodeSan(tempBoard, newMove)
-                moveSanList.add(san)
+                saveMoveIntoMoveList(newMove)
                 board.doMove(newMove)
-                tts!!.speak("$from to $to", TextToSpeech.QUEUE_FLUSH, null,"")
+                if (ttsToggle) tts!!.speak("$from to $to", TextToSpeech.QUEUE_FLUSH, null,"")
                 renderBoardState()
-                currentLegalMoves.clear()
-                currentLegalMoves.addAll(board.legalMoves())
-                gameBinding.voiceResultTextField.text = "Tap and hold on this side of the screen to speak"
-                afterMoveHandler()
                 if (isOnlineGame){
-                    sendBoardStateOnline()
+                    sendBoardStateOnline("$from to $to")
                 } else {
                     boardHistoryLocal.add(board.fen)
+                    boardMovesLocal.add("$from to $to")
                 }
+                gameBinding.voiceResultTextField.text = "Tap and hold on this side of the screen to speak"
+                afterMoveHandler()
+
             } else {
                 throw Error("Invalid Command")
             }
@@ -695,10 +626,11 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                                 if (document != null && document.exists()) {
                                     Log.d(TAG, "DocumentSnapshot data: ${document.data}")
                                     boardHistory = document.data!!["boardHistory"]!! as ArrayList<String>
+                                    boardMoves = document.data!!["boardMoves"]!! as ArrayList<String>
                                     if (identity == "owner") {
-                                        outputWriter.write("$localPlayerName vs $opponent  $boardHistory  $winner " + "\n")
+                                        outputWriter.write("$localPlayerName vs $opponent  $boardHistory  $boardMoves  $winner " + "\n")
                                     } else {
-                                        outputWriter.write("$opponent vs $localPlayerName  $boardHistory  $winner " + "\n")
+                                        outputWriter.write("$opponent vs $localPlayerName  $boardHistory  $boardMoves  $winner " + "\n")
                                     }
                                     boardSaved = true
                                     outputWriter.close()
@@ -713,7 +645,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                                 Log.d(TAG, "get failed with ", exception)
                             }
                 } else {
-                    outputWriter.write("Local game  $boardHistoryLocal  $winner " + "\n")
+                    outputWriter.write("Local game  $boardHistoryLocal  $boardMovesLocal  $winner " + "\n")
                     boardSaved = true
                     outputWriter.close()
                 }
@@ -736,9 +668,11 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         if (identity == "owner") {
             val boardHistory = ArrayList<String>()
             boardHistory.add(board.fen)
+            boardMoves.add("Start")
             turnData = hashMapOf(
                     "currentTurn" to board.sideToMove.toString(),
-                    "boardHistory" to boardHistory)
+                    "boardHistory" to boardHistory,
+                    "boardMoves" to boardMoves)
         } else {
             turnData = hashMapOf("currentTurn" to board.sideToMove.toString())
         }
@@ -834,7 +768,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     }
 
-    private fun sendBoardStateOnline() {
+    private fun sendBoardStateOnline(move: String) {
         val TAG = "cliffen"
         val roomRef = db.collection("rooms").document(roomId)
 
@@ -846,9 +780,14 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                         Log.i("cliffen before", boardHistory.toString())
                         boardHistory.add(board.fen)
                         Log.i("cliffen after", boardHistory.toString())
+
+                        // Get board moves
+                        boardMoves = document.data!!["boardMoves"] as ArrayList<String>
+                        boardMoves.add(move)
                         val boardData = hashMapOf(
                                 "boardState" to board.fen,
-                                "boardHistory" to boardHistory)
+                                "boardHistory" to boardHistory,
+                                "boardMoves" to boardMoves)
                         roomRef.set(boardData, SetOptions.merge())
                     } else {
                         Log.d(TAG, "No such document")
@@ -902,4 +841,86 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         flipper.showNext()
     }
 
+    fun toggleTTS(view: View) {
+        ttsToggle = !ttsToggle
+    }
+
+    private fun saveMoveIntoMoveList(newMove: Move) {
+        val moveListLocal = MoveListLocal()
+        val tempBoard = board.clone()
+        val san = moveListLocal.encodeSan(tempBoard, newMove)
+
+        if (firstMove) {
+            gameBinding.timer.base = SystemClock.elapsedRealtime()
+            gameBinding.timerBlack.base = SystemClock.elapsedRealtime()
+            gameBinding.timer.start()
+            gameBinding.timerBlack.start()
+            firstMove = false
+        }
+
+        if (moveSanList.size == 6) {
+            moveSanList.clear()
+            moveSanList.add(san)
+        } else {
+            moveSanList.add(san)
+        }
+        val move1 = findViewById<TextView>(R.id.move1)
+        val move2 = findViewById<TextView>(R.id.move2)
+        val move3 = findViewById<TextView>(R.id.move3)
+        val move4 = findViewById<TextView>(R.id.move4)
+        val move5 = findViewById<TextView>(R.id.move5)
+        val move6 = findViewById<TextView>(R.id.move6)
+        val movesWhiteCol = mutableListOf(move1, move3, move5)
+        val movesBlackCol = mutableListOf(move2, move4, move6)
+        val move1Black = findViewById<TextView>(R.id.move1Black)
+        val move2Black = findViewById<TextView>(R.id.move2Black)
+        val move3Black = findViewById<TextView>(R.id.move3Black)
+        val move4Black = findViewById<TextView>(R.id.move4Black)
+        val move5Black = findViewById<TextView>(R.id.move5Black)
+        val move6Black = findViewById<TextView>(R.id.move6Black)
+        val movesBlackWhiteCol = mutableListOf(move1Black, move3Black, move5Black)
+        val movesBlackBlackCol = mutableListOf(move2Black, move4Black, move6Black)
+        var flag = true
+        var whiteMoves = ArrayList<String>()
+        var blackMoves = ArrayList<String>()
+        for (move in 0 until moveSanList.size) {
+            if (flag) {
+                // add to white
+                whiteMoves.add(moveSanList[move])
+                flag = false
+            } else {
+                // add to black
+                blackMoves.add(moveSanList[move])
+                flag = true
+            }
+        }
+        // change white moves text
+        for (text in 0 until whiteMoves.size) {
+            movesWhiteCol[whiteMoves.size-text-1].text = whiteMoves[text]
+            movesBlackWhiteCol[whiteMoves.size-text-1].text = whiteMoves[text]
+        }
+        if (moveSanList.size%2 != 0) {
+            // white > black
+            for (text in 0 until blackMoves.size) {
+                movesBlackCol[blackMoves.size-text].text = blackMoves[text]
+                movesBlackCol[0].text = ""
+                movesBlackBlackCol[blackMoves.size-text].text = blackMoves[text]
+                movesBlackBlackCol[0].text = ""
+            }
+        } else {
+            // white == black
+            for (text in 0 until blackMoves.size) {
+                movesBlackCol[blackMoves.size-text-1].text = blackMoves[text]
+                movesBlackBlackCol[blackMoves.size-text-1].text = blackMoves[text]
+            }
+        }
+        if (moveSanList.size == 1) {
+            movesBlackCol[2].text = movesBlackCol[1].text
+            movesBlackCol[1].text = movesBlackCol[0].text
+            movesBlackCol[0].text = ""
+            movesBlackBlackCol[2].text = movesBlackBlackCol[1].text
+            movesBlackBlackCol[1].text = movesBlackBlackCol[0].text
+            movesBlackBlackCol[0].text = ""
+        }
+    }
 }

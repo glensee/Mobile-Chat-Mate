@@ -3,6 +3,7 @@ package com.example.chatmate
 import android.opengl.Visibility
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.View
 import android.widget.ImageButton
@@ -18,7 +19,7 @@ import com.github.bhlangonijr.chesslib.move.Move
 import java.util.*
 import kotlin.collections.ArrayList
 
-class ReplayActivity : AppCompatActivity() {
+class ReplayActivity : AppCompatActivity() , TextToSpeech.OnInitListener {
 
     private lateinit var binding: ActivityReplayBinding
     private lateinit var board: Board
@@ -28,10 +29,13 @@ class ReplayActivity : AppCompatActivity() {
     private var matchesInfo = ArrayList<String>()
     private var TAG = "cliffen"
     private var boardHistory = ArrayList<String>()
+    private var boardMoves = ArrayList<String>()
     private var winner = ""
     private var title = ""
     private lateinit var seekbar: SeekBar
     private lateinit var localPlayerColor:Side
+    private var tts: TextToSpeech? = null
+    private var ttsToggle = true
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,19 +47,23 @@ class ReplayActivity : AppCompatActivity() {
 
         // retrieving match info from intent
         matchesInfo = intent.getStringArrayListExtra("matchesInfo") as ArrayList<String>
-
         // assigning variables to be displayed
         title = matchesInfo[0]
         val boardHistoryString = matchesInfo[1].toString().trim('[').trim(']')
-        Log.i(TAG, boardHistoryString)
         if (boardHistoryString.contains(", ")) {
             boardHistory = boardHistoryString.split(", ") as ArrayList<String>
         } else {
             boardHistory.add(boardHistoryString)
         }
-        winner = matchesInfo[2].trim(' ')
-        Log.i(TAG, "history: $boardHistory")
-        Log.i(TAG, matchesInfo.toString())
+        val boardMovesString = matchesInfo[2].toString().trim('[').trim(']')
+        if (boardMovesString.contains(", ")) {
+            boardMoves = boardMovesString.split(", ") as ArrayList<String>
+        } else {
+            boardMoves.add(boardHistoryString)
+        }
+        winner = matchesInfo[3].trim(' ')
+//        Log.i(TAG, "history: $boardHistory")
+//        Log.i(TAG, matchesInfo.toString())
 
         // Setup the initial board
         board = Board()
@@ -64,6 +72,9 @@ class ReplayActivity : AppCompatActivity() {
         generateChessBoardTileButtons()
         // Set the Image in the Image button based on pieces in board class
         renderBoardState(0)
+        // Init TTS
+        tts = TextToSpeech(this, this)
+
 
         // display player names
         if (title == "Local game") {
@@ -71,8 +82,8 @@ class ReplayActivity : AppCompatActivity() {
             binding.player2.text = "Black"
         } else {
             val playerArray = title.split(" vs ") as ArrayList<String>
-            binding.player1.text = playerArray.get(0)
-            binding.player2.text = playerArray.get(1)
+            binding.player1.text = playerArray[0]
+            binding.player2.text = playerArray[1]
         }
 
         // display winner tag
@@ -96,6 +107,7 @@ class ReplayActivity : AppCompatActivity() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 binding.moves.text = "Moves: ${seekbar.progress}/${seekbar.max}"
                 renderBoardState(progress)
+                if (ttsToggle) tts!!.speak(boardMoves[progress], TextToSpeech.QUEUE_FLUSH, null,"")
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -215,5 +227,40 @@ class ReplayActivity : AppCompatActivity() {
 
     fun leaveRoom(view: View) {
         finish()
+    }
+
+    override fun onInit(status: Int) {
+
+        if (status == TextToSpeech.SUCCESS) {
+            // set US English as language for tts
+            val result = tts!!.setLanguage(Locale.UK)
+
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e("TTS","The Language specified is not supported!")
+            }
+        } else {
+            Log.e("TTS", "Initilization Failed!")
+        }
+
+    }
+
+    public override fun onDestroy() {
+        // Shutdown TTS
+        if (tts != null) {
+            tts!!.stop()
+            tts!!.shutdown()
+        }
+        super.onDestroy()
+    }
+
+    fun toggleTTS(view: View) {
+        ttsToggle = !ttsToggle
+
+        if (ttsToggle) {
+            binding.ttsBtn.setImageResource(R.drawable.unmute)
+        } else {
+            binding.ttsBtn.setImageResource(R.drawable.mute)
+            tts!!.stop()
+        }
     }
 }
