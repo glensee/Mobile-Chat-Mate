@@ -855,6 +855,15 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     fun toggleTTS(view: View) {
         ttsToggle = !ttsToggle
+
+        if (ttsToggle) {
+            gameBinding.mute.text = "Mute"
+            gameBinding.muteBlack.text = "Mute"
+        } else {
+            gameBinding.mute.text = "Unmute"
+            gameBinding.muteBlack.text = "Unmute"
+            tts!!.stop()
+        }
     }
 
     private fun saveMoveIntoMoveList(newMove: Move) {
