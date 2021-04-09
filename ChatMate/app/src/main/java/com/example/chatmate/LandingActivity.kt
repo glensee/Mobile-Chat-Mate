@@ -124,4 +124,9 @@ class LandingActivity : AppCompatActivity() {
         super.onResume()
         loadPreviousMatches()
     }
+
+    fun goToHelp(view: View) {
+        val it = Intent(this, helpActivity::class.java)
+        startActivity(it)
+    }
 }

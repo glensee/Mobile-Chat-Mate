@@ -14,4 +14,8 @@ class helpActivity : AppCompatActivity() {
         val flipper = findViewById<ViewFlipper>(R.id.viewFlipperHelp)
         flipper.showNext()
     }
+
+    fun goHome(view: View) {
+        finish()
+    }
 }
