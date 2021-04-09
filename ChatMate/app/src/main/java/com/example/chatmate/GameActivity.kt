@@ -97,6 +97,11 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             renderBoardState()
         }
         
+        gameBinding.hideShowBoardBlack.setOnClickListener{
+            isBoardHidden = !isBoardHidden
+            renderBoardState()
+        }
+        
         // Get Local Player Name
         localPlayerName = intent.getStringExtra("name").toString()
 
@@ -139,7 +144,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         roomId = intent.getStringExtra("roomId").toString()
         if(roomId != "null" && !isOnlineGameIntialized) {
             gameBinding.onlineGameHeader.visibility = View.VISIBLE
-            gameBinding.wholething.visibility = View.INVISIBLE
+            gameBinding.wholething.visibility = View.GONE
             setupOnlineGame()
         }
 
