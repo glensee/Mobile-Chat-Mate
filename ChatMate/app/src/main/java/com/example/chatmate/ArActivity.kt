@@ -158,6 +158,7 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
         this.supportActionBar!!.hide()
         db = Firebase.firestore
         arFragment = getSupportFragmentManager().findFragmentById(R.id.ux_fragment) as ArFragment
+        binding.onlineGameTurnText.gravity = Gravity.CENTER
 
         // Assign Voice Command Listener to Button
         binding.voiceCommandBtn.setOnTouchListener(voiceCommandButtonTouchListener)
@@ -751,6 +752,11 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
         // Get the Current State of the Chess Board in an Array Sequence
         // Each Index Represents a Tile on the virtualBoard and The Item Represents the Piece Type
         val currentvirtualBoardStateArray = virtualBoard.boardToArray()
+
+        if (!isOnlineGameIntialized) {
+            binding.onlineGameTurnText.gravity = Gravity.CENTER
+            binding.onlineGameTurnText.text = "${virtualBoard.sideToMove}'s turn "
+        }
 
         // remove all nodes on board
         for (node: Node in nodeList) {

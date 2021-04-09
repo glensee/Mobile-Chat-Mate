@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.os.Handler
 import android.os.SystemClock
 import android.speech.tts.TextToSpeech
 import android.util.Log
@@ -195,6 +196,17 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                             }
                         }
                     } catch (exception: NoActiveStreamException) {
+                        gameBinding.voiceResultTextField.text = "Please wait..."
+                        gameBinding.voiceResultTextFieldBlack.text = "Please wait..."
+                        gameBinding.voiceCommandBtn.isClickable = false
+                        val handler = Handler()
+                        handler.postDelayed({
+                            speechlyClient.stopContext()
+                            gameBinding.voiceResultTextField.text = "Tap and hold on this side of the screen to speak"
+                            gameBinding.voiceResultTextFieldBlack.text = "Tap and hold on this side of the screen to speak"
+                            gameBinding.voiceCommandBtn.isClickable = true
+                        },3000)
+
                         Log.i("cliffen", "speechly tap exception")
                     } catch (error: Error) {
                         Log.i("cliffen", "speechly tap exception")

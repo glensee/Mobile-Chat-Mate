@@ -27,7 +27,7 @@
             android:padding="20dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Mury's (Black) Turn"
+            android:text="White's Turn"
             android:fontFamily="@font/ibm_plex_sans_bold"
             android:textColor="@color/text_color_gray_5"
             android:textSize="20sp"
