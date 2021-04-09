@@ -1,14 +1,16 @@
 package com.example.chatmate
 
 import android.content.Context
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import com.example.chatmate.databinding.ActivityMainBinding
 import android.content.Intent
 import android.media.MediaPlayer
+import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import com.example.chatmate.databinding.ActivityMainBinding
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -31,73 +33,73 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         db = Firebase.firestore
-//        FirebaseFirestore.setLoggingEnabled(true)
+
+        binding.name.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+                //Perform Code
+                Log.i("glen", "here")
+                NavigateToHome(v)
+                return@OnKeyListener true
+            }
+            false
+        })
     }
-
-
-    fun NavigateToAR(view: View) {
-        Log.e("cliffen", "dev mode")
-        val it = Intent(this, ArActivity::class.java)
-        startActivity(it)
-    }
-
 
     fun NavigateToHome(view: View) {
         // get username and password
         val name = binding.name.text.toString().trim()
-
         // if username empty
-        if (name.length <= 0) {
-            Toast.makeText(this, "Please enter a username!", Toast.LENGTH_SHORT)
-                .show()
-        } else if (name.contains(" ")) {
-            Toast.makeText(this, "Spaces in name not allowed!", Toast.LENGTH_SHORT).show()
-        } else if (name.length > 15) {
-            Toast.makeText(this, "Maximum 15 characters!", Toast.LENGTH_SHORT).show()
-        } else {
-            val sharedPref = this.getSharedPreferences("usernames", Context.MODE_PRIVATE)
-            val existingUUID = sharedPref.getString(name,  null)
-            val uuid = UUID.randomUUID().toString()
-            currentUser = name
-//            Log.i("cliffen", existingUUID)
-
-            // user doesn't exist in shared pref
-            if (existingUUID == null) {
-                Log.i("cliffen", "doesnt exist")
-                with (sharedPref.edit()) {
-                    putString(currentUser, uuid)
-                    apply()
-                }
-                currentUUID = uuid
-            } else {
-                Log.i("cliffen", "exist")
-                // if user has been created in shared pref before
-                currentUUID = existingUUID
+        when {
+            name.isEmpty() -> {
+                Toast.makeText(this, "Please enter a username!", Toast.LENGTH_SHORT)
+                    .show()
             }
+            name.contains(" ") -> {
+                Toast.makeText(this, "Spaces in name not allowed!", Toast.LENGTH_SHORT).show()
+            }
+            name.length > 15 -> {
+                Toast.makeText(this, "Maximum 15 characters!", Toast.LENGTH_SHORT).show()
+            }
+            else -> {
+                val sharedPref = this.getSharedPreferences("usernames", Context.MODE_PRIVATE)
+                val existingUUID = sharedPref.getString(name,  null)
+                val uuid = UUID.randomUUID().toString()
+                currentUser = name
 
-            Log.i("cliffen", currentUUID)
-         // Create online player in firebase
-            val player = hashMapOf(
-                "name" to currentUser,
-                "id" to currentUUID
-            )
-
-            // Add a new document with a generated ID
-            db.collection("players")
-                .document(currentUUID)
-                .set(player)
-                .addOnSuccessListener { documentReference ->
-                    Log.d("cliffen", "Document added!")
+                // user doesn't exist in shared pref
+                currentUUID = if (existingUUID == null) {
+                    with (sharedPref.edit()) {
+                        putString(currentUser, uuid)
+                        apply()
+                    }
+                    uuid
+                } else {
+                    // if user has been created in shared pref before
+                    existingUUID
                 }
-                .addOnFailureListener { e ->
-                    Log.d("cliffen", "Error adding document", e)
-                }
+                // Create online player in firebase
+                val player = hashMapOf(
+                    "name" to currentUser,
+                    "id" to currentUUID
+                )
 
-            MediaPlayer.create(this, R.raw.ui_click).start()
-            val it = Intent(this, LandingActivity::class.java)
-            it.putExtra("name", currentUser)
-            it.putExtra("uuid", currentUUID)
-            startActivity(it)
+                // Add a new document with a generated ID
+                db.collection("players")
+                    .document(currentUUID)
+                    .set(player)
+                    .addOnSuccessListener { documentReference ->
+                        Log.d("cliffen", "Document added!")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.d("cliffen", "Error adding document", e)
+                    }
+
+                MediaPlayer.create(this, R.raw.ui_click).start()
+                val it = Intent(this, LandingActivity::class.java)
+                it.putExtra("name", currentUser)
+                it.putExtra("uuid", currentUUID)
+                startActivity(it)
+            }
         }
     }
 }
