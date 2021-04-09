@@ -27,6 +27,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.speechly.client.slu.Segment
 import com.speechly.client.speech.Client
+import com.speechly.client.speech.NoActiveStreamException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -163,24 +164,29 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     speechlyClient.startContext()
                 }
                 MotionEvent.ACTION_UP -> {
-
-                    speechlyClient.stopContext()
-                    GlobalScope.launch(Dispatchers.Default) {
-                        delay(1500)
-                        val transcript = finalSegment.words.values.map{it.value}.joinToString(" ")
-                        Log.i("cliffen final segment", transcript)
-                        GlobalScope.launch(Dispatchers.Main) {
-                            gameBinding.voiceResultTextField.text = transcript
-                            gameBinding.voiceResultTextFieldBlack.text = transcript
-                            Log.d("DEBUG", transcript)
-                            try {
-                                if (finalSegment.words.values.size >= 5) {
-                                    movePieceWithVoiceCommand(transcript)
+                    try {
+                        speechlyClient.stopContext()
+                        GlobalScope.launch(Dispatchers.Default) {
+                            delay(1500)
+                            val transcript = finalSegment.words.values.map{it.value}.joinToString(" ")
+                            Log.i("cliffen final segment", transcript)
+                            GlobalScope.launch(Dispatchers.Main) {
+                                gameBinding.voiceResultTextField.text = transcript
+                                gameBinding.voiceResultTextFieldBlack.text = transcript
+                                Log.d("DEBUG", transcript)
+                                try {
+                                    if (finalSegment.words.values.size >= 5) {
+                                        movePieceWithVoiceCommand(transcript)
+                                    }
+                                } catch(error: Error) {
+                                    Log.d("ERROR", error.toString())
                                 }
-                            } catch(error: Error) {
-                                Log.d("ERROR", error.toString())
                             }
                         }
+                    } catch (exception: NoActiveStreamException) {
+                        Log.i("cliffen", "speechly tap exception")
+                    } catch (error: Error) {
+                        Log.i("cliffen", "speechly tap exception")
                     }
                 }
             }
