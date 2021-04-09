@@ -544,52 +544,39 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 deleteRoomDocument()
                 roomLeft = true
             }
+            val it = Intent()
+            setResult(RESULT_OK, it)
             finish()
         }
         if (virtualBoard.isMated) {
-            myDialog.show()
-            dialogShown = true
+            if (!dialogShown) {
+                myDialog.show()
+                dialogShown = true
+            }
             val winner = virtualBoard.sideToMove.flip().toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)
             val result = "$winner Wins"
             if (!isOnlineGame) {
                 saveBoardHistory(winner)
             }
-            myDialog.findViewById<TextView>(R.id.resultText).setText(result)
+            myDialog.findViewById<TextView>(R.id.resultText).text = result
             if(virtualBoard.sideToMove == Side.BLACK){
                 myDialog.findViewById<ShapeableImageView>(R.id.whiteAvatar).setBackgroundColor(ContextCompat.getColor(this, R.color.text_color_green))
             } else {
                 myDialog.findViewById<ShapeableImageView>(R.id.blackAvatar).setBackgroundColor(ContextCompat.getColor(this, R.color.text_color_green))
             }
         } else if (virtualBoard.isDraw) {
-            if (virtualBoard.isRepetition) {
-                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
-                if (!isOnlineGame) {
-                    saveBoardHistory("")
-                }
-                myDialog.show()
-            dialogShown = true
-            } else if (virtualBoard.isInsufficientMaterial) {
-                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
-                if (!isOnlineGame) {
-                    saveBoardHistory("")
-                }
-                myDialog.show()
-            dialogShown = true
-            } else if (virtualBoard.halfMoveCounter >= 100) {
-                myDialog.findViewById<TextView>(R.id.resultText).setText("Match Draw")
-                if (!isOnlineGame) {
-                    saveBoardHistory("")
-                }
-                myDialog.show()
-            dialogShown = true
+            var result = "Match Draw"
+
+            if (virtualBoard.isStaleMate) {
+                result = "Stale Mate"
             }
-            else if (virtualBoard.isStaleMate){
-                myDialog.findViewById<TextView>(R.id.resultText).setText("Stale Mate")
-                if (!isOnlineGame) {
-                    saveBoardHistory("")
-                }
+            myDialog.findViewById<TextView>(R.id.resultText).text = result
+            if (!isOnlineGame) {
+                saveBoardHistory("")
+            }
+            if (!dialogShown) {
                 myDialog.show()
-            dialogShown = true
+                dialogShown = true
             }
         }
     }
@@ -646,15 +633,18 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
 
         // Initialize turn variable
         var turnData = hashMapOf("currentTurn" to virtualBoard.sideToMove.toString())
+        roomRef.set(turnData, SetOptions.merge())
 
-        // Initialize turn variable
+        // set board history if owner
         if (identity == "owner") {
             val boardHistory = ArrayList<String>()
             boardHistory.add(virtualBoard.fen)
-            turnData["boardHistory"] = boardHistory.toString()
+            var historyData = HashMap<String,ArrayList<String>>()
+            historyData["boardHistory"] = boardHistory
+            roomRef.set(historyData, SetOptions.merge())
         }
 
-        roomRef.set(turnData, SetOptions.merge())
+
 
         // Setup Headers
         roomRef.get().addOnSuccessListener { document ->
@@ -666,9 +656,27 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                     }
 
                     if (snapshot != null && snapshot.exists()) {
+                        // On Board State Change
+                        val onlineBoardState = snapshot.data!!["boardState"].toString()
+
+
+                        if (onlineBoardState !== "null" && virtualBoard.fen !== onlineBoardState) {
+                            virtualBoard.loadFromFen(onlineBoardState)
+                            if (boardRendered) {
+                                renderBoardState()
+                            }
+                            afterMoveHandler()
+                            if (virtualBoard.sideToMove == localPlayerColor) {
+                                binding.onlineGameTurnText.text = "Your (${virtualBoard.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
+                            } else {
+                                binding.onlineGameTurnText.text = "${onlinePlayerName}'s (${virtualBoard.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
+                            }
+                            currentLegalMoves.clear()
+                            currentLegalMoves.addAll(virtualBoard.legalMoves())
+                        }
 
                         // Disconnect players from game when someone disconnects
-                        if (snapshot.get("roomClosed") !== null) {
+                        if (snapshot.get("roomClosed") !== null && !virtualBoard.isMated) {
                             val myDialog = Dialog(this)
                             myDialog.setContentView(R.layout.game_finish_popup)
                             myDialog.setCanceledOnTouchOutside(false)
@@ -687,25 +695,6 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                             myDialog.findViewById<TextView>(R.id.resultText).text = ("Game disconnected")
                             myDialog.show()
                             dialogShown = true
-                        }
-
-                        // On Board State Change
-                        val onlineBoardState = snapshot.data!!["boardState"].toString()
-
-
-                        if (onlineBoardState !== "null" && virtualBoard.fen !== onlineBoardState) {
-                            virtualBoard.loadFromFen(onlineBoardState)
-                            if (boardRendered) {
-                                renderBoardState()
-                            }
-                            afterMoveHandler()
-                            if (virtualBoard.sideToMove == localPlayerColor) {
-                                binding.onlineGameTurnText.text = "Your (${virtualBoard.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
-                            } else {
-                                binding.onlineGameTurnText.text = "${onlinePlayerName}'s (${virtualBoard.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
-                            }
-                            currentLegalMoves.clear()
-                            currentLegalMoves.addAll(virtualBoard.legalMoves())
                         }
 
                         // save match history if mated

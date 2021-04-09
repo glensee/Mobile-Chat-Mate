@@ -70,6 +70,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var roomLeft = false
     private var boardSaved = false
     private var movedToAR = false
+    private var dialogShown = false
 
     // Text to speech
     private var tts: TextToSpeech? = null
@@ -385,6 +386,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
         myDialog.show()
     }
+    
     private fun movePieceAndPromote(move: Move, piece: Piece){
         val newMove = Move(move.from, move.to, piece)
         if(newMove in currentLegalMoves) {
@@ -493,7 +495,10 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             finish()
         }
         if (board.isMated) {
-            myDialog.show()
+            if (!dialogShown) {
+                myDialog.show()
+                dialogShown = true
+            }
             val winner = board.sideToMove.flip().toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)
             val result = "$winner Wins"
             if (!isOnlineGame) {
@@ -515,7 +520,10 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             if (!isOnlineGame) {
                 saveBoardHistory("")
             }
-            myDialog.show()
+            if (!dialogShown) {
+                myDialog.show()
+                dialogShown = true
+            }
         }
     }
 
@@ -600,16 +608,19 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         isOnlineGame = true
         val roomRef = db.collection("rooms").document(roomId)
 
-        var turnData = hashMapOf("currentTurn" to board.sideToMove.toString())
-
         // Initialize turn variable
+        var turnData = hashMapOf("currentTurn" to board.sideToMove.toString())
+        roomRef.set(turnData, SetOptions.merge())
+
+        // set board history if owner
         if (identity == "owner") {
             val boardHistory = ArrayList<String>()
             boardHistory.add(board.fen)
-            turnData["boardHistory"] = boardHistory.toString()
+            var historyData = HashMap<String,ArrayList<String>>()
+            historyData["boardHistory"] = boardHistory
+            roomRef.set(historyData, SetOptions.merge())
         }
 
-        roomRef.set(turnData, SetOptions.merge())
 
         // Setup Headers
         roomRef.get().addOnSuccessListener { document ->
@@ -622,7 +633,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     if (snapshot != null && snapshot.exists()) {
 
                         // Disconnect players from game when someone disconnects
-                        if (snapshot.get("roomClosed") !== null) {
+                        if (snapshot.get("roomClosed") !== null && !board.isMated) {
                             val myDialog = Dialog(this)
                             myDialog.setContentView(R.layout.game_finish_popup)
                             myDialog.setCanceledOnTouchOutside(false)
