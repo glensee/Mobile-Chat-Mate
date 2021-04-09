@@ -228,13 +228,22 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             var index = i
             if (isOnlineGame && identity != "owner") {
                 index = boardArrayList.size - 1 - i
-            }
-            for (tile in boardArrayList[index]) {
-                tile.tag = chessTiles.size
-                chessTiles.add(tile)
-                tile.setOnClickListener {
-                    val tileIndex = it.tag.toString().toInt()
-                    selectTileAtIndex(tileIndex)
+                for (tile in boardArrayList[index].reversed()) {
+                    tile.tag = chessTiles.size
+                    chessTiles.add(tile)
+                    tile.setOnClickListener {
+                        val tileIndex = it.tag.toString().toInt()
+                        selectTileAtIndex(tileIndex)
+                    }
+                }
+            } else {
+                for (tile in boardArrayList[index]) {
+                    tile.tag = chessTiles.size
+                    chessTiles.add(tile)
+                    tile.setOnClickListener {
+                        val tileIndex = it.tag.toString().toInt()
+                        selectTileAtIndex(tileIndex)
+                    }
                 }
             }
         }
