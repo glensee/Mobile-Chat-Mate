@@ -145,7 +145,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         roomId = intent.getStringExtra("roomId").toString()
         if(roomId != "null" && !isOnlineGameIntialized) {
             gameBinding.onlineGameHeader.visibility = View.VISIBLE
-            gameBinding.wholething.visibility = View.INVISIBLE
+            gameBinding.wholething.visibility = View.GONE
             setupOnlineGame()
         }
 
