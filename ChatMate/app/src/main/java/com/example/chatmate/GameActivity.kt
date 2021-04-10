@@ -381,8 +381,6 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             if(newMove in currentLegalMoves) {
                 // TODO: save move to a array before making the move (ARIX DO TMR)
                 if (ttsToggle) tts!!.speak("$squareSelectedIdx to $squareIdx", TextToSpeech.QUEUE_FLUSH, null,"")
-                // Save board state to boardHistoryLocal array if game is offline
-                renderBoardState()
                 tileSelectedIndex = -1
                 if (isOnlineGame){
                     sendBoardStateOnline("$squareSelectedIdx to $squareIdx")
@@ -391,6 +389,8 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     boardMovesLocal.add("$squareSelectedIdx to $squareIdx")
                 }
                 board.doMove(newMove)
+                // Save board state to boardHistoryLocal array if game is offline
+                renderBoardState()
                 afterMoveHandler()
             }
         }
