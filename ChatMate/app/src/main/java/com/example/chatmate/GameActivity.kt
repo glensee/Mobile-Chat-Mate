@@ -70,7 +70,6 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var localPlayerColor:Side
     private lateinit var onlinePlayerName: String
     private var isOnlineGameIntialized = false
-    private var seg = String()
     private lateinit var finalSegment: Segment
     private lateinit var successListener: Task<DocumentSnapshot>
     private lateinit var snapshotListener: ListenerRegistration
@@ -127,14 +126,6 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     gameBinding.voiceResultTextField.text = transcript
                     gameBinding.voiceResultTextFieldBlack.text = transcript
                     Log.d("DEBUG", transcript)
-                    try {
-                        if (transcript.contains("TO") && segment.words.values.size >= 5 && seg != transcript) {
-                            movePieceWithVoiceCommand(transcript)
-                            seg = transcript
-                        }
-                    } catch(error: Error) {
-                        Log.d("ERROR", error.toString())
-                    }
                 }
                 Log.i("cliffen current segment", transcript)
             }
@@ -199,12 +190,14 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                         gameBinding.voiceResultTextField.text = "Please wait..."
                         gameBinding.voiceResultTextFieldBlack.text = "Please wait..."
                         gameBinding.voiceCommandBtn.isClickable = false
+                        gameBinding.voiceCommandBtnBlack.isClickable = false
                         val handler = Handler()
                         handler.postDelayed({
                             speechlyClient.stopContext()
                             gameBinding.voiceResultTextField.text = "Tap and hold on this side of the screen to speak"
                             gameBinding.voiceResultTextFieldBlack.text = "Tap and hold on this side of the screen to speak"
                             gameBinding.voiceCommandBtn.isClickable = true
+                            gameBinding.voiceCommandBtnBlack.isClickable = true
                         },3000)
 
                         Log.i("cliffen", "speechly tap exception")
@@ -507,7 +500,6 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
 
             if(newMove in currentLegalMoves) {
-                // TODO: save move to a array before making the move (ARIX DO TMR)
                 saveMoveIntoMoveList(board.clone(), newMove)
                 board.doMove(newMove)
                 if (ttsToggle) tts!!.speak("$from to $to", TextToSpeech.QUEUE_FLUSH, null,"")
@@ -837,6 +829,32 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         val TAG = "cliffen"
         val roomRef = db.collection("rooms").document(roomId)
 
+        roomRef.get()
+            .addOnSuccessListener { document ->
+                if (document != null) {
+                    Log.d(TAG, "DocumentSnapshot data: ${document.data}")
+                    boardHistory = document.data!!["boardHistory"] as ArrayList<String>
+                    Log.i("cliffen before", boardHistory.toString())
+                    boardHistory.add(board.fen)
+                    Log.i("cliffen after", boardHistory.toString())
+
+                    // Get board moves
+                    boardMoves = document.data!!["boardMoves"] as ArrayList<String>
+                    boardMoves.add(move)
+                    Log.i("cliffen", "setting online board move as: $boardMoves")
+                    val boardData = hashMapOf(
+                        "boardState" to board.fen,
+                        "boardHistory" to boardHistory,
+                        "boardMoves" to boardMoves)
+                    roomRef.set(boardData, SetOptions.merge())
+                } else {
+                    Log.d(TAG, "No such document")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.d(TAG, "get failed with ", exception)
+            }
+
         Log.i("cliffen", "ONILNE sending online board move: $move")
         if (move.contains("to")){
             Log.i("cliffen", "move is $move")
@@ -845,31 +863,6 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             val newMove = Move(from, to)
             saveMoveIntoMoveList(board.clone(), newMove)
         }
-
-        roomRef.get()
-                .addOnSuccessListener { document ->
-                    if (document != null) {
-                        Log.d(TAG, "DocumentSnapshot data: ${document.data}")
-                        boardHistory = document.data!!["boardHistory"] as ArrayList<String>
-                        Log.i("cliffen before", boardHistory.toString())
-                        boardHistory.add(board.fen)
-                        Log.i("cliffen after", boardHistory.toString())
-
-                        // Get board moves
-                        boardMoves = document.data!!["boardMoves"] as ArrayList<String>
-                        boardMoves.add(move)
-                        val boardData = hashMapOf(
-                                "boardState" to board.fen,
-                                "boardHistory" to boardHistory,
-                                "boardMoves" to boardMoves)
-                        roomRef.set(boardData, SetOptions.merge())
-                    } else {
-                        Log.d(TAG, "No such document")
-                    }
-                }
-                .addOnFailureListener { exception ->
-                    Log.d(TAG, "get failed with ", exception)
-                }
     }
 
     override fun onStop() {
@@ -927,7 +920,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun saveMoveIntoMoveList(previousBoard:Board, newMove: Move) {
-        Log.i("cliffen", "move into move list called on: $previousBoard")
+//        Log.i("cliffen", "move into move list called on: $previousBoard")
         val moveListLocal = MoveListLocal()
         val san = moveListLocal.encodeSan(previousBoard, newMove)
 

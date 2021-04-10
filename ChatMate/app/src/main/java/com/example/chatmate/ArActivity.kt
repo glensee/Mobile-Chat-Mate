@@ -10,6 +10,7 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
+import android.os.Handler
 import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.Gravity
@@ -44,6 +45,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.speechly.client.slu.Segment
 import com.speechly.client.speech.Client
+import com.speechly.client.speech.NoActiveStreamException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -169,6 +171,10 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
             speechlyClient.onSegmentChange { segment: Segment ->
                 finalSegment = segment
                 val transcript = segment.words.values.map{it.value}.joinToString(" ")
+                GlobalScope.launch(Dispatchers.Main) {
+                    binding.voiceResultTextField.text = transcript
+                    Log.d("DEBUG", transcript)
+                }
                 Log.i("cliffen current segment", transcript)
             }
         }
@@ -474,22 +480,37 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                     speechlyClient.startContext()
                 }
                 MotionEvent.ACTION_UP -> {
-                    speechlyClient.stopContext()
-                    GlobalScope.launch(Dispatchers.Default) {
-                        delay(1500)
-                        val transcript = finalSegment.words.values.map{it.value}.joinToString(" ")
-                        Log.i("cliffen final segment", transcript)
-                        GlobalScope.launch(Dispatchers.Main) {
-                            binding.voiceResultTextField.text = transcript
-                            Log.d("DEBUG", transcript)
-                            try {
-                                if (finalSegment.words.values.size >= 5) {
-                                    movePieceWithVoiceCommand(transcript)
+                    try {
+                        speechlyClient.stopContext()
+                        GlobalScope.launch(Dispatchers.Default) {
+                            delay(1500)
+                            val transcript = finalSegment.words.values.map{it.value}.joinToString(" ")
+                            Log.i("cliffen final segment", transcript)
+                            GlobalScope.launch(Dispatchers.Main) {
+                                binding.voiceResultTextField.text = transcript
+                                Log.d("DEBUG", transcript)
+                                try {
+                                    if (finalSegment.words.values.size >= 5) {
+                                        movePieceWithVoiceCommand(transcript)
+                                    }
+                                } catch(error: Error) {
+                                    Log.d("ERROR", error.toString())
                                 }
-                            } catch(error: Error) {
-                                Log.d("ERROR", error.toString())
                             }
                         }
+                    } catch (exception: NoActiveStreamException) {
+                        binding.voiceResultTextField.text = "Please wait..."
+                        binding.voiceCommandBtn.isClickable = false
+                        val handler = Handler()
+                        handler.postDelayed({
+                            speechlyClient.stopContext()
+                            binding.voiceResultTextField.text = "Tap and hold on this side of the screen to speak"
+                            binding.voiceCommandBtn.isClickable = true
+                        },3000)
+
+                        Log.i("cliffen", "speechly tap exception")
+                    } catch (error: Error) {
+                        Log.i("cliffen", "speechly tap exception")
                     }
                 }
             }
@@ -513,28 +534,44 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
 
             val newMove = Move(from, to)
             // Check if New Move is Legal
+            currentLegalMoves.clear()
+            currentLegalMoves.addAll(virtualBoard.legalMoves())
+
+            // Check New Move Object is a promotion
+            if (sideToMove == Side.WHITE && newMove.to.rank == Rank.RANK_8 && virtualBoard.getPiece(from) == Piece.WHITE_PAWN) {
+                val testPromotionMove = Move(from, to, Piece.WHITE_QUEEN)
+                if(testPromotionMove in currentLegalMoves) {
+                    openPromotionDialog(sideToMove, newMove)
+                    return
+                }
+            } else if (sideToMove == Side.BLACK && newMove.to.rank == Rank.RANK_1 && virtualBoard.getPiece(from) == Piece.BLACK_PAWN) {
+                val testPromotionMove = Move(from, to, Piece.BLACK_QUEEN)
+                if(testPromotionMove in currentLegalMoves) {
+                    openPromotionDialog(sideToMove, newMove)
+                    return
+                }
+            }
+
             if(newMove in currentLegalMoves) {
+                virtualBoard.doMove(newMove)
+                tts!!.speak("$from to $to", TextToSpeech.QUEUE_FLUSH, null,"")
+                renderBoardState()
                 if (isOnlineGame){
                     sendvirtualBoardStateOnline("$from to $to")
                 } else {
                     boardHistoryLocal.add(virtualBoard.fen)
                     boardMovesLocal.add("$from to $to")
                 }
-                virtualBoard.doMove(newMove)
-
-                tts!!.speak("$from to $to", TextToSpeech.QUEUE_FLUSH, null,"")
-                renderBoardState()
-                currentLegalMoves.clear()
-                currentLegalMoves.addAll(virtualBoard.legalMoves())
-                binding.voiceResultTextField.text = "Tap and hold to speak"
+                binding.voiceResultTextField.text = "Tap and hold on this side of the screen to speak"
                 afterMoveHandler()
+
             } else {
                 throw Error("Invalid Command")
             }
         } catch (error: Error) {
             Toast.makeText(this, "Invalid Command. Please Try Again", Toast.LENGTH_SHORT).show()
         } catch (error: Exception) {
-             Toast.makeText(this, "Invalid Command. Please Try Again", Toast.LENGTH_SHORT).show()
+            // Toast.makeText(this, "Invalid Command. Please Try Again", Toast.LENGTH_SHORT).show()
         }
     }
 
