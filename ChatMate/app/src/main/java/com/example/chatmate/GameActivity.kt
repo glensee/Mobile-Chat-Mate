@@ -162,8 +162,10 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         override fun onTouch(v: View?, event: MotionEvent?): Boolean {
             when (event?.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    gameBinding.voiceResultTextField.text = ""
-                    gameBinding.voiceResultTextFieldBlack.text = ""
+                    if (gameBinding.voiceCommandBtn.isClickable == true) {
+                        gameBinding.voiceResultTextField.text = ""
+                        gameBinding.voiceResultTextFieldBlack.text = ""
+                    }
                     speechlyClient.startContext()
                 }
                 MotionEvent.ACTION_UP -> {
@@ -184,6 +186,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                                 } catch(error: Error) {
                                     Log.d("ERROR", error.toString())
                                 }
+                                gameBinding.voiceResultTextField.text = "Tap and hold on this side of the screen to speak"
                             }
                         }
                     } catch (exception: NoActiveStreamException) {

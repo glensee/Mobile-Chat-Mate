@@ -476,7 +476,9 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
         override fun onTouch(v: View?, event: MotionEvent?): Boolean {
             when (event?.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    binding.voiceResultTextField.text = ""
+                    if (binding.voiceCommandBtn.isClickable == true) {
+                        binding.voiceResultTextField.text = ""
+                    }
                     speechlyClient.startContext()
                 }
                 MotionEvent.ACTION_UP -> {
@@ -496,6 +498,7 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                                 } catch(error: Error) {
                                     Log.d("ERROR", error.toString())
                                 }
+                                binding.voiceResultTextField.text = "Tap and hold on this side of the screen to speak"
                             }
                         }
                     } catch (exception: NoActiveStreamException) {
