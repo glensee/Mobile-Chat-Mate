@@ -112,7 +112,7 @@ class LobbyActivity : AppCompatActivity() {
                 it.putExtra("name", playerName)
                 it.putExtra("uuid", uuid)
                 snapshotListener.remove()
-                startActivity(it)
+                startActivityForResult(it, 1001)
                 }
                 roomsAdapter.notifyDataSetChanged()
 
@@ -145,82 +145,95 @@ class LobbyActivity : AppCompatActivity() {
         it.putExtra("name", playerName)
         it.putExtra("uuid", uuid)
         snapshotListener.remove()
-        startActivity(it)
+        startActivityForResult(it, 1001)
     }
 
-    override fun onResume() {
-        super.onResume()
-        // listen to room changes
-        roomRef = db.collection("rooms")
-        snapshotListener = roomRef.addSnapshotListener { snapshot, e ->
-            if (e != null) {
-                Log.w("cliffen", "Listen failed.", e)
-                return@addSnapshotListener
-            }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 1001) {
+            // listen to room changes
+            roomRef = db.collection("rooms")
+            snapshotListener = roomRef.addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.w("cliffen", "Listen failed.", e)
+                    return@addSnapshotListener
+                }
 
-            if (snapshot != null) {
-                var tempRoomList = ArrayList<String>()
-                var tempRoomIdList = ArrayList<String>()
-                var snapshotDocuments = snapshot.documents
-                if (snapshotDocuments !== null) {
-                    for (documentSnapshot in snapshotDocuments) {
-                        val docSnap = documentSnapshot.data
-                        if (docSnap != null) {
-                            val owner = docSnap["owner"].toString()
-                            val player =  docSnap["player"].toString()
-                            val roomId = docSnap["roomId"].toString()
-                            var roomDesc = ""
+                if (snapshot != null) {
+                    var tempRoomList = ArrayList<String>()
+                    var tempRoomIdList = ArrayList<String>()
+                    var snapshotDocuments = snapshot.documents
+                    if (snapshotDocuments !== null) {
+                        for (documentSnapshot in snapshotDocuments) {
+                            val docSnap = documentSnapshot.data
+                            if (docSnap != null) {
+                                val owner = docSnap["owner"].toString()
+                                val player =  docSnap["player"].toString()
+                                val roomId = docSnap["roomId"].toString()
+                                var roomDesc = ""
 
-                            if (owner == "null") {
-                                roomDesc = player + "'s room"
-                            } else {
-                                roomDesc = owner + "'s room"
-                            }
+                                if (owner == "null") {
+                                    roomDesc = player + "'s room"
+                                } else {
+                                    roomDesc = owner + "'s room"
+                                }
 
-                            // Hide room if it is full
-                            if (docSnap.get("player") == null || player == null) {
-                                tempRoomList.add(roomDesc)
-                                tempRoomIdList.add(roomId)
+                                // Hide room if it is full
+                                if (docSnap.get("player") == null || player == null) {
+                                    tempRoomList.add(roomDesc)
+                                    tempRoomIdList.add(roomId)
+                                }
                             }
                         }
                     }
-                }
 
-                // update list and id lists from firestore
-                roomList = tempRoomList
-                roomIdList = tempRoomIdList
+                    // update list and id lists from firestore
+                    roomList = tempRoomList
+                    roomIdList = tempRoomIdList
 
-                // update list view
-                roomsAdapter = ArrayAdapter<String>(this, com.example.chatmate.R.layout.room_textview, roomList)
-                binding.rooms.adapter = roomsAdapter
+                    // update list view
+                    roomsAdapter = ArrayAdapter<String>(this, com.example.chatmate.R.layout.room_textview, roomList)
+                    binding.rooms.adapter = roomsAdapter
 
-                // set on click listener for listview items
-                binding.rooms.setOnItemClickListener{ _, _, index, _ ->
+                    // set on click listener for listview items
+                    binding.rooms.setOnItemClickListener{ _, _, index, _ ->
 
-                    // register player in firebase
-                    val roomId = roomIdList[index]
-                    val data = hashMapOf(
+                        // register player in firebase
+                        val roomId = roomIdList[index]
+                        val data = hashMapOf(
                             "player" to playerName,
                             "playerStatus" to "WAITING")
-                    db.collection("rooms").document(roomId)
+                        db.collection("rooms").document(roomId)
                             .set(data, SetOptions.merge())
 
-                    // enter room
-                    val it = Intent(this, RoomActivity::class.java)
-                    it.putExtra("roomId", roomId)
-                    it.putExtra("identity", "player")
-                    it.putExtra("name", playerName)
-                    it.putExtra("uuid", uuid)
-                    snapshotListener.remove()
-                    startActivity(it)
-                }
-                roomsAdapter.notifyDataSetChanged()
+                        // enter room
+                        val it = Intent(this, RoomActivity::class.java)
+                        it.putExtra("roomId", roomId)
+                        it.putExtra("identity", "player")
+                        it.putExtra("name", playerName)
+                        it.putExtra("uuid", uuid)
+                        snapshotListener.remove()
+                        startActivityForResult(it, 1001)
+                    }
+                    roomsAdapter.notifyDataSetChanged()
 
-                Log.i("cliffen", roomList.toString())
-            } else {
-                Log.d("cliffen", "Current data: null")
+                    Log.i("cliffen", roomList.toString())
+                } else {
+                    Log.d("cliffen", "Current data: null")
+                }
             }
         }
+    }
+
+    override fun onPause() {
+        Log.i("cliffen", "lobby activity paused")
+        snapshotListener.remove()
+        super.onPause()
+    }
+
+    override fun onResume() {
+        Log.i("cliffen", "lobby activity resumed")
+        super.onResume()
     }
 
     override fun onStop() {

@@ -83,7 +83,6 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var boardMovesLocal = ArrayList<String>()
     private var movedToAR = false
     private var dialogShown = false
-
     // Text to speech
     private var tts: TextToSpeech? = null
     private var ttsToggle = true
@@ -381,8 +380,6 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             // Check if New Move is Legal
             if(newMove in currentLegalMoves) {
                 // TODO: save move to a array before making the move (ARIX DO TMR)
-                saveMoveIntoMoveList(newMove)
-                board.doMove(newMove)
                 if (ttsToggle) tts!!.speak("$squareSelectedIdx to $squareIdx", TextToSpeech.QUEUE_FLUSH, null,"")
                 // Save board state to boardHistoryLocal array if game is offline
                 renderBoardState()
@@ -393,6 +390,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     boardHistoryLocal.add(board.fen)
                     boardMovesLocal.add("$squareSelectedIdx to $squareIdx")
                 }
+                board.doMove(newMove)
                 afterMoveHandler()
             }
         }
@@ -455,7 +453,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private fun movePieceAndPromote(move: Move, piece: Piece){
         val newMove = Move(move.from, move.to, piece)
         if(newMove in currentLegalMoves) {
-            saveMoveIntoMoveList(newMove)
+            saveMoveIntoMoveList(board.clone(), newMove)
             board.doMove(newMove)
             val squareSelectedIdx = newMove.from
             val squareIdx = newMove.to
@@ -510,7 +508,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
             if(newMove in currentLegalMoves) {
                 // TODO: save move to a array before making the move (ARIX DO TMR)
-                saveMoveIntoMoveList(newMove)
+                saveMoveIntoMoveList(board.clone(), newMove)
                 board.doMove(newMove)
                 if (ttsToggle) tts!!.speak("$from to $to", TextToSpeech.QUEUE_FLUSH, null,"")
                 renderBoardState()
@@ -753,6 +751,23 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                         val onlineBoardState = snapshot.data!!["boardState"].toString()
 
                         if (onlineBoardState !== "null" && board.fen !== onlineBoardState) {
+                            Log.i("cliffen", "online board state: $onlineBoardState")
+                            if ( snapshot.get("boardMoves") !== null) {
+                                if (document.data!!["boardMoves"] !== null) {
+                                    val onlineMoves = document.data!!.getValue("boardMoves") as ArrayList<String>
+                                    Log.i("cliffen", "MOVES LIST: ${onlineMoves}")
+                                    Log.i("cliffen", "board history: ${document["boardHistory"]}")
+                                    val onlineMove = onlineMoves.get(onlineMoves.size -1)
+                                    Log.i("cliffen", "ONILNE DEBUG MOVE: $onlineMove")
+                                    if (onlineMove.contains("to")){
+                                        Log.i("cliffen", "move is $onlineMove")
+                                        val from = Square.fromValue(onlineMove.split(" to ")[0])
+                                        val to = Square.fromValue(onlineMove.split(" to ")[1])
+                                        val newMove = Move(from, to)
+                                        saveMoveIntoMoveList(board.clone(), newMove)
+                                    }
+                                }
+                            }
                             board.loadFromFen(onlineBoardState)
                             renderBoardState()
                             afterMoveHandler()
@@ -786,6 +801,9 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     }
                 }
 
+
+
+
                 val owner = document.data?.getValue("owner").toString()
                 val player = document.data?.getValue("player").toString()
                 if (owner == localPlayerName) {
@@ -811,6 +829,15 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private fun sendBoardStateOnline(move: String) {
         val TAG = "cliffen"
         val roomRef = db.collection("rooms").document(roomId)
+
+        Log.i("cliffen", "ONILNE sending online board move: $move")
+        if (move.contains("to")){
+            Log.i("cliffen", "move is $move")
+            val from = Square.fromValue(move.split(" to ")[0])
+            val to = Square.fromValue(move.split(" to ")[1])
+            val newMove = Move(from, to)
+            saveMoveIntoMoveList(board.clone(), newMove)
+        }
 
         roomRef.get()
                 .addOnSuccessListener { document ->
@@ -892,10 +919,9 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
 
-    private fun saveMoveIntoMoveList(newMove: Move) {
+    private fun saveMoveIntoMoveList(previousBoard:Board, newMove: Move) {
         val moveListLocal = MoveListLocal()
-        val tempBoard = board.clone()
-        val san = moveListLocal.encodeSan(tempBoard, newMove)
+        val san = moveListLocal.encodeSan(previousBoard, newMove)
 
         if (firstMove) {
             gameBinding.timer.base = SystemClock.elapsedRealtime()
