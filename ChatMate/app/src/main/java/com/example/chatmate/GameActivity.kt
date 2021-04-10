@@ -521,6 +521,8 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
         } catch (error: Error) {
             Toast.makeText(this, "Invalid Command. Please Try Again", Toast.LENGTH_SHORT).show()
+            if (ttsToggle) tts!!.speak("Invalid Command", TextToSpeech.QUEUE_FLUSH, null,"")
+
         } catch (error: Exception) {
             // Toast.makeText(this, "Invalid Command. Please Try Again", Toast.LENGTH_SHORT).show()
         }
@@ -669,11 +671,13 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                                     outputWriter.close()
 
                                 } else {
+                                    if (ttsToggle) tts!!.speak("Failed to add match to history", TextToSpeech.QUEUE_FLUSH, null,"")
                                     Toast.makeText(this, "Failed to add match to history!", LENGTH_SHORT).show()
                                     Log.d(TAG, "No such document")
                                 }
                             }
                             .addOnFailureListener { exception ->
+                                if (ttsToggle) tts!!.speak("Failed to add match to history", TextToSpeech.QUEUE_FLUSH, null,"")
                                 Toast.makeText(this, "Failed to add match to history!", LENGTH_SHORT).show()
                                 Log.d(TAG, "get failed with ", exception)
                             }
@@ -686,6 +690,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
 
         catch (e: Exception) {
+            if (ttsToggle) tts!!.speak("Failed to add match to history", TextToSpeech.QUEUE_FLUSH, null,"")
             Toast.makeText(this, "Failed to add match to history!", LENGTH_SHORT).show()
             e.printStackTrace()
         }
