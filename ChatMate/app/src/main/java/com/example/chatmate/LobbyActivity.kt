@@ -28,6 +28,7 @@ class LobbyActivity : AppCompatActivity() {
     private var playerName = ""
     private var uuid = ""
     private lateinit var snapshotListener: ListenerRegistration
+    private lateinit var mp: MediaPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -148,7 +149,7 @@ class LobbyActivity : AppCompatActivity() {
             .addOnSuccessListener { Log.i("cliffen", "DocumentSnapshot successfully written!") }
             .addOnFailureListener { e -> Log.i("cliffen", "Error writing document", e) }
 
-        MediaPlayer.create(this, com.example.chatmate.R.raw.ui_click).start()
+        mp.start()
         val it = Intent(this, RoomActivity::class.java)
         it.putExtra("roomId", uuid)
         it.putExtra("identity", "owner")
@@ -253,11 +254,7 @@ class LobbyActivity : AppCompatActivity() {
 
     override fun onResume() {
         Log.i("cliffen", "lobby activity resumed")
+        mp = MediaPlayer.create(this, com.example.chatmate.R.raw.ui_click)
         super.onResume()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        snapshotListener.remove()
     }
 }

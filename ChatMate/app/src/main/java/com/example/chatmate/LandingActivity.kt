@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.content.Intent
 import android.util.Log
 import android.media.MediaPlayer
+import android.provider.MediaStore
 import android.view.View
 import com.example.chatmate.databinding.ActivityLandingBinding
 import java.lang.Exception
@@ -19,6 +20,7 @@ class LandingActivity : AppCompatActivity() {
 
     // declaring binding for data binding
     private lateinit var binding:ActivityLandingBinding
+    private lateinit var mp:MediaPlayer
     var name = ""
     var uuid = ""
 
@@ -60,8 +62,6 @@ class LandingActivity : AppCompatActivity() {
 
                 // calculate the win rate of player
                 if (title != "Local game") {
-                    Log.i("cliffen", "first item: $title")
-                    Log.i("cliffen", "im in local game")
                     val winnerColour = historyArray.get(historyArray.size -2)
                     var winner = ""
 
@@ -83,7 +83,6 @@ class LandingActivity : AppCompatActivity() {
             if (gamesTotal !== 0f && gamesWon !== 0f) {
                 winRate = round(gamesWon/gamesTotal*100)
             }
-            Log.i("cliffen", "winrate: $winRate number of matches: $gamesPastWeek")
             binding.winRate.text = "$winRate%"
             binding.numberOfMatches.text = "$gamesPastWeek"
 
@@ -93,7 +92,7 @@ class LandingActivity : AppCompatActivity() {
     }
 
     fun NavigateToGame(view: View) {
-        MediaPlayer.create(this, R.raw.ui_click).start()
+        mp.start()
         val it = Intent(this, GameActivity::class.java)
         it.putExtra("name", name)
         it.putExtra("uuid", uuid)
@@ -101,7 +100,7 @@ class LandingActivity : AppCompatActivity() {
     }
 
     fun NavigateToLobby(view: View) {
-        MediaPlayer.create(this, R.raw.ui_click).start()
+        mp.start()
         val it = Intent(this, LobbyActivity::class.java)
         it.putExtra("name", name)
         it.putExtra("uuid", uuid)
@@ -109,12 +108,12 @@ class LandingActivity : AppCompatActivity() {
     }
 
     fun NavigateToHome(view: View) {
-        MediaPlayer.create(this, R.raw.ui_click).start()
+        mp.start()
         finish()
     }
 
     fun NavigateToHistory(view: View) {
-        MediaPlayer.create(this, R.raw.ui_click).start()
+        mp.start()
         val it = Intent(this, HistoryActivity::class.java)
         it.putExtra("name", name)
         startActivity(it)
@@ -122,10 +121,12 @@ class LandingActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        mp = MediaPlayer.create(this, R.raw.ui_click)
         loadPreviousMatches()
     }
 
     fun goToHelp(view: View) {
+        mp.start()
         val it = Intent(this, helpActivity::class.java)
         startActivity(it)
     }

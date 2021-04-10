@@ -32,6 +32,7 @@ class RoomActivity : AppCompatActivity() {
     private var uuid = ""
     private val REQ_CODE = 1111
     private lateinit var snapshotListener: ListenerRegistration
+    private lateinit var mp: MediaPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -186,6 +187,7 @@ class RoomActivity : AppCompatActivity() {
                 if (ownerStatus == "READY" && playerStatus == "READY" && matchStarted) {
                     Log.i("cliffen", "i started one time")
                     snapshotListener.remove()
+                    mp.start()
                     val it = Intent(this, GameActivity::class.java)
                     it.putExtra("roomId", roomId)
                     it.putExtra("name", name)
@@ -241,7 +243,7 @@ class RoomActivity : AppCompatActivity() {
             val updates = hashMapOf<String, Any>(
                 "player" to FieldValue.delete()
             )
-            MediaPlayer.create(this, R.raw.ui_click).start()
+            mp.start()
             docRef.update(updates).addOnCompleteListener { }
             snapshotListener.remove()
             finish()
@@ -268,7 +270,7 @@ class RoomActivity : AppCompatActivity() {
             val updates = hashMapOf<String, Any>(
                 "player" to FieldValue.delete()
             )
-            MediaPlayer.create(this, R.raw.ui_click).start()
+            mp.start()
             docRef.update(updates).addOnCompleteListener { }
             snapshotListener.remove()
             finish()
@@ -295,7 +297,6 @@ class RoomActivity : AppCompatActivity() {
             leaveRoom()
         }
         Log.i("cliffen", "onstop ended for room activity")
-
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -304,5 +305,10 @@ class RoomActivity : AppCompatActivity() {
         if(requestCode == REQ_CODE) {
             finish()
         }
+    }
+
+    override fun onResume() {
+        mp = MediaPlayer.create(this, R.raw.ui_click)
+        super.onResume()
     }
 }

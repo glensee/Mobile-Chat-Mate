@@ -24,6 +24,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var db: FirebaseFirestore
     private var currentUUID = ""
     private var currentUser = ""
+    private lateinit var mp: MediaPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // set data binding
@@ -37,7 +38,6 @@ class MainActivity : AppCompatActivity() {
         binding.name.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
                 //Perform Code
-                Log.i("glen", "here")
                 NavigateToHome(v)
                 return@OnKeyListener true
             }
@@ -94,12 +94,17 @@ class MainActivity : AppCompatActivity() {
                         Log.d("cliffen", "Error adding document", e)
                     }
 
-                MediaPlayer.create(this, R.raw.ui_click).start()
+                mp.start()
                 val it = Intent(this, LandingActivity::class.java)
                 it.putExtra("name", currentUser)
                 it.putExtra("uuid", currentUUID)
                 startActivity(it)
             }
         }
+    }
+
+    override fun onResume() {
+        mp = MediaPlayer.create(this, R.raw.ui_click)
+        super.onResume()
     }
 }
