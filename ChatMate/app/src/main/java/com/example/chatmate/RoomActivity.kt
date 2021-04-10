@@ -290,11 +290,11 @@ class RoomActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        Log.i("cliffen", "starting onStop...")
+        Log.i("cliffen", "starting onStop for room activity")
         if (!matchStarted) {
             leaveRoom()
         }
-        Log.i("cliffen", "onstop ended")
+        Log.i("cliffen", "onstop ended for room activity")
 
     }
 

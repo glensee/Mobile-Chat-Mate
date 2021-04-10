@@ -726,6 +726,9 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     }
 
                     if (snapshot != null && snapshot.exists()) {
+                        Log.i("cliffen", "debug snapshot: ${snapshot.data}")
+                        val boardMoves = snapshot.data?.get("boardMoves") as ArrayList<String>
+                        Log.i("cliffen", "board moves: $boardMoves")
 
                         // Disconnect players from game when someone disconnects
                         if (snapshot.get("roomClosed") !== null && !board.isMated) {
@@ -747,27 +750,28 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                             myDialog.findViewById<TextView>(R.id.resultText).text = ("Game disconnected")
                             myDialog.show()
                         }
+
                         // On Board State Change
                         val onlineBoardState = snapshot.data!!["boardState"].toString()
 
-                        if (onlineBoardState !== "null" && board.fen !== onlineBoardState) {
-                            Log.i("cliffen", "online board state: $onlineBoardState")
-                            if ( snapshot.get("boardMoves") !== null) {
-                                if (document.data!!["boardMoves"] !== null) {
-                                    val onlineMoves = document.data!!.getValue("boardMoves") as ArrayList<String>
-                                    Log.i("cliffen", "MOVES LIST: ${onlineMoves}")
-                                    Log.i("cliffen", "board history: ${document["boardHistory"]}")
-                                    val onlineMove = onlineMoves.get(onlineMoves.size -1)
-                                    Log.i("cliffen", "ONILNE DEBUG MOVE: $onlineMove")
-                                    if (onlineMove.contains("to")){
-                                        Log.i("cliffen", "move is $onlineMove")
-                                        val from = Square.fromValue(onlineMove.split(" to ")[0])
-                                        val to = Square.fromValue(onlineMove.split(" to ")[1])
-                                        val newMove = Move(from, to)
-                                        saveMoveIntoMoveList(board.clone(), newMove)
-                                    }
+                        if (onlineBoardState != "null" && board.fen != onlineBoardState) {
+                            if ( snapshot.get("boardMoves") !== null && document.data!!["boardMoves"] !== null) {
+                                val testBoard = Board()
+                                testBoard.loadFromFen(onlineBoardState)
+                                Log.i("cliffen", "current board fen: ${board.fen}")
+                                Log.i("cliffen", "online board fen: ${testBoard.fen}")
+                                val onlineMove = boardMoves.get(boardMoves.size -1)
+                                Log.i("cliffen", "ONILNE DEBUG MOVE: $onlineMove")
+                                if (onlineMove.contains("to")) {
+                                    Log.i("cliffen", "move is $onlineMove")
+                                    val from = Square.fromValue(onlineMove.split(" to ")[0])
+                                    val to = Square.fromValue(onlineMove.split(" to ")[1])
+                                    val newMove = Move(from, to)
+                                    Log.i("cliffen", "newMove: $newMove")
+                                    saveMoveIntoMoveList(board.clone(), newMove)
                                 }
                             }
+
                             board.loadFromFen(onlineBoardState)
                             renderBoardState()
                             afterMoveHandler()
@@ -800,8 +804,6 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                         }
                     }
                 }
-
-
 
 
                 val owner = document.data?.getValue("owner").toString()
@@ -920,6 +922,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun saveMoveIntoMoveList(previousBoard:Board, newMove: Move) {
+        Log.i("cliffen", "move into move list called on: $previousBoard")
         val moveListLocal = MoveListLocal()
         val san = moveListLocal.encodeSan(previousBoard, newMove)
 
