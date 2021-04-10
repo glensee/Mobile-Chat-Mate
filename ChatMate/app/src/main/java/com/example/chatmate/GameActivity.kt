@@ -83,6 +83,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var boardMovesLocal = ArrayList<String>()
     private var movedToAR = false
     private var dialogShown = false
+
     // Text to speech
     private var tts: TextToSpeech? = null
     private var ttsToggle = true
@@ -379,7 +380,6 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
             // Check if New Move is Legal
             if(newMove in currentLegalMoves) {
-                // TODO: save move to a array before making the move (ARIX DO TMR)
                 if (ttsToggle) tts!!.speak("$squareSelectedIdx to $squareIdx", TextToSpeech.QUEUE_FLUSH, null,"")
                 tileSelectedIndex = -1
                 if (isOnlineGame){
@@ -649,6 +649,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun saveBoardHistory(winner: String) {
+        Log.i("cliffen", "saving board history from game activity")
 
         val TAG = "cliffen"
         val roomRef = db.collection("rooms").document(roomId)
@@ -657,7 +658,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 val fileOutputStream: FileOutputStream = openFileOutput("${localPlayerName}.txt", Context.MODE_APPEND)
                 val outputWriter = OutputStreamWriter(fileOutputStream)
 
-                if (isOnlineGame) {
+                if (isOnlineGame && !boardSaved) {
                     roomRef.get()
                             .addOnSuccessListener { document ->
                                 if (document != null && document.exists()) {
@@ -727,7 +728,11 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
                     if (snapshot != null && snapshot.exists()) {
                         Log.i("cliffen", "debug snapshot: ${snapshot.data}")
-                        val boardMoves = snapshot.data?.get("boardMoves") as ArrayList<String>
+                        var boardMoves = ArrayList<String>()
+                        if (snapshot.data!!.get("boardMoves") != null) {
+                            boardMoves = snapshot.data?.get("boardMoves") as ArrayList<String>
+                        }
+
                         Log.i("cliffen", "board moves: $boardMoves")
 
                         // Disconnect players from game when someone disconnects
@@ -808,7 +813,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
                 val owner = document.data?.getValue("owner").toString()
                 val player = document.data?.getValue("player").toString()
-                if (owner == localPlayerName) {
+                if (identity == "owner") {
                     opponent = player
                     localPlayerColor  = Side.WHITE
                     onlinePlayerName = player
@@ -869,9 +874,9 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     override fun onStop() {
         super.onStop()
+        snapshotListener.remove()
         Log.i("cliffen", "game on stop launched")
         if (isOnlineGame && !roomLeft && !movedToAR) {
-            snapshotListener.remove()
             deleteRoomDocument()
         }
     }
@@ -1012,15 +1017,17 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        movedToAR = false
         if (requestCode == 1001) {
             if (resultCode == 1500) {
+                movedToAR = false
                 Log.i("cliffen", "returned from AR")
                 val boardFen = data!!.getStringExtra("board")
                 Log.i("cliffen", "fen data: $boardFen")
                 board.loadFromFen(data!!.getStringExtra("board"))
                 renderBoardState()
             } else {
+                movedToAR = true
+                boardSaved = data!!.getBooleanExtra("arSavedAlready", false)
                 val it = Intent()
                 setResult(RESULT_OK, it)
                 finish()

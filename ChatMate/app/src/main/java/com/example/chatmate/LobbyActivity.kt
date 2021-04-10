@@ -60,6 +60,16 @@ class LobbyActivity : AppCompatActivity() {
                     for (documentSnapshot in snapshotDocuments) {
                         val docSnap = documentSnapshot.data
                         if (docSnap != null) {
+
+                            // delete room if invalid
+                            if (docSnap.get("owner") == null) {
+                                // delete room from firestore
+                                db.collection("rooms").document(documentSnapshot.id)
+                                    .delete()
+                                    .addOnSuccessListener { Log.d("cliffen", "Invalid documentSnapshot successfully deleted!") }
+                                    .addOnFailureListener { e -> Log.w("cliffen", "Error deleting invalid document", e) }
+                            }
+
                             val owner = docSnap["owner"].toString()
                             val player =  docSnap["player"].toString()
                             val roomId = docSnap["roomId"].toString()
@@ -167,6 +177,16 @@ class LobbyActivity : AppCompatActivity() {
                         for (documentSnapshot in snapshotDocuments) {
                             val docSnap = documentSnapshot.data
                             if (docSnap != null) {
+
+                                // delete room if invalid
+                                if (docSnap.get("owner") == null) {
+                                    // delete room from firestore
+                                    db.collection("rooms").document(documentSnapshot.id)
+                                        .delete()
+                                        .addOnSuccessListener { Log.d("cliffen", "Invalid documentSnapshot successfully deleted!") }
+                                        .addOnFailureListener { e -> Log.w("cliffen", "Error deleting invalid document", e) }
+                                }
+
                                 val owner = docSnap["owner"].toString()
                                 val player =  docSnap["player"].toString()
                                 val roomId = docSnap["roomId"].toString()

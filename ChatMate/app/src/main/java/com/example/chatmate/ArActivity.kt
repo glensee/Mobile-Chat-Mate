@@ -52,6 +52,7 @@ import java.io.FileOutputStream
 import java.io.OutputStreamWriter
 import java.lang.Exception
 import java.lang.Math.round
+import java.time.LocalDate
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.ceil
@@ -123,6 +124,8 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
     private lateinit var localPlayerName: String
     private lateinit var opponent: String
     private var dialogShown = false
+    private var boardMoves = ArrayList<String>()
+    private var boardMovesLocal = ArrayList<String>()
 
     // boolean to disable plane tap listener
     private var boardRendered = false
@@ -181,7 +184,9 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
         virtualBoard.loadFromFen(intent.getStringExtra("board").toString())
 
         // add local board history
+        // Initialize local boardHistoryArray for local multiplayer
         boardHistoryLocal.add(virtualBoard.fen)
+        boardMovesLocal.add("Start")
 
         //Check for Online Game
         roomId = intent.getStringExtra("roomId").toString()
@@ -510,7 +515,10 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
             // Check if New Move is Legal
             if(newMove in currentLegalMoves) {
                 if (isOnlineGame){
-                    sendvirtualBoardStateOnline()
+                    sendvirtualBoardStateOnline("$from to $to")
+                } else {
+                    boardHistoryLocal.add(virtualBoard.fen)
+                    boardMovesLocal.add("$from to $to")
                 }
                 virtualBoard.doMove(newMove)
 
@@ -593,10 +601,11 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                             if (document != null && document.exists()) {
                                 Log.d(TAG, "DocumentSnapshot data: ${document.data}")
                                 boardHistory = document.data!!["boardHistory"]!! as ArrayList<String>
+                                boardMoves = document.data!!["boardMoves"]!! as ArrayList<String>
                                 if (identity == "owner") {
-                                    outputWriter.write("$localPlayerName vs $opponent  $boardHistory  $winner " + "\n")
+                                    outputWriter.write("$localPlayerName vs $opponent  $boardHistory  $boardMoves  $winner  ${LocalDate.now()}" + "\n")
                                 } else {
-                                    outputWriter.write("$opponent vs $localPlayerName  $boardHistory  $winner " + "\n")
+                                    outputWriter.write("$opponent vs $localPlayerName  $boardHistory  $boardMoves  $winner  ${LocalDate.now()}" + "\n")
                                 }
                                 boardSaved = true
                                 outputWriter.close()
@@ -611,7 +620,7 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                             Log.d(TAG, "get failed with ", exception)
                         }
             } else {
-                outputWriter.write("Local game  $boardHistoryLocal  $winner " + "\n")
+                outputWriter.write("Local game  $boardHistoryLocal  $boardMovesLocal  $winner  ${LocalDate.now()}" + "\n")
                 boardSaved = true
                 outputWriter.close()
             }
@@ -633,13 +642,13 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
         roomRef.set(turnData, SetOptions.merge())
 
         // set board history if owner
-        if (identity == "owner") {
-            val boardHistory = ArrayList<String>()
-            boardHistory.add(virtualBoard.fen)
-            var historyData = HashMap<String,ArrayList<String>>()
-            historyData["boardHistory"] = boardHistory
-            roomRef.set(historyData, SetOptions.merge())
-        }
+//        if (identity == "owner") {
+//            val boardHistory = ArrayList<String>()
+//            boardHistory.add(virtualBoard.fen)
+//            var historyData = HashMap<String,ArrayList<String>>()
+//            historyData["boardHistory"] = boardHistory
+//            roomRef.set(historyData, SetOptions.merge())
+//        }
 
 
 
@@ -717,7 +726,7 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
 
                 val owner = document.data?.getValue("owner").toString()
                 val player = document.data?.getValue("player").toString()
-                if (owner == localPlayerName) {
+                if (identity == "owner") {
                     opponent = player
                     localPlayerColor  = Side.WHITE
                     onlinePlayerName = player
@@ -1231,6 +1240,7 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 // Save virtualBoard state to virtualBoardHistoryLocal array if game is offline
                 if (!isOnlineGame) {
                     boardHistoryLocal.add(virtualBoard.fen)
+                    boardMovesLocal.add("$squareSelectedIdx to $squareIdx")
                     Log.i("cliffen", boardHistoryLocal.toString())
                 }
                 renderBoardState()
@@ -1239,13 +1249,13 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                 afterMoveHandler()
 
                 if (isOnlineGame){
-                    sendvirtualBoardStateOnline()
+                    sendvirtualBoardStateOnline("$squareSelectedIdx to $squareIdx")
                 }
             }
         }
     }
 
-    private fun sendvirtualBoardStateOnline() {
+    private fun sendvirtualBoardStateOnline(move: String) {
         val TAG = "cliffen"
         val roomRef = db.collection("rooms").document(roomId)
 
@@ -1257,9 +1267,14 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
                     Log.i("cliffen before", boardHistory.toString())
                     boardHistory.add(virtualBoard.fen)
                     Log.i("cliffen after", boardHistory.toString())
+
+                    // Get board moves
+                    boardMoves = document.data!!["boardMoves"] as ArrayList<String>
+                    boardMoves.add(move)
                     val boardData = hashMapOf(
                         "boardState" to virtualBoard.fen,
-                        "boardHistory" to boardHistory)
+                        "boardHistory" to boardHistory,
+                        "boardMoves" to boardMoves)
                     roomRef.set(boardData, SetOptions.merge())
                 } else {
                     Log.d(TAG, "No such document")
@@ -1322,17 +1337,19 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
             myDialog.dismiss()
         }
         myDialog.show()
-            dialogShown = true
     }
 
     private fun movePieceAndPromote(move: Move, piece: Piece){
         val newMove = Move(move.from, move.to, piece)
         if(newMove in currentLegalMoves) {
             virtualBoard.doMove(newMove)
+            val squareSelectedIdx = newMove.from
+            val squareIdx = newMove.to
 
             // Save board state to boardHistoryLocal array if game is offline
             if (!isOnlineGame) {
                 boardHistoryLocal.add(virtualBoard.fen)
+                boardMovesLocal.add("$squareSelectedIdx to $squareIdx")
                 Log.i("cliffen", boardHistoryLocal.toString())
             }
             renderBoardState()
@@ -1341,7 +1358,7 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
             afterMoveHandler()
 
             if (isOnlineGame){
-                sendvirtualBoardStateOnline()
+                sendvirtualBoardStateOnline("$squareSelectedIdx to $squareIdx")
             }
         }
     }
@@ -1354,6 +1371,7 @@ class ArActivity : AppCompatActivity(), TextToSpeech.OnInitListener  {
             super.onBackPressed()
         } else {
             val it = Intent()
+            it.putExtra("arSavedAlready", boardSaved)
             it.putExtra("board", virtualBoard.fen)
             setResult(1500, it)
             super.onBackPressed()
