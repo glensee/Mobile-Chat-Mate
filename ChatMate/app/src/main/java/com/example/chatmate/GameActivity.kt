@@ -875,7 +875,9 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     override fun onStop() {
         super.onStop()
-        snapshotListener.remove()
+        if (isOnlineGame) {
+            snapshotListener.remove()
+        }
         Log.i("cliffen", "game on stop launched")
         if (isOnlineGame && !roomLeft && !movedToAR) {
             deleteRoomDocument()
