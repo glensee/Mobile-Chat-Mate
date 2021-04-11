@@ -15,7 +15,8 @@
             android:layout_gravity="start"
             android:layout_marginLeft="50dp"
             android:layout_marginTop="50dp"
-            app:srcCompat="@drawable/chatmate_logo"/>
+            app:srcCompat="@drawable/chatmate_logo"
+            android:contentDescription="logo"/>
 
         <TextView
             android:id="@+id/greeting"

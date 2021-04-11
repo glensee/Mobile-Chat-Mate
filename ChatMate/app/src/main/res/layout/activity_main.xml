@@ -17,7 +17,8 @@
         app:layout_constraintHorizontal_bias="0.155"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/chatmate_logo" />
+        app:srcCompat="@drawable/chatmate_logo"
+        android:contentDescription="logo"/>
 
     <TextView
         android:id="@+id/greeting"

@@ -17,7 +17,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/chatmate_logo"
-        android:layout_marginTop="50dp"/>
+        android:layout_marginTop="50dp"
+        android:contentDescription="Logo"/>
 
     <TextView
         android:id="@+id/greeting"
@@ -62,7 +63,8 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@id/winRateBox"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            android:contentDescription="Number of games you played in the past week">
 
             <TextView
                 android:id="@+id/numberOfMatches"
@@ -106,7 +108,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintLeft_toRightOf="@id/matchesBox"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            android:contentDescription="percentage of games you either won or drew">
 
             <TextView
                 android:id="@+id/winRate"

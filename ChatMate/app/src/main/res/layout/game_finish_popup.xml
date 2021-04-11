@@ -42,7 +42,8 @@
                 android:layout_height="70dp"
                 android:src="@drawable/white_king"
                 android:background="@color/chess_dark"
-                android:scaleType="fitCenter">
+                android:scaleType="fitCenter"
+                android:contentDescription="white chess piece">
             </com.google.android.material.imageview.ShapeableImageView>
             <TextView
                 android:layout_width="wrap_content"
@@ -60,7 +61,8 @@
                 android:layout_height="70dp"
                 android:src="@drawable/black_king"
                 android:background="@color/chess_dark"
-                android:scaleType="fitCenter">
+                android:scaleType="fitCenter"
+                android:contentDescription="black chess piece">
             </com.google.android.material.imageview.ShapeableImageView>
         </LinearLayout>
     </LinearLayout>

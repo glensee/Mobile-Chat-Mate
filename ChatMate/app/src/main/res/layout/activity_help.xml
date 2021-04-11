@@ -29,7 +29,8 @@
                     android:id="@+id/chatMateLogo"
                     android:layout_width="90dp"
                     android:layout_height="90dp"
-                    app:srcCompat="@drawable/chatmate_logo" />
+                    app:srcCompat="@drawable/chatmate_logo"
+                    android:contentDescription="logo"/>
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/button"
@@ -40,7 +41,8 @@
                     android:background="@drawable/abc_vector_test"
                     android:backgroundTint="#FFFFFF"
                     android:onClick="flipView"
-                    android:rotation="180" />
+                    android:rotation="180"
+                    android:contentDescription="next page"/>
             </LinearLayout>
                 <LinearLayout
                     android:orientation="vertical"
@@ -152,7 +154,8 @@
                 android:layout_height="31dp"
                 android:background="@drawable/abc_vector_test"
                 android:backgroundTint="#FFFFFF"
-                android:onClick="goHome" />
+                android:onClick="goHome"
+                android:contentDescription="go to home page"/>
         </LinearLayout>
             <TextView
                 android:id="@+id/visualImpairmentTitle"

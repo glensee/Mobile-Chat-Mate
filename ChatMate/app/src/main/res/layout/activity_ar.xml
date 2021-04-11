@@ -21,7 +21,8 @@
             android:text="&lt;"
             android:textAllCaps="false"
             android:textColor="#CDC9D6"
-            android:textSize="18dp"/>
+            android:textSize="18dp"
+            android:contentDescription="go back"/>
         <TextView
             android:id="@+id/onlineGameTurnText"
             android:padding="20dp"

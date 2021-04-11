@@ -33,15 +33,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1">
-                <ImageButton android:id="@+id/queenBtn"  android:layout_height="match_parent" android:layout_width="match_parent" android:layout_weight="1" android:scaleType="fitXY" android:background="@color/chess_dark" android:padding="25dp"/>
-                <ImageButton android:id="@+id/knightBtn" android:layout_height="match_parent" android:layout_width="match_parent" android:layout_weight="1" android:scaleType="fitXY" android:background="@color/chess_light" android:padding="25dp"/>
+                <ImageButton android:id="@+id/queenBtn"  android:layout_height="match_parent" android:layout_width="match_parent" android:layout_weight="1" android:scaleType="fitXY" android:background="@color/chess_dark" android:padding="25dp" android:contentDescription="queen"/>
+                <ImageButton android:id="@+id/knightBtn" android:layout_height="match_parent" android:layout_width="match_parent" android:layout_weight="1" android:scaleType="fitXY" android:background="@color/chess_light" android:padding="25dp" android:contentDescription="knight"/>
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1">
-                <ImageButton android:id="@+id/bishopBtn" android:layout_height="match_parent" android:layout_width="match_parent" android:layout_weight="1" android:scaleType="fitXY" android:background="@color/chess_light" android:padding="25dp"/>
-                <ImageButton android:id="@+id/rookBtn" android:layout_height="match_parent" android:layout_width="match_parent" android:layout_weight="1" android:scaleType="fitXY" android:background="@color/chess_dark" android:padding="25dp"/>
+                <ImageButton android:id="@+id/bishopBtn" android:layout_height="match_parent" android:layout_width="match_parent" android:layout_weight="1" android:scaleType="fitXY" android:background="@color/chess_light" android:padding="25dp" android:contentDescription="bishop"/>
+                <ImageButton android:id="@+id/rookBtn" android:layout_height="match_parent" android:layout_width="match_parent" android:layout_weight="1" android:scaleType="fitXY" android:background="@color/chess_dark" android:padding="25dp" android:contentDescription="rook"/>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
