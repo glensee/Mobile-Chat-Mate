@@ -204,7 +204,7 @@ class RoomActivity : AppCompatActivity() {
     }
 
     fun startGame (view: View) {
-
+        mp.start()
         when (identity) {
 
             "player" -> {
@@ -236,6 +236,7 @@ class RoomActivity : AppCompatActivity() {
     }
 
     fun leaveRoom (view: View) {
+        mp.start()
         val docRef = db.collection("rooms").document(roomId)
         if (identity == "player") {
 
@@ -243,7 +244,6 @@ class RoomActivity : AppCompatActivity() {
             val updates = hashMapOf<String, Any>(
                 "player" to FieldValue.delete()
             )
-            mp.start()
             docRef.update(updates).addOnCompleteListener { }
             snapshotListener.remove()
             finish()
@@ -270,7 +270,6 @@ class RoomActivity : AppCompatActivity() {
             val updates = hashMapOf<String, Any>(
                 "player" to FieldValue.delete()
             )
-            mp.start()
             docRef.update(updates).addOnCompleteListener { }
             snapshotListener.remove()
             finish()
