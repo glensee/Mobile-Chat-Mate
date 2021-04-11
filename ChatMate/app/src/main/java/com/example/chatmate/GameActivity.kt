@@ -375,7 +375,10 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 }
             }
             // Check if New Move is Legal
+
             if(newMove in currentLegalMoves) {
+                saveMoveIntoMoveList(board.clone(), newMove)
+                board.doMove(newMove)
                 if (ttsToggle) tts!!.speak("$squareSelectedIdx to $squareIdx", TextToSpeech.QUEUE_FLUSH, null,"")
                 tileSelectedIndex = -1
                 if (isOnlineGame){
@@ -384,7 +387,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     boardHistoryLocal.add(board.fen)
                     boardMovesLocal.add("$squareSelectedIdx to $squareIdx")
                 }
-                board.doMove(newMove)
+
                 // Save board state to boardHistoryLocal array if game is offline
                 renderBoardState()
                 afterMoveHandler()
@@ -862,15 +865,6 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             .addOnFailureListener { exception ->
                 Log.d(TAG, "get failed with ", exception)
             }
-
-        Log.i("cliffen", "ONILNE sending online board move: $move")
-        if (move.contains("to")){
-            Log.i("cliffen", "move is $move")
-            val from = Square.fromValue(move.split(" to ")[0])
-            val to = Square.fromValue(move.split(" to ")[1])
-            val newMove = Move(from, to)
-            saveMoveIntoMoveList(board.clone(), newMove)
-        }
     }
 
     override fun onStop() {
