@@ -456,7 +456,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             board.doMove(newMove)
             val squareSelectedIdx = newMove.from
             val squareIdx = newMove.to
-            tts!!.speak("$squareSelectedIdx to $squareIdx", TextToSpeech.QUEUE_FLUSH, null,"")
+            if (ttsToggle) tts!!.speak("$squareSelectedIdx to $squareIdx", TextToSpeech.QUEUE_FLUSH, null,"")
             // Save board state to boardHistoryLocal array if game is offline
             renderBoardState()
             tileSelectedIndex = -1
@@ -602,12 +602,6 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 myDialog.findViewById<TextView>(R.id.resultText).setText("Stale Mate")
                 myDialog.show()
             }
-            var result = "Match Draw"
-
-            if (board.isStaleMate) {
-                result = "Stale Mate"
-            }
-            myDialog.findViewById<TextView>(R.id.resultText).text = result
             if (!isOnlineGame) {
                 saveBoardHistory("")
             }
@@ -768,9 +762,10 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                                 testBoard.loadFromFen(onlineBoardState)
                                 Log.i("cliffen", "current board fen: ${board.fen}")
                                 Log.i("cliffen", "online board fen: ${testBoard.fen}")
-                                val onlineMove = boardMoves.get(boardMoves.size -1)
+                                val onlineMove = boardMoves[boardMoves.size -1]
                                 Log.i("cliffen", "ONILNE DEBUG MOVE: $onlineMove")
                                 if (onlineMove.contains("to")) {
+                                    if (ttsToggle) tts!!.speak(onlineMove, TextToSpeech.QUEUE_FLUSH, null,"")
                                     Log.i("cliffen", "move is $onlineMove")
                                     val from = Square.fromValue(onlineMove.split(" to ")[0])
                                     val to = Square.fromValue(onlineMove.split(" to ")[1])
