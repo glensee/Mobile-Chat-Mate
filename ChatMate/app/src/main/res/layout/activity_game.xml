@@ -256,17 +256,56 @@
         android:padding="10sp"
         android:background="@color/bg_main"
         >
-        <LinearLayout
-            android:background="@color/chess_border"
-            android:padding="5sp"
-            android:id="@+id/chessBoardLinearLayout"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:layout_gravity="center_horizontal"
-            android:contentDescription="chess board"
-        >
-        </LinearLayout>
+            android:layout_height="match_parent">
+            <LinearLayout
+                android:background="@color/chess_border"
+                android:padding="5sp"
+                android:id="@+id/chessBoardLinearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_gravity="center_horizontal"
+                android:contentDescription="chess board"
+                >
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/disabledViewText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true">
+                <TextView
+                    android:id="@+id/disabledViewBlack"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Chess board viewing is disabled"
+                    android:fontFamily="@font/ibm_plex_sans_medium"
+                    android:textColor="#FFFFFF"
+                    android:gravity="center"
+                    android:rotation="180"
+                    android:visibility="gone"/>
+                <View
+                    android:id="@+id/disabledViewSeparator"
+                    android:layout_width="match_parent"
+                    android:layout_margin="10dp"
+                    android:layout_height="1dp"
+                    android:background="#FFFFFF"
+                    android:visibility="gone"/>
+                <TextView
+                    android:id="@+id/disabledView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Chess board viewing is disabled"
+                    android:fontFamily="@font/ibm_plex_sans_medium"
+                    android:textColor="#FFFFFF"
+                    android:gravity="center"/>
+            </LinearLayout>
+
+        </RelativeLayout>
+
     </com.example.chatmate.SquareLayout>
 
     <!-- Black Player View-->

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.opengl.Visibility
 import android.os.Bundle
 import android.os.Handler
 import android.os.SystemClock
@@ -288,7 +289,10 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             // Image Button to be Rendered on
             val chessTile = chessTiles[i]
 
+            // Remove disabled view text
             if (!isBoardHidden) {
+                gameBinding.disabledViewText.visibility = View.GONE
+
                 // Render Image Base on Piece Value
                 when (currentBoardStateArray[i].value()) {
                     "WHITE_ROOK" -> chessTile.setImageResource(R.drawable.w_rook_2x_ns)
@@ -313,6 +317,11 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     chessTile.setBackgroundColor(ContextCompat.getColor(this, R.color.chess_dark))
                 }
             } else {
+                gameBinding.disabledViewText.visibility = View.VISIBLE
+                if (!isOnlineGame) {
+                    gameBinding.disabledViewSeparator.visibility = View.VISIBLE
+                    gameBinding.disabledViewBlack.visibility = View.VISIBLE
+                }
                 chessTile.setImageResource(0)
                 chessTile.setBackgroundColor(ContextCompat.getColor(this, R.color.chess_border))
             }
