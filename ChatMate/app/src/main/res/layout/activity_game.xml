@@ -8,327 +8,220 @@
     android:gravity="center"
     android:background="@color/bg_main"
     android:orientation="vertical">
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/wholething"
-        android:layout_width="match_parent"
+    <!-- Black Player View-->
+    <LinearLayout
+        android:id="@+id/voiceCommandBtnBlack"
         android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:layout_weight="1"
         android:background="@color/bg_main"
         android:orientation="vertical"
-        android:layout_weight="1"
-        android:layout_marginTop="20dp"
+        android:rotation="180"
         >
-
         <TextView
             android:id="@+id/voiceResultTextFieldBlack"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:fontFamily="@font/ibm_plex_sans_semibold"
             android:gravity="center"
+            android:fontFamily="@font/ibm_plex_sans_semibold"
+            android:layout_gravity="top"
             android:onClick="flipViewBlack"
             android:paddingHorizontal="20sp"
-            android:rotation="180"
             android:lines="1"
             android:ellipsize="end"
             android:text="Tap and hold on this side of the screen to speak"
             android:textColor="@color/text_color_gray_40"
-            android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/viewFlipperBlack"
-            app:layout_constraintVertical_bias="0.992" />
-
-        <ImageButton
-            android:id="@+id/settingsblack"
-            android:layout_height="40sp"
-            android:layout_width="40sp"
-            android:layout_weight="1"
-            android:onClick="flipViewBlack"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/viewFlipperBlack"
-            android:background="@drawable/settings"
-            android:rotation="180"
-            android:contentDescription="settings button"/>
-
+            android:textSize="14sp" />
         <ViewFlipper
             android:id="@+id/viewFlipperBlack"
-            android:layout_width="412sp"
-            android:layout_height="140sp"
-            app:layout_constraintBottom_toTopOf="@id/voiceResultTextFieldBlack"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0">
-
-            <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <!--View Flipper Main-->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@color/bg_main"
-                android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:visibility="visible">
+                android:layout_height="match_parent">
 
-                <TextView
-                    android:id="@+id/timeLeftBlack"
-                    android:layout_width="50sp"
-                    android:layout_height="50sp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="40sp"
-                    android:layout_marginTop="90sp"
-                    android:layout_marginEnd="260sp"
-                    android:layout_marginBottom="20sp"
-                    android:gravity="center"
-                    android:text="Time Elapsed:"
-                    android:fontFamily="@font/ibm_plex_sans_regular"
-                    android:rotation="180"
-                    android:textColor="#FFFFFF"
-                    app:layout_constraintVertical_bias="0.9"
-                    android:visibility="visible"/>
-
-                <Chronometer
-                    android:id="@+id/timerBlack"
-                    android:layout_width="50sp"
-                    android:layout_height="50sp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="40sp"
-                    android:layout_marginTop="60sp"
-                    android:layout_marginEnd="260sp"
-                    android:layout_marginBottom="50sp"
-                    android:gravity="center"
-                    android:fontFamily="@font/ibm_plex_sans_bold"
-                    android:textSize="25sp"
-                    android:rotation="180"
-                    android:textColor="#FFFFFF"
-                    app:layout_constraintVertical_bias="0.9"
-                    android:visibility="visible" />
-
-                <TextView
-                    android:layout_width="50sp"
-                    android:layout_height="50sp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="300sp"
-                    android:layout_marginTop="100sp"
-                    android:layout_marginEnd="40sp"
-                    android:layout_marginBottom="10sp"
-                    android:textSize="15sp"
-                    android:textColor="#FFFFFF"
-                    android:gravity="center"
-                    android:rotation="180"
-                    android:fontFamily="@font/ibm_plex_sans_bold"
-                    android:text="White"
-                    android:contentDescription="white's moves"/>
-
-                <TextView
-                    android:layout_width="50sp"
-                    android:layout_height="50sp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="200sp"
-                    android:layout_marginTop="100sp"
-                    android:layout_marginEnd="140sp"
-                    android:layout_marginBottom="10sp"
-                    android:textSize="15sp"
-                    android:textColor="#FFFFFF"
-                    android:gravity="center"
-                    android:rotation="180"
-                    android:fontFamily="@font/ibm_plex_sans_bold"
-                    android:text="Black"
-                    android:contentDescription="black's moves"/>
-
-                <TextView
-                    android:id="@+id/move1Black"
-                    android:layout_width="50sp"
-                    android:layout_height="50sp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="300sp"
-                    android:layout_marginTop="80sp"
-                    android:layout_marginEnd="40sp"
-                    android:layout_marginBottom="30sp"
-                    android:textSize="15sp"
-                    android:textColor="#FFFFFF"
-                    android:gravity="center"
-                    android:rotation="180"
-                    android:fontFamily="@font/ibm_plex_sans_bold"
-                    android:contentDescription="white's latest move"/>
-
-                <TextView
-                    android:id="@+id/move2Black"
-                    android:layout_width="50sp"
-                    android:layout_height="50sp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="200sp"
-                    android:layout_marginTop="80sp"
-                    android:layout_marginEnd="140sp"
-                    android:layout_marginBottom="30sp"
-                    android:textSize="15sp"
-                    android:textColor="#FFFFFF"
-                    android:gravity="center"
-                    android:rotation="180"
-                    android:fontFamily="@font/ibm_plex_sans_bold"
-                    android:contentDescription="black's latest move"/>
-
-                <TextView
-                    android:id="@+id/move3Black"
-                    android:layout_width="50sp"
-                    android:layout_height="50sp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="300sp"
-                    android:layout_marginTop="50sp"
-                    android:layout_marginEnd="40sp"
-                    android:layout_marginBottom="60sp"
-                    android:textSize="15sp"
-                    android:textColor="#FFFFFF"
-                    android:gravity="center"
-                    android:rotation="180"
-                    android:fontFamily="@font/ibm_plex_sans_regular"
-                    android:contentDescription="white's second latest move"/>
-
-                <TextView
-                    android:id="@+id/move4Black"
-                    android:layout_width="50sp"
-                    android:layout_height="50sp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="200sp"
-                    android:layout_marginTop="50sp"
-                    android:layout_marginEnd="140sp"
-                    android:layout_marginBottom="60sp"
-                    android:textSize="15sp"
-                    android:textColor="#FFFFFF"
-                    android:gravity="center"
-                    android:rotation="180"
-                    android:fontFamily="@font/ibm_plex_sans_regular"
-                    android:contentDescription="white's third latest move"/>
-
-                <TextView
-                    android:id="@+id/move5Black"
-                    android:layout_width="50sp"
-                    android:layout_height="50sp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="300sp"
-                    android:layout_marginTop="20sp"
-                    android:layout_marginEnd="40sp"
-                    android:layout_marginBottom="90sp"
-                    android:textSize="15sp"
-                    android:textColor="#FFFFFF"
-                    android:gravity="center"
-                    android:rotation="180"
-                    android:fontFamily="@font/ibm_plex_sans_regular"
-                    android:contentDescription="black's second latest move"/>
-
-                <TextView
-                    android:id="@+id/move6Black"
-                    android:layout_width="50sp"
-                    android:layout_height="50sp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="200sp"
-                    android:layout_marginTop="20sp"
-                    android:layout_marginEnd="140sp"
-                    android:layout_marginBottom="90sp"
-                    android:textSize="15sp"
-                    android:textColor="#FFFFFF"
-                    android:gravity="center"
-                    android:rotation="180"
-                    android:fontFamily="@font/ibm_plex_sans_regular"
-                    android:contentDescription="black's third latest move"/>
-
+                <!-- Previous Move Side -->
                 <LinearLayout
-                    android:id="@+id/voiceCommandBtnBlack"
                     android:layout_width="match_parent"
-                    android:layout_height="293dp"
-                    android:orientation="horizontal" />
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center">
+                    <GridLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:columnCount="2"
+                        android:rowCount="4"
+                        android:useDefaultMargins="true">
+                        <TextView
+                            android:layout_width="50dp"
+                            android:layout_height="wrap_content"
+                            android:textSize="15sp"
+                            android:textColor="#FFFFFF"
+                            android:gravity="center"
+                            android:fontFamily="@font/ibm_plex_sans_bold"
+                            android:text="White"
+                            android:contentDescription="white's moves" />
 
+                        <TextView
+                            android:layout_width="50dp"
+                            android:layout_height="wrap_content"
+                            android:textSize="15sp"
+                            android:textColor="#FFFFFF"
+                            android:gravity="center"
+                            android:fontFamily="@font/ibm_plex_sans_bold"
+                            android:text="Black"
+                            android:contentDescription="black's moves"/>
 
-            </RelativeLayout>
+                        <TextView
+                            android:id="@+id/move1Black"
+                            android:layout_width="50sp"
+                            android:layout_height="wrap_content"
+                            android:textSize="15sp"
+                            android:textColor="#FFFFFF"
+                            android:gravity="center"
+                            android:fontFamily="@font/ibm_plex_sans_regular"
+                            android:contentDescription="white's latest move"/>
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+                        <TextView
+                            android:id="@+id/move2Black"
+                            android:layout_width="50sp"
+                            android:layout_height="wrap_content"
+                            android:textSize="15sp"
+                            android:textColor="#FFFFFF"
+                            android:gravity="center"
+                            android:fontFamily="@font/ibm_plex_sans_regular"
+                            android:contentDescription="black's latest move"/>
+
+                        <TextView
+                            android:id="@+id/move3Black"
+                            android:layout_width="50sp"
+                            android:layout_height="wrap_content"
+                            android:textSize="15sp"
+                            android:textColor="#FFFFFF"
+                            android:gravity="center"
+                            android:fontFamily="@font/ibm_plex_sans_regular"
+                            android:contentDescription="white's second latest move"/>
+
+                        <TextView
+                            android:id="@+id/move4Black"
+                            android:layout_width="50sp"
+                            android:layout_height="wrap_content"
+                            android:textSize="15sp"
+                            android:textColor="#FFFFFF"
+                            android:gravity="center"
+                            android:fontFamily="@font/ibm_plex_sans_regular"
+                            android:contentDescription="white's third latest move"/>
+
+                        <TextView
+                            android:id="@+id/move5Black"
+                            android:layout_width="50sp"
+                            android:layout_height="wrap_content"
+                            android:textSize="15sp"
+                            android:textColor="#FFFFFF"
+                            android:gravity="center"
+                            android:fontFamily="@font/ibm_plex_sans_regular"
+                            android:contentDescription="black's second latest move"/>
+
+                        <TextView
+                            android:id="@+id/move6Black"
+                            android:layout_width="50sp"
+                            android:layout_height="wrap_content"
+                            android:textSize="15sp"
+                            android:textColor="#FFFFFF"
+                            android:gravity="center"
+                            android:fontFamily="@font/ibm_plex_sans_regular"
+                            android:contentDescription="black's third latest move"/>
+                    </GridLayout>
+                </LinearLayout>
+
+                <!-- Timer Side -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+                    <TextView
+                        android:id="@+id/timeLeftBlack"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="Time Elapsed:"
+                        android:fontFamily="@font/ibm_plex_sans_regular"
+                        android:textColor="#FFFFFF" />
+
+                    <Chronometer
+                        android:id="@+id/timerBlack"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:fontFamily="@font/ibm_plex_sans_bold"
+                        android:textSize="25sp"
+                        android:textColor="#FFFFFF"/>
+
+                    <ImageButton
+                        android:id="@+id/settingsblack"
+                        android:layout_height="35dp"
+                        android:layout_width="35dp"
+                        android:layout_marginTop="10dp"
+                        android:onClick="flipViewBlack"
+                        android:background="@drawable/settings"
+                        android:contentDescription="settings button"/>
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <!--View Flipper Options-->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@color/bg_main"
+                android:gravity="center"
                 android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center">
+                    <ImageButton
+                        android:id="@+id/ar2"
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:onClick="NavigateToAR"
+                        android:background="@drawable/ar"
+                        android:contentDescription="go to AR mode"
+                        android:layout_margin="10dp"/>
 
+                    <ImageButton
+                        android:id="@+id/sound2"
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:onClick="toggleTTS"
+                        android:background="@drawable/sound_off"
+                        android:contentDescription="mute or unmute"
+                        android:layout_margin="10dp"/>
+
+                    <ImageButton
+                        android:id="@+id/hideShowBoardBlack"
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:background="@drawable/hidden"
+                        android:contentDescription="show or hide board"
+                        android:layout_margin="10dp"/>
+                </LinearLayout>
                 <ImageButton
-                    android:id="@+id/ar2"
-                    android:layout_width="70dp"
-                    android:layout_height="70dp"
-                    android:layout_weight="1"
-                    android:onClick="NavigateToAR"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toLeftOf="@id/sound2"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:background="@drawable/ar"
-                    android:rotation="180"
-                    android:contentDescription="go to AR mode"/>
-
-                <ImageButton
-                    android:id="@+id/sound2"
-                    android:layout_width="70dp"
-                    android:layout_height="70dp"
-                    android:layout_weight="1"
-                    android:onClick="toggleTTS"
-                    app:layout_constraintLeft_toRightOf="@id/ar2"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintRight_toLeftOf="@id/hideShowBoardBlack"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:background="@drawable/sound_off"
-                    android:rotation="180"
-                    android:contentDescription="mute or unmute"/>
-
-                <ImageButton
-                    android:id="@+id/hideShowBoardBlack"
-                    android:layout_width="70dp"
-                    android:layout_height="70dp"
-                    android:layout_weight="1"
-                    app:layout_constraintLeft_toRightOf="@id/sound2"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:background="@drawable/hidden"
-                    android:rotation="180"
-                    android:contentDescription="show or hide board"/>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
+                    android:id="@+id/settingsblackclose"
+                    android:layout_height="30dp"
+                    android:layout_width="30dp"
+                    android:onClick="flipViewBlack"
+                    android:background="@drawable/settings"
+                    android:contentDescription="settings button"
+                    android:layout_margin="10dp"/>
+            </LinearLayout>
         </ViewFlipper>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
+    <!-- Header for Online Game -->
     <LinearLayout
         android:id="@+id/onlineGameHeader"
         android:layout_width="match_parent"
@@ -376,302 +269,215 @@
         </LinearLayout>
     </com.example.chatmate.SquareLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
+    <!-- Black Player View-->
+    <LinearLayout
+        android:id="@+id/voiceCommandBtn"
         android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:layout_weight="1"
         android:background="@color/bg_main"
         android:orientation="vertical"
-        android:layout_weight="1"
-        android:layout_marginBottom="20dp"
         >
-
         <TextView
             android:id="@+id/voiceResultTextField"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:fontFamily="@font/ibm_plex_sans_semibold"
             android:gravity="center"
+            android:fontFamily="@font/ibm_plex_sans_semibold"
+            android:layout_gravity="top"
+            android:onClick="flipViewBlack"
             android:paddingHorizontal="20sp"
-            android:text="Tap and hold on this side of the screen to speak"
-            android:textColor="@color/text_color_gray_40"
-            android:textSize="14sp"
             android:lines="1"
             android:ellipsize="end"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0" />
-
+            android:text="Tap and hold on this side of the screen to speak"
+            android:textColor="@color/text_color_gray_40"
+            android:textSize="14sp" />
         <ViewFlipper
             android:id="@+id/viewFlipper"
-            android:layout_width="412sp"
-            android:layout_height="140sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/voiceResultTextField">
-
-            <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <!--View Flipper Main-->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@color/bg_main"
-                android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" >
+                android:layout_height="match_parent">
 
-                <TextView
-                    android:id="@+id/timeLeft"
-                    android:layout_width="50sp"
-                    android:layout_height="50sp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="260sp"
-                    android:layout_marginTop="20sp"
-                    android:layout_marginEnd="40sp"
-                    android:layout_marginBottom="90sp"
-                    android:gravity="center"
-                    android:text="Time Elapsed:"
-                    android:fontFamily="@font/ibm_plex_sans_regular"
-                    android:textColor="#FFFFFF"
-                    app:layout_constraintVertical_bias="0.9"
-                    tools:layout_editor_absoluteX="296dp"
-                    tools:layout_editor_absoluteY="90dp" />
-
-                <Chronometer
-                    android:id="@+id/timer"
-                    android:layout_width="50sp"
-                    android:layout_height="50sp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="260sp"
-                    android:layout_marginTop="50sp"
-                    android:layout_marginEnd="40sp"
-                    android:layout_marginBottom="60sp"
-                    android:gravity="center"
-                    android:text="Timer"
-                    android:fontFamily="@font/ibm_plex_sans_bold"
-                    android:textSize="25sp"
-                    android:textColor="#FFFFFF"
-                    app:layout_constraintVertical_bias="0.9"
-                    tools:layout_editor_absoluteX="296dp"
-                    tools:layout_editor_absoluteY="90dp" />
-
-                <TextView
-                    android:id="@+id/move5"
-                    android:layout_width="50sp"
-                    android:layout_height="50sp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="40sp"
-                    android:layout_marginTop="90sp"
-                    android:layout_marginEnd="300sp"
-                    android:layout_marginBottom="20sp"
-                    android:textSize="15sp"
-                    android:textColor="#FFFFFF"
-                    android:gravity="center"
-                    android:fontFamily="@font/ibm_plex_sans_bold"
-                    android:contentDescription="white's third latest move"/>
-
-                <TextView
-                    android:id="@+id/move6"
-                    android:layout_width="50sp"
-                    android:layout_height="50sp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="140sp"
-                    android:layout_marginTop="90sp"
-                    android:layout_marginEnd="200sp"
-                    android:layout_marginBottom="20sp"
-                    android:textSize="15sp"
-                    android:textColor="#FFFFFF"
-                    android:gravity="center"
-                    android:fontFamily="@font/ibm_plex_sans_regular"
-                    android:contentDescription="black's third latest move"/>
-
-                <TextView
-                    android:id="@+id/move3"
-                    android:layout_width="50sp"
-                    android:layout_height="50sp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="40sp"
-                    android:layout_marginTop="60sp"
-                    android:layout_marginEnd="300sp"
-                    android:layout_marginBottom="50sp"
-                    android:textSize="15sp"
-                    android:textColor="#FFFFFF"
-                    android:gravity="center"
-                    android:fontFamily="@font/ibm_plex_sans_regular"
-                    android:contentDescription="white's second latest move"/>
-
-                <TextView
-                    android:id="@+id/move4"
-                    android:layout_width="50sp"
-                    android:layout_height="50sp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="140sp"
-                    android:layout_marginTop="60sp"
-                    android:layout_marginEnd="200sp"
-                    android:layout_marginBottom="50sp"
-                    android:textSize="15sp"
-                    android:textColor="#FFFFFF"
-                    android:gravity="center"
-                    android:fontFamily="@font/ibm_plex_sans_regular"
-                    android:contentDescription="black's second latest move"/>
-
-                <TextView
-                    android:id="@+id/move1"
-                    android:layout_width="50sp"
-                    android:layout_height="50sp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="40sp"
-                    android:layout_marginTop="30sp"
-                    android:layout_marginEnd="300sp"
-                    android:layout_marginBottom="80sp"
-                    android:textSize="15sp"
-                    android:textColor="#FFFFFF"
-                    android:gravity="center"
-                    android:fontFamily="@font/ibm_plex_sans_bold"
-                    android:contentDescription="white's latest move"/>
-
-                <TextView
-                    android:id="@+id/move2"
-                    android:layout_width="50sp"
-                    android:layout_height="50sp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="140sp"
-                    android:layout_marginTop="30sp"
-                    android:layout_marginEnd="200sp"
-                    android:layout_marginBottom="80sp"
-                    android:textSize="15sp"
-                    android:textColor="#FFFFFF"
-                    android:gravity="center"
-                    android:fontFamily="@font/ibm_plex_sans_bold"
-                    android:contentDescription="black's latest move"/>
-
-                <TextView
-                    android:layout_width="50sp"
-                    android:layout_height="50sp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="140sp"
-                    android:layout_marginTop="10sp"
-                    android:layout_marginEnd="200sp"
-                    android:layout_marginBottom="100sp"
-                    android:textSize="15sp"
-                    android:textColor="#FFFFFF"
-                    android:gravity="center"
-                    android:fontFamily="@font/ibm_plex_sans_bold"
-                    android:text="Black"/>
-
-                <TextView
-                    android:layout_width="50sp"
-                    android:layout_height="50sp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginStart="40sp"
-                    android:layout_marginTop="10sp"
-                    android:layout_marginEnd="300sp"
-                    android:layout_marginBottom="100sp"
-                    android:textSize="15sp"
-                    android:textColor="#FFFFFF"
-                    android:gravity="center"
-                    android:fontFamily="@font/ibm_plex_sans_bold"
-                    android:text="White"/>
-
+                <!-- Previous Move Side -->
                 <LinearLayout
-                    android:id="@+id/voiceCommandBtn"
                     android:layout_width="match_parent"
-                    android:layout_height="293dp"
-                    android:orientation="horizontal" />
-            </RelativeLayout>
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center">
+                    <GridLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:columnCount="2"
+                        android:rowCount="4"
+                        android:useDefaultMargins="true">
+                        <TextView
+                            android:layout_width="50dp"
+                            android:layout_height="wrap_content"
+                            android:textSize="15sp"
+                            android:textColor="#FFFFFF"
+                            android:gravity="center"
+                            android:fontFamily="@font/ibm_plex_sans_bold"
+                            android:text="White"
+                            android:contentDescription="white's moves" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+                        <TextView
+                            android:layout_width="50dp"
+                            android:layout_height="wrap_content"
+                            android:textSize="15sp"
+                            android:textColor="#FFFFFF"
+                            android:gravity="center"
+                            android:fontFamily="@font/ibm_plex_sans_bold"
+                            android:text="Black"
+                            android:contentDescription="black's moves"/>
+
+                        <TextView
+                            android:id="@+id/move1"
+                            android:layout_width="50sp"
+                            android:layout_height="wrap_content"
+                            android:textSize="15sp"
+                            android:textColor="#FFFFFF"
+                            android:gravity="center"
+                            android:fontFamily="@font/ibm_plex_sans_regular"
+                            android:contentDescription="white's latest move"/>
+
+                        <TextView
+                            android:id="@+id/move2"
+                            android:layout_width="50sp"
+                            android:layout_height="wrap_content"
+                            android:textSize="15sp"
+                            android:textColor="#FFFFFF"
+                            android:gravity="center"
+                            android:fontFamily="@font/ibm_plex_sans_regular"
+                            android:contentDescription="black's latest move"/>
+
+                        <TextView
+                            android:id="@+id/move3"
+                            android:layout_width="50sp"
+                            android:layout_height="wrap_content"
+                            android:textSize="15sp"
+                            android:textColor="#FFFFFF"
+                            android:gravity="center"
+                            android:fontFamily="@font/ibm_plex_sans_regular"
+                            android:contentDescription="white's second latest move"/>
+
+                        <TextView
+                            android:id="@+id/move4"
+                            android:layout_width="50sp"
+                            android:layout_height="wrap_content"
+                            android:textSize="15sp"
+                            android:textColor="#FFFFFF"
+                            android:gravity="center"
+                            android:fontFamily="@font/ibm_plex_sans_regular"
+                            android:contentDescription="white's third latest move"/>
+
+                        <TextView
+                            android:id="@+id/move5"
+                            android:layout_width="50sp"
+                            android:layout_height="wrap_content"
+                            android:textSize="15sp"
+                            android:textColor="#FFFFFF"
+                            android:gravity="center"
+                            android:fontFamily="@font/ibm_plex_sans_regular"
+                            android:contentDescription="black's second latest move"/>
+
+                        <TextView
+                            android:id="@+id/move6"
+                            android:layout_width="50sp"
+                            android:layout_height="wrap_content"
+                            android:textSize="15sp"
+                            android:textColor="#FFFFFF"
+                            android:gravity="center"
+                            android:fontFamily="@font/ibm_plex_sans_regular"
+                            android:contentDescription="black's third latest move"/>
+                    </GridLayout>
+                </LinearLayout>
+
+                <!-- Timer Side -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+                    <TextView
+                        android:id="@+id/timeLeft"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="Time Elapsed:"
+                        android:fontFamily="@font/ibm_plex_sans_regular"
+                        android:textColor="#FFFFFF" />
+
+                    <Chronometer
+                        android:id="@+id/timer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:fontFamily="@font/ibm_plex_sans_bold"
+                        android:textSize="25sp"
+                        android:textColor="#FFFFFF"/>
+
+                    <ImageButton
+                        android:id="@+id/settings"
+                        android:layout_height="35dp"
+                        android:layout_width="35dp"
+                        android:layout_marginTop="10dp"
+                        android:onClick="flipView"
+                        android:background="@drawable/settings"
+                        android:contentDescription="settings button"/>
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <!--View Flipper Options-->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@color/bg_main"
-                android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
+                android:gravity="center"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center">
+                    <ImageButton
+                        android:id="@+id/ar"
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:onClick="NavigateToAR"
+                        android:background="@drawable/ar"
+                        android:contentDescription="go to AR mode"
+                        android:layout_margin="10dp"/>
 
+                    <ImageButton
+                        android:id="@+id/sound"
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:onClick="toggleTTS"
+                        android:background="@drawable/sound_off"
+                        android:contentDescription="mute or unmute"
+                        android:layout_margin="10dp"/>
+
+                    <ImageButton
+                        android:id="@+id/hideShowBoard"
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:background="@drawable/hidden"
+                        android:contentDescription="show or hide board"
+                        android:layout_margin="10dp"/>
+                </LinearLayout>
                 <ImageButton
-                    android:id="@+id/hideShowBoard"
-                    android:layout_width="70dp"
-                    android:layout_height="70dp"
-                    android:layout_weight="1"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintRight_toLeftOf="@id/sound"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:background="@drawable/hidden"
-                    android:contentDescription="show or hide board"/>
-
-                <ImageButton
-                    android:id="@+id/sound"
-                    android:layout_width="70dp"
-                    android:layout_height="70dp"
-                    android:layout_weight="1"
-                    android:onClick="toggleTTS"
-                    app:layout_constraintLeft_toRightOf="@id/hideShowBoard"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintRight_toLeftOf="@id/ar"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:background="@drawable/sound_off"
-                    android:contentDescription="mute or unmute"/>
-
-                <ImageButton
-                    android:id="@+id/ar"
-                    android:layout_width="70dp"
-                    android:layout_height="70dp"
-                    android:layout_weight="1"
-                    android:onClick="NavigateToAR"
-                    app:layout_constraintLeft_toRightOf="@id/sound"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:background="@drawable/ar"
-                    android:contentDescription="go to AR mode"/>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                    android:id="@+id/settingsclose"
+                    android:layout_height="30dp"
+                    android:layout_width="30dp"
+                    android:onClick="flipView"
+                    android:background="@drawable/settings"
+                    android:contentDescription="settings button"
+                    android:layout_margin="10dp"/>
+            </LinearLayout>
         </ViewFlipper>
-        <ImageButton
-            android:id="@+id/settings"
-            android:layout_height="40sp"
-            android:layout_width="40sp"
-            android:layout_weight="1"
-            android:onClick="flipView"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/viewFlipper"
-            android:background="@drawable/settings"
-            android:contentDescription="settings"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
 </LinearLayout>
