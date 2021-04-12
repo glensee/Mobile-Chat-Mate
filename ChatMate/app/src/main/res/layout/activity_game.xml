@@ -17,6 +17,7 @@
         android:background="@color/bg_main"
         android:orientation="vertical"
         android:rotation="180"
+        android:clickable="true"
         >
         <TextView
             android:id="@+id/voiceResultTextFieldBlack"
@@ -316,7 +317,7 @@
         android:layout_weight="1"
         android:background="@color/bg_main"
         android:orientation="vertical"
-        >
+        android:clickable="true">
         <TextView
             android:id="@+id/voiceResultTextField"
             android:layout_width="match_parent"

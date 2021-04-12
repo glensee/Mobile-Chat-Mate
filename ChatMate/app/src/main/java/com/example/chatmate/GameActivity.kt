@@ -163,7 +163,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         override fun onTouch(v: View?, event: MotionEvent?): Boolean {
             when (event?.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    if (gameBinding.voiceCommandBtn.isClickable == true) {
+                    if (gameBinding.voiceCommandBtn.isClickable == true || gameBinding.voiceCommandBtnBlack.isClickable == true) {
                         gameBinding.voiceResultTextField.text = ""
                         gameBinding.voiceResultTextFieldBlack.text = ""
                     }
