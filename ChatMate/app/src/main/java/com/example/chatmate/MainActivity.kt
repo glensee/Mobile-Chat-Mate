@@ -33,8 +33,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        db = Firebase.firestore
-
         binding.name.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
                 //Perform Code
@@ -77,22 +75,6 @@ class MainActivity : AppCompatActivity() {
                     // if user has been created in shared pref before
                     existingUUID
                 }
-                // Create online player in firebase
-                val player = hashMapOf(
-                    "name" to currentUser,
-                    "id" to currentUUID
-                )
-
-                // Add a new document with a generated ID
-                db.collection("players")
-                    .document(currentUUID)
-                    .set(player)
-                    .addOnSuccessListener { documentReference ->
-                        Log.d("cliffen", "Document added!")
-                    }
-                    .addOnFailureListener { e ->
-                        Log.d("cliffen", "Error adding document", e)
-                    }
 
                 mp.start()
                 val it = Intent(this, LandingActivity::class.java)
