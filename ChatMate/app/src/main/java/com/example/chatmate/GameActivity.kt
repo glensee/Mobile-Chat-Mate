@@ -787,13 +787,18 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                             board.loadFromFen(onlineBoardState)
                             renderBoardState()
                             afterMoveHandler()
-                            if (board.sideToMove == localPlayerColor) {
-                                gameBinding.onlineGameTurnText.text = "Your (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
-                            } else {
-                                gameBinding.onlineGameTurnText.text = "${onlinePlayerName}'s (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
-                            }
+                            Log.i("cliffen", board.sideToMove.toString())
+                            Log.i("cliffen", localPlayerColor.toString())
+
                             currentLegalMoves.clear()
                             currentLegalMoves.addAll(board.legalMoves())
+                        }
+
+                        if (board.sideToMove == localPlayerColor) {
+                            gameBinding.onlineGameTurnText.text = "Your (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
+                        } else {
+                            Log.i("cliffen", "change header to opponent")
+                            gameBinding.onlineGameTurnText.text = "${onlinePlayerName}'s (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
                         }
 
                         // save match history if mated
@@ -833,6 +838,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     gameBinding.onlineGameTitle.text = "Currently playing with $onlinePlayerName"
                     gameBinding.onlineGameTurnText.text = "${onlinePlayerName}'s (${board.sideToMove.toString().toLowerCase(Locale.ENGLISH).capitalize(Locale.ENGLISH)}) Turn"
                 }
+
             }
         }
 
