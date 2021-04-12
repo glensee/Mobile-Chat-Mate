@@ -456,7 +456,7 @@ class GameActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             board.doMove(newMove)
             val squareSelectedIdx = newMove.from
             val squareIdx = newMove.to
-            if (ttsToggle) tts!!.speak("$squareSelectedIdx to $squareIdx", TextToSpeech.QUEUE_FLUSH, null,"")
+            if (ttsToggle) tts!!.speak("$squareSelectedIdx to $squareIdx, promoted to ${piece.toString()}", TextToSpeech.QUEUE_FLUSH, null,"")
             // Save board state to boardHistoryLocal array if game is offline
             renderBoardState()
             tileSelectedIndex = -1
