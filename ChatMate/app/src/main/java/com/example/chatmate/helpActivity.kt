@@ -9,6 +9,8 @@ class helpActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_help)
+        this.supportActionBar!!.hide()
+
     }
     fun flipView(view: View) {
         val flipper = findViewById<ViewFlipper>(R.id.viewFlipperHelp)
