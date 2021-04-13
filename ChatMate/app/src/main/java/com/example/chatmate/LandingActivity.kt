@@ -74,13 +74,14 @@ class LandingActivity : AppCompatActivity() {
                     if (name == winner) {
                         gamesWon ++
                     }
+
+                    gamesTotal ++
                 }
 
-                gamesTotal ++
             }
 
             var winRate = 0
-            if (gamesTotal !== 0f && gamesWon !== 0f) {
+            if (gamesTotal !== 0f || gamesWon !== 0f) {
                 winRate = round(gamesWon/gamesTotal*100)
             }
             binding.winRate.text = "$winRate%"
